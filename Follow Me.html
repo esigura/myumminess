@@ -133,11 +133,13 @@
   .plat-tiktok::after{content:"";position:absolute;right:-60px;top:-60px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,#25F4EE 0%,transparent 60%);opacity:.35;filter:blur(4px)}
   .plat-tiktok::before{content:"";position:absolute;left:-60px;bottom:-60px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,#FE2C55 0%,transparent 60%);opacity:.4;filter:blur(4px)}
   .plat-ig{background:linear-gradient(135deg,#FFF4EC 0%,#FCE4EC 50%,#F3E5F5 100%);color:var(--ink);box-shadow:0 30px 70px -30px rgba(225,48,108,.3)}
-  .plat-fb{background:linear-gradient(135deg,#E8F0FE 0%,#DBEAFE 50%,#EFF6FF 100%);color:var(--ink);box-shadow:0 30px 70px -30px rgba(24,119,242,.25)}
+  .plat-fb{background:#0d1b2e;color:#fff;box-shadow:0 30px 70px -30px rgba(0,0,0,.5)}
+  .plat-fb::after{content:"";position:absolute;right:-60px;top:-60px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,#1877F2 0%,transparent 60%);opacity:.4;filter:blur(4px)}
+  .plat-fb::before{content:"";position:absolute;left:-60px;bottom:-60px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,#74B9FF 0%,transparent 60%);opacity:.35;filter:blur(4px)}
   .plat-head{display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:1}
   .plat-logo{width:54px;height:54px;border-radius:16px;display:grid;place-items:center;background:rgba(255,255,255,.1)}
   .plat-ig .plat-logo{background:linear-gradient(135deg,#F56040,#E1306C 50%,#833AB4);color:#fff}
-  .plat-fb .plat-logo{background:#1877F2;color:#fff}
+  .plat-fb .plat-logo{background:rgba(255,255,255,.1);color:#fff}
   .plat-count{font-family:var(--serif);font-size:38px;letter-spacing:-.01em;line-height:1;font-weight:500}
   .plat-count .l{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:currentColor;opacity:.7;margin-top:6px;font-weight:400}
   .plat-title{font-family:var(--serif);font-size:36px;letter-spacing:-.015em;line-height:1.05;margin:12px 0 6px;font-weight:500;position:relative;z-index:1}
@@ -146,7 +148,11 @@
   .plat-list li{display:flex;gap:12px;align-items:center;font-size:14.5px;line-height:1.4}
   .plat-list li .i{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;flex-shrink:0;background:rgba(255,255,255,.1)}
   .plat-ig .plat-list li .i{background:#fff;color:#E1306C;box-shadow:0 2px 6px rgba(225,48,108,.15)}
-  .plat-fb .plat-list li .i{background:#fff;color:#1877F2;box-shadow:0 2px 6px rgba(24,119,242,.15)}
+  .plat-fb .plat-list li .i{background:rgba(255,255,255,.1);color:#fff}
+  .plat-fb .btn-fb{background:#fff;color:#1877F2}
+  .plat-fb .btn-fb:hover{background:#f0f0f0}
+  .plat-fb .btn-ghost{border-color:rgba(255,255,255,.3);color:#fff}
+  .plat-fb .btn-ghost:hover{background:rgba(255,255,255,.1)}
   .plat-foot{margin-top:auto;display:flex;gap:10px;padding-top:18px;position:relative;z-index:1}
   .plat-foot .btn{flex:1}
   .plat-tiktok .btn-ink{background:#fff;color:#111}
@@ -481,9 +487,9 @@ function PlatformSplit({priority, page}){
               <h3 className="plat-title">{page.fbHeadline}</h3>
             </div>
             <ul className="plat-list">
-              <li><div className="i"><Icon name="leaf" size={15}/></div>{page.fbBullet1}</li>
-              <li><div className="i"><Icon name="book" size={15}/></div>{page.fbBullet2}</li>
-              <li><div className="i"><Icon name="heart" size={15}/></div>{page.fbBullet3}</li>
+              <li><div className="i" style={{background:"rgba(24,119,242,.35)",color:"#74B9FF"}}><Icon name="leaf" size={15}/></div>{page.fbBullet1}</li>
+              <li><div className="i" style={{background:"rgba(116,185,255,.2)",color:"#74B9FF"}}><Icon name="book" size={15}/></div>{page.fbBullet2}</li>
+              <li><div className="i" style={{background:"rgba(255,255,255,.1)",color:"#fff"}}><Icon name="heart" size={15}/></div>{page.fbBullet3}</li>
             </ul>
             <div className="plat-foot">
               <a className="btn btn-fb" href={page.fbHref||"#"} style={{flex:1}}><Icon name="fb" size={16}/> {page.fbCTA}</a>
