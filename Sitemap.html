@@ -1,0 +1,535 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>Sitemap — Myumminess</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1A1A1A;--muted:#7A7A7A;--line:#E6E4DE;--paper:#fff;
+    --surface:#FAF8F4;--surface-2:#F3EFE7;
+    --matcha:#6DBE7B;--matcha-deep:#4E9A5E;
+    --peach:#FF9B7A;--peach-deep:#E87A56;
+    --serif:'Playfair Display',Georgia,serif;
+    --sans:'Inter','Helvetica Neue',Helvetica,Arial,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;min-width:1440px}
+  a{color:inherit;text-decoration:none}
+
+  /* Header */
+  .site-header{position:sticky;top:0;z-index:50;height:72px;background:rgba(255,255,255,.95);backdrop-filter:saturate(1.8) blur(12px);border-bottom:1px solid var(--line)}
+  .nav{display:flex;align-items:center;height:72px;max-width:1280px;margin:0 auto;padding:0 40px}
+  .nav-links{display:flex;gap:28px;margin-left:48px}
+  .nav-links a{font-size:13px;letter-spacing:.12em;text-transform:uppercase;font-weight:500;position:relative;padding:6px 0;color:var(--ink)}
+  .nav-links a .u{position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--ink);transform:scaleX(0);transform-origin:left;transition:transform .3s ease}
+  .nav-links a:hover .u,.nav-links a.active .u{transform:scaleX(1)}
+  .nav-right{margin-left:auto;display:flex;gap:10px;align-items:center}
+  .icon-btn{width:38px;height:38px;border-radius:999px;display:grid;place-items:center;transition:background .2s}
+  .icon-btn:hover{background:var(--surface-2)}
+
+  /* Page hero */
+  .hero{padding:72px 0 56px;background:var(--surface);border-bottom:1px solid var(--line)}
+  .wrap{max-width:1280px;margin:0 auto;padding:0 40px}
+  .hero-eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+  .hero-eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--matcha);flex-shrink:0}
+  .hero h1{font-family:var(--serif);font-size:48px;font-weight:400;line-height:1.15;margin:0 0 16px;letter-spacing:-.02em}
+  .hero h1 em{font-style:italic;color:var(--matcha-deep)}
+  .hero p{font-size:15px;line-height:1.7;color:var(--muted);margin:0;max-width:560px}
+
+  /* Visual tree */
+  .tree-section{padding:64px 0}
+  .tree-label{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:40px;display:flex;align-items:center;gap:10px}
+  .tree-label::after{content:"";flex:1;height:1px;background:var(--line)}
+
+  /* Root node */
+  .tree{display:flex;flex-direction:column;align-items:center;gap:0}
+  .root-node{background:var(--ink);color:#fff;border-radius:16px;padding:20px 40px;display:inline-flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;transition:background .2s}
+  .root-node:hover{background:#333}
+  .root-node .label{font-family:var(--mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:2px}
+  .root-node .name{font-family:var(--serif);font-size:20px;font-weight:400}
+  .root-node .desc{font-size:11px;color:rgba(255,255,255,.45);margin-top:2px}
+
+  /* Connector line from root down */
+  .v-line{width:2px;height:48px;background:var(--line);margin:0 auto}
+
+  /* Branch row */
+  .branch-row{display:flex;gap:0;align-items:flex-start;position:relative;width:100%}
+  /* horizontal bar across all branches */
+  .h-bar{position:absolute;top:0;left:0;right:0;height:2px;background:var(--line);z-index:0}
+  .branch{display:flex;flex-direction:column;align-items:center;flex:1;position:relative;z-index:1}
+  .branch-vline{width:2px;height:40px;background:var(--line)}
+
+  /* Page node */
+  .page-node{border:2px solid var(--line);border-radius:14px;padding:18px 20px;width:170px;cursor:pointer;transition:border-color .25s,box-shadow .25s,transform .2s;background:#fff;text-align:center}
+  .page-node:hover{border-color:var(--matcha);box-shadow:0 4px 24px rgba(109,190,123,.18);transform:translateY(-3px)}
+  .page-node.content{border-color:#d4edda}
+  .page-node.content:hover{border-color:var(--matcha)}
+  .page-node.commerce{border-color:#fde5db}
+  .page-node.commerce:hover{border-color:var(--peach-deep)}
+  .page-node.utility{border-color:var(--line)}
+  .page-node .pn-icon{font-size:20px;margin-bottom:8px}
+  .page-node .pn-name{font-family:var(--serif);font-size:15px;font-weight:500;margin-bottom:4px}
+  .page-node .pn-desc{font-size:11px;color:var(--muted);line-height:1.5}
+  .page-node .pn-link{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:var(--matcha-deep);margin-top:10px;opacity:0;transition:opacity .2s}
+  .page-node:hover .pn-link{opacity:1}
+
+  /* Sub-nodes */
+  .sub-nodes{margin-top:24px;display:flex;flex-direction:column;align-items:center;gap:0}
+  .sub-vline{width:2px;height:28px;background:var(--line)}
+  .sub-node{border:1px solid var(--line);border-radius:10px;padding:12px 16px;width:150px;cursor:pointer;transition:border-color .2s,transform .2s;background:var(--surface);text-align:center}
+  .sub-node:hover{border-color:var(--matcha-deep);transform:translateY(-2px)}
+  .sub-node .sn-name{font-size:12px;font-weight:600;margin-bottom:2px}
+  .sub-node .sn-desc{font-size:10.5px;color:var(--muted)}
+  .sub-node .sn-link{font-size:10px;font-weight:600;color:var(--muted);margin-top:6px;display:block}
+  .sub-node:hover .sn-link{color:var(--matcha-deep)}
+
+  /* Cross-link arrows */
+  .crosslinks{padding:48px 0;background:var(--surface);border-top:1px solid var(--line)}
+  .crosslinks-label{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:32px;display:flex;align-items:center;gap:10px}
+  .crosslinks-label::after{content:"";flex:1;height:1px;background:var(--line)}
+  .cl-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+  .cl-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px 24px}
+  .cl-from{font-family:var(--mono);font-size:9.5px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  .cl-arrow{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .cl-arrow .page{font-size:14px;font-weight:600}
+  .cl-arrow .arr{font-size:18px;color:var(--matcha);flex-shrink:0}
+  .cl-reason{font-size:12px;color:var(--muted);line-height:1.6}
+
+  /* Page directory */
+  .directory{padding:56px 0 80px}
+  .dir-label{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:32px;display:flex;align-items:center;gap:10px}
+  .dir-label::after{content:"";flex:1;height:1px;background:var(--line)}
+  .dir-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+  .dir-card{border:1px solid var(--line);border-radius:16px;overflow:hidden;transition:box-shadow .2s}
+  .dir-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.07)}
+  .dir-top{padding:24px;border-bottom:1px solid var(--line)}
+  .dir-type{font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;padding:4px 10px;border-radius:999px;display:inline-block;margin-bottom:12px;font-weight:500}
+  .dir-type.content{background:#e8f5ec;color:var(--matcha-deep)}
+  .dir-type.commerce{background:#fff0eb;color:var(--peach-deep)}
+  .dir-type.utility{background:var(--surface-2);color:var(--muted)}
+  .dir-type.booking{background:#ede8f5;color:#6b5ea8}
+  .dir-name{font-family:var(--serif);font-size:20px;font-weight:400;margin:0 0 6px}
+  .dir-desc{font-size:12.5px;color:var(--muted);line-height:1.6;margin:0}
+  .dir-bottom{padding:16px 24px;display:flex;align-items:center;justify-content:space-between}
+  .dir-file{font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.05em}
+  .dir-go{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--matcha-deep)}
+
+  /* Legend */
+  .legend{display:flex;gap:24px;margin-bottom:40px;flex-wrap:wrap}
+  .leg{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted)}
+  .leg-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+
+  /* Footer */
+  footer{background:var(--surface);border-top:1px solid var(--line);padding:32px 0}
+  .foot-inner{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header class="site-header">
+  <div class="nav">
+    <a href="Myumminess.html" style="display:inline-flex;align-items:center;line-height:0">
+      <img src="assets/logo-black.png" alt="Myumminess" style="height:22px;width:auto"/>
+    </a>
+    <nav class="nav-links">
+      <a href="Myumminess.html">Home<span class="u"></span></a>
+      <a href="Recipes.html">Recipes<span class="u"></span></a>
+      <a href="Blog.html">Blog<span class="u"></span></a>
+      <a href="Shop.html">Shop<span class="u"></span></a>
+      <a href="About Me.html">About<span class="u"></span></a>
+      <a href="Contact.html">Work With Me<span class="u"></span></a>
+      <a href="Follow Me.html">Follow<span class="u"></span></a>
+    </nav>
+    <div class="nav-right">
+      <a class="icon-btn" href="https://instagram.com" target="_blank" rel="noopener" aria-label="Instagram">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r=".5" fill="currentColor" stroke="none"/></svg>
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="wrap">
+    <div class="hero-eyebrow"><span class="dot"></span>Site architecture</div>
+    <h1>Every page, <em>connected.</em></h1>
+    <p>A full map of the Myumminess site — how pages relate, where links lead, and how each section supports the others. Click any node to navigate directly.</p>
+  </div>
+</section>
+
+<!-- Visual tree -->
+<section class="tree-section">
+  <div class="wrap">
+    <div class="tree-label">Visual site structure</div>
+
+    <!-- Legend -->
+    <div class="legend">
+      <div class="leg"><div class="leg-dot" style="background:#d4edda;border:1px solid #a8d5b5"></div>Content pages</div>
+      <div class="leg"><div class="leg-dot" style="background:#fde5db;border:1px solid #f5c4b2"></div>Commerce pages</div>
+      <div class="leg"><div class="leg-dot" style="background:var(--surface-2);border:1px solid var(--line)"></div>Utility / support pages</div>
+      <div class="leg"><div class="leg-dot" style="background:#ede8f5;border:1px solid #c8bcdf"></div>Booking / sessions</div>
+    </div>
+
+    <!-- Root -->
+    <div class="tree">
+      <a href="Myumminess.html" class="root-node">
+        <div class="label">Root</div>
+        <div class="name">Home</div>
+        <div class="desc">Myumminess.html</div>
+      </a>
+      <div class="v-line"></div>
+
+      <!-- Branch row -->
+      <div class="branch-row" style="position:relative">
+        <div class="h-bar"></div>
+
+        <!-- Recipes -->
+        <div class="branch">
+          <div class="branch-vline"></div>
+          <a href="Recipes.html" class="page-node content">
+            <div class="pn-icon">🥗</div>
+            <div class="pn-name">Recipes</div>
+            <div class="pn-desc">Recipe index with inline detail & affiliate blocks</div>
+            <div class="pn-link">Open →</div>
+          </a>
+          <div class="sub-nodes">
+            <div class="sub-vline"></div>
+            <div class="sub-node">
+              <div class="sn-name">Detail panels</div>
+              <div class="sn-desc">Inline expand per recipe</div>
+              <span class="sn-link">Inline component</span>
+            </div>
+            <div class="sub-vline"></div>
+            <a href="Shop.html" class="sub-node" style="border-color:#fde5db">
+              <div class="sn-name">→ Shop</div>
+              <div class="sn-desc">Affiliate product links</div>
+              <span class="sn-link">Shopee affiliate →</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Blog -->
+        <div class="branch">
+          <div class="branch-vline"></div>
+          <a href="Blog.html" class="page-node content">
+            <div class="pn-icon">✍️</div>
+            <div class="pn-name">Blog</div>
+            <div class="pn-desc">Long-form posts on recipes, wellness & lifestyle</div>
+            <div class="pn-link">Open →</div>
+          </a>
+          <div class="sub-nodes">
+            <div class="sub-vline"></div>
+            <a href="Recipes.html" class="sub-node" style="border-color:#d4edda">
+              <div class="sn-name">→ Recipes</div>
+              <div class="sn-desc">Recipe post cross-links</div>
+              <span class="sn-link">Internal link →</span>
+            </a>
+            <div class="sub-vline"></div>
+            <a href="Shop.html" class="sub-node" style="border-color:#fde5db">
+              <div class="sn-name">→ Shop</div>
+              <div class="sn-desc">Product recommendation posts</div>
+              <span class="sn-link">Internal link →</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Shop -->
+        <div class="branch">
+          <div class="branch-vline"></div>
+          <a href="Shop.html" class="page-node commerce">
+            <div class="pn-icon">🛒</div>
+            <div class="pn-name">Shop</div>
+            <div class="pn-desc">16 curated products with Shopee affiliate links</div>
+            <div class="pn-link">Open →</div>
+          </a>
+          <div class="sub-nodes">
+            <div class="sub-vline"></div>
+            <div class="sub-node">
+              <div class="sn-name">Kitchen Tools</div>
+              <div class="sn-desc">4 products</div>
+              <span class="sn-link">Shopee VN →</span>
+            </div>
+            <div class="sub-vline"></div>
+            <div class="sub-node">
+              <div class="sn-name">Healthy Snacks</div>
+              <div class="sn-desc">4 products — 3 live links</div>
+              <span class="sn-link">Shopee VN →</span>
+            </div>
+            <div class="sub-vline"></div>
+            <div class="sub-node">
+              <div class="sn-name">Daily Essentials</div>
+              <div class="sn-desc">4 products — 2 live links</div>
+              <span class="sn-link">Shopee VN →</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- About -->
+        <div class="branch">
+          <div class="branch-vline"></div>
+          <a href="About Me.html" class="page-node content">
+            <div class="pn-icon">👤</div>
+            <div class="pn-name">About</div>
+            <div class="pn-desc">Story, philosophy, sticky section sub-nav</div>
+            <div class="pn-link">Open →</div>
+          </a>
+          <div class="sub-nodes">
+            <div class="sub-vline"></div>
+            <a href="Booking.html" class="sub-node" style="border-color:#c8bcdf">
+              <div class="sn-name">→ Booking</div>
+              <div class="sn-desc">Book a 1:1 coaching session</div>
+              <span class="sn-link">Standalone page →</span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Work With Me -->
+        <div class="branch">
+          <div class="branch-vline"></div>
+          <a href="Contact.html" class="page-node utility">
+            <div class="pn-icon">🤝</div>
+            <div class="pn-name">Work With Me</div>
+            <div class="pn-desc">Brand collab, media kit, workshop inquiries</div>
+            <div class="pn-link">Open →</div>
+          </a>
+        </div>
+
+        <!-- Follow -->
+        <div class="branch">
+          <div class="branch-vline"></div>
+          <a href="Follow Me.html" class="page-node utility">
+            <div class="pn-icon">📱</div>
+            <div class="pn-name">Follow</div>
+            <div class="pn-desc">TikTok & Instagram growth hub</div>
+            <div class="pn-link">Open →</div>
+          </a>
+        </div>
+
+      </div><!-- end branch-row -->
+    </div><!-- end tree -->
+  </div>
+</section>
+
+<!-- Cross-page links -->
+<section class="crosslinks">
+  <div class="wrap">
+    <div class="crosslinks-label">Internal link connections</div>
+    <div class="cl-grid">
+      <div class="cl-card">
+        <div class="cl-from">From</div>
+        <div class="cl-arrow">
+          <span class="page">Recipes</span>
+          <span class="arr">→</span>
+          <span class="page">Shop</span>
+        </div>
+        <p class="cl-reason">Every recipe detail panel includes a "What I use for this" affiliate block linking directly to Shopee products.</p>
+      </div>
+      <div class="cl-card">
+        <div class="cl-from">From</div>
+        <div class="cl-arrow">
+          <span class="page">About</span>
+          <span class="arr">→</span>
+          <span class="page">Booking</span>
+        </div>
+        <p class="cl-reason">The BookCTA section at the bottom of About links to the standalone 1:1 coaching booking calendar page.</p>
+      </div>
+      <div class="cl-card">
+        <div class="cl-from">From</div>
+        <div class="cl-arrow">
+          <span class="page">Blog</span>
+          <span class="arr">→</span>
+          <span class="page">Recipes</span>
+        </div>
+        <p class="cl-reason">Recipe-category blog posts include a direct "See the full recipe" link to the Recipes page detail panel.</p>
+      </div>
+      <div class="cl-card">
+        <div class="cl-from">From</div>
+        <div class="cl-arrow">
+          <span class="page">Blog</span>
+          <span class="arr">→</span>
+          <span class="page">Shop</span>
+        </div>
+        <p class="cl-reason">Nutrition and wellness posts that mention specific products link to the relevant section of the Shop page.</p>
+      </div>
+      <div class="cl-card">
+        <div class="cl-from">From</div>
+        <div class="cl-arrow">
+          <span class="page">Home</span>
+          <span class="arr">→</span>
+          <span class="page">All pages</span>
+        </div>
+        <p class="cl-reason">The homepage hero, recipe grid, and shop grid all link out to their respective standalone pages for deep exploration.</p>
+      </div>
+      <div class="cl-card">
+        <div class="cl-from">From</div>
+        <div class="cl-arrow">
+          <span class="page">Follow</span>
+          <span class="arr">→</span>
+          <span class="page">TikTok / IG</span>
+        </div>
+        <p class="cl-reason">The Follow page links out to both TikTok and Instagram profiles, driving external social platform growth.</p>
+      </div>
+      <div class="cl-card">
+        <div class="cl-from">From</div>
+        <div class="cl-arrow">
+          <span class="page">Shop</span>
+          <span class="arr">→</span>
+          <span class="page">Shopee VN</span>
+        </div>
+        <p class="cl-reason">Every product "View on Shopee" button opens the affiliate link in a new tab — the primary affiliate revenue path.</p>
+      </div>
+      <div class="cl-card">
+        <div class="cl-from">From</div>
+        <div class="cl-arrow">
+          <span class="page">Blog ✍️</span>
+          <span class="arr">→</span>
+          <span class="page">About</span>
+        </div>
+        <p class="cl-reason">Personal story posts (like "How I Started") link to the full About Me page for deeper context on the creator's journey.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Page directory -->
+<section class="directory">
+  <div class="wrap">
+    <div class="dir-label">Full page directory</div>
+    <div class="dir-grid">
+
+      <div class="dir-card">
+        <div class="dir-top">
+          <div class="dir-type content">Content</div>
+          <div class="dir-name">Home</div>
+          <p class="dir-desc">Hero, recipe grid, shop grid, about section, TikTok reels strip, newsletter. The entry point for all traffic.</p>
+        </div>
+        <div class="dir-bottom">
+          <span class="dir-file">Myumminess.html</span>
+          <a href="Myumminess.html" class="dir-go">Visit →</a>
+        </div>
+      </div>
+
+      <div class="dir-card">
+        <div class="dir-top">
+          <div class="dir-type content">Content</div>
+          <div class="dir-name">Recipes</div>
+          <p class="dir-desc">128-recipe index with category filter, inline detail panels, and Shopee affiliate blocks per recipe.</p>
+        </div>
+        <div class="dir-bottom">
+          <span class="dir-file">Recipes.html</span>
+          <a href="Recipes.html" class="dir-go">Visit →</a>
+        </div>
+      </div>
+
+      <div class="dir-card">
+        <div class="dir-top">
+          <div class="dir-type content">Content</div>
+          <div class="dir-name">Blog</div>
+          <p class="dir-desc">Long-form posts on recipes, health & wellness, nutrition, and lifestyle. Category-filtered article grid.</p>
+        </div>
+        <div class="dir-bottom">
+          <span class="dir-file">Blog.html</span>
+          <a href="Blog.html" class="dir-go">Visit →</a>
+        </div>
+      </div>
+
+      <div class="dir-card">
+        <div class="dir-top">
+          <div class="dir-type commerce">Commerce</div>
+          <div class="dir-name">Shop</div>
+          <p class="dir-desc">16 curated products across 4 categories. Shopee Vietnam affiliate links. 5 live links, 11 placeholders remaining.</p>
+        </div>
+        <div class="dir-bottom">
+          <span class="dir-file">Shop.html</span>
+          <a href="Shop.html" class="dir-go">Visit →</a>
+        </div>
+      </div>
+
+      <div class="dir-card">
+        <div class="dir-top">
+          <div class="dir-type content">Content</div>
+          <div class="dir-name">About Me</div>
+          <p class="dir-desc">Creator story with sticky section sub-nav. IntersectionObserver highlights active section as you scroll.</p>
+        </div>
+        <div class="dir-bottom">
+          <span class="dir-file">About Me.html</span>
+          <a href="About Me.html" class="dir-go">Visit →</a>
+        </div>
+      </div>
+
+      <div class="dir-card">
+        <div class="dir-top">
+          <div class="dir-type booking">Booking</div>
+          <div class="dir-name">Booking</div>
+          <p class="dir-desc">Standalone 1:1 coaching session booking with 3-step flow: calendar → details → confirmed. Linked from About.</p>
+        </div>
+        <div class="dir-bottom">
+          <span class="dir-file">Booking.html</span>
+          <a href="Booking.html" class="dir-go">Visit →</a>
+        </div>
+      </div>
+
+      <div class="dir-card">
+        <div class="dir-top">
+          <div class="dir-type utility">Utility</div>
+          <div class="dir-name">Work With Me</div>
+          <p class="dir-desc">Three brand inquiry paths: Media Kit, Brand Workshop, Custom Collab — with segmented modal form.</p>
+        </div>
+        <div class="dir-bottom">
+          <span class="dir-file">Contact.html</span>
+          <a href="Contact.html" class="dir-go">Visit →</a>
+        </div>
+      </div>
+
+      <div class="dir-card">
+        <div class="dir-top">
+          <div class="dir-type utility">Utility</div>
+          <div class="dir-name">Follow</div>
+          <p class="dir-desc">TikTok + Instagram growth hub. Platform split cards, reel preview strip, referral priority tweaks panel.</p>
+        </div>
+        <div class="dir-bottom">
+          <span class="dir-file">Follow Me.html</span>
+          <a href="Follow Me.html" class="dir-go">Visit →</a>
+        </div>
+      </div>
+
+      <div class="dir-card">
+        <div class="dir-top">
+          <div class="dir-type utility">Utility</div>
+          <div class="dir-name">Sitemap</div>
+          <p class="dir-desc">This page. Visual site architecture, cross-link map, and full page directory.</p>
+        </div>
+        <div class="dir-bottom">
+          <span class="dir-file">Sitemap.html</span>
+          <a href="Sitemap.html" class="dir-go">You're here</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="wrap">
+    <div class="foot-inner">
+      <span>© 2026 Myumminess — <a href="Myumminess.html" style="color:var(--matcha-deep);font-weight:500">Back to Home</a></span>
+      <span style="display:flex;gap:24px">
+        <a href="Recipes.html" style="color:var(--muted);transition:color .2s" onmouseover="this.style.color='var(--ink)'" onmouseout="this.style.color='var(--muted)'">Recipes</a>
+        <a href="Blog.html" style="color:var(--muted);transition:color .2s" onmouseover="this.style.color='var(--ink)'" onmouseout="this.style.color='var(--muted)'">Blog</a>
+        <a href="Shop.html" style="color:var(--muted);transition:color .2s" onmouseover="this.style.color='var(--ink)'" onmouseout="this.style.color='var(--muted)'">Shop</a>
+        <a href="About Me.html" style="color:var(--muted);transition:color .2s" onmouseover="this.style.color='var(--ink)'" onmouseout="this.style.color='var(--muted)'">About</a>
+        <a href="Contact.html" style="color:var(--muted);transition:color .2s" onmouseover="this.style.color='var(--ink)'" onmouseout="this.style.color='var(--muted)'">Contact</a>
+      </span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

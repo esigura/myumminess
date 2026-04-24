@@ -1,0 +1,806 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>Recipes — Myumminess</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+  :root{
+    --ink:#1A1A1A;--muted:#7A7A7A;--line:#E6E4DE;--paper:#fff;
+    --surface:#FAF8F4;--surface-2:#F3EFE7;--input:#F3F3F3;
+    --matcha:#6DBE7B;--matcha-deep:#4E9A5E;
+    --peach:#FF9B7A;--peach-deep:#E87A56;
+    --accent:var(--matcha);--accent-deep:var(--matcha-deep);
+    --serif:'Playfair Display',Georgia,serif;
+    --sans:'Inter','Helvetica Neue',Helvetica,Arial,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+  body{min-width:1440px}
+  a{color:inherit;text-decoration:none}
+  button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit;padding:0}
+  img{display:block;max-width:100%}
+  ::selection{background:var(--accent);color:#fff}
+
+  .ph{position:relative;overflow:hidden;background-image:repeating-linear-gradient(135deg,rgba(26,26,26,.035) 0 2px,transparent 2px 14px),linear-gradient(180deg,#EFECE4,#E6E1D5);color:#6b6658}
+  .ph.matcha{background-image:repeating-linear-gradient(135deg,rgba(26,26,26,.05) 0 2px,transparent 2px 14px),linear-gradient(180deg,#cfe3c8,#a9cfa9);color:#2f4a30}
+  .ph.peach{background-image:repeating-linear-gradient(135deg,rgba(26,26,26,.05) 0 2px,transparent 2px 14px),linear-gradient(180deg,#ffd6c2,#ffb79a);color:#7a3b25}
+  .ph.dark{background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.04) 0 2px,transparent 2px 14px),linear-gradient(180deg,#2a2a2a,#1a1a1a);color:#b7b3a8}
+  .ph>.ph-center{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;opacity:.65;text-align:center;padding:0 12px}
+  .ph>.ph-label{position:absolute;left:10px;bottom:8px;font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;opacity:.8}
+
+  .wrap{max-width:1280px;margin:0 auto;padding:0 32px}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
+  .eyebrow .dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--accent);margin-right:10px;vertical-align:middle}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 20px;border-radius:999px;font-weight:500;font-size:13.5px;letter-spacing:.02em;transition:transform .2s,background .2s,color .2s;white-space:nowrap;cursor:pointer;font-family:inherit}
+  .btn-primary{background:var(--accent);color:#fff;box-shadow:0 1px 0 rgba(0,0,0,.04),0 8px 20px -12px rgba(78,154,94,.55)}
+  .btn-primary:hover{background:var(--accent-deep);transform:translateY(-1px)}
+  .btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--ink)}
+  .btn-ghost:hover{background:var(--ink);color:#fff}
+  .btn-ink{background:var(--ink);color:#fff}
+  .btn-ink:hover{background:#000;transform:translateY(-1px)}
+  .btn-light{background:#fff;color:var(--ink);border:1px solid var(--line)}
+  .btn-light:hover{border-color:var(--ink)}
+  .btn-lg{height:52px;padding:0 28px;font-size:15px}
+  .btn-sm{height:34px;padding:0 14px;font-size:12px}
+  :focus-visible{outline:2px solid var(--accent-deep);outline-offset:2px;border-radius:6px}
+
+  /* Header */
+  .site-header{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.9);backdrop-filter:saturate(1.1) blur(12px);border-bottom:1px solid var(--line)}
+  .nav{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:40px;height:72px}
+  .nav-links{display:flex;gap:28px;margin-left:48px}
+  .nav-links a{font-size:13px;letter-spacing:.12em;text-transform:uppercase;font-weight:500;position:relative;padding:6px 0;color:var(--ink)}
+  .nav-links a .u{position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--ink);transform:scaleX(0);transform-origin:left;transition:transform .3s ease}
+  .nav-links a:hover .u,.nav-links a.active .u{transform:scaleX(1)}
+  .nav-right{display:flex;align-items:center;gap:10px}
+  .search-bar{display:flex;align-items:center;gap:8px;background:var(--input);border-radius:999px;height:38px;padding:0 14px;width:260px;transition:width .25s,background .2s}
+  .search-bar:focus-within{width:320px;background:#ece9df}
+  .search-bar input{border:0;outline:0;background:transparent;font-size:13px;flex:1;font-family:inherit}
+  .icon-btn{width:38px;height:38px;border-radius:999px;display:grid;place-items:center;transition:background .2s}
+  .icon-btn:hover{background:var(--surface-2)}
+
+  /* Category nav */
+  .cat-nav{position:sticky;top:72px;z-index:30;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  .cat-nav-inner{display:flex;align-items:stretch;overflow-x:auto;scrollbar-width:none;padding:0 32px;max-width:1280px;margin:0 auto}
+  .cat-nav-inner::-webkit-scrollbar{display:none}
+  .cat-nav-inner button{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);padding:14px 20px;border-bottom:2px solid transparent;white-space:nowrap;transition:color .2s,border-color .2s;flex-shrink:0;background:none;cursor:pointer;display:inline-flex;align-items:center;gap:7px}
+  .cat-nav-inner button:hover{color:var(--ink)}
+  .cat-nav-inner button.on{color:var(--ink);border-bottom-color:var(--accent)}
+  .cat-nav-inner button .n{font-size:10px;color:inherit;opacity:.6}
+
+  /* Hero */
+  .hero{padding:72px 0 56px;background:var(--surface);border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+  .hero::before{content:"";position:absolute;right:-80px;top:-80px;width:440px;height:440px;border-radius:50%;background:radial-gradient(circle,rgba(109,190,123,.14),transparent 70%);pointer-events:none}
+  .hero-inner{position:relative;display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+  .hero h1{font-family:var(--serif);font-weight:500;font-size:72px;line-height:1.0;letter-spacing:-.025em;margin:16px 0 20px}
+  .hero h1 em{font-style:italic;color:var(--accent-deep)}
+  .hero .sub{font-size:17px;line-height:1.6;color:#2b2b2b;max-width:480px;margin:0}
+  .featured{display:flex;flex-direction:column;gap:12px}
+  .feat-card{background:#fff;border-radius:20px;overflow:hidden;border:1px solid var(--line);display:grid;grid-template-columns:120px 1fr;cursor:pointer;transition:transform .2s,box-shadow .2s}
+  .feat-card:hover{transform:translateY(-2px);box-shadow:0 12px 28px -16px rgba(0,0,0,.16)}
+  .feat-card .img{height:120px;flex-shrink:0}
+  .feat-card .body{padding:14px 16px;display:flex;flex-direction:column;justify-content:center;gap:4px}
+  .feat-card .t{font-family:var(--serif);font-weight:500;font-size:17px;letter-spacing:-.005em;line-height:1.2}
+  .feat-card .m{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  .feat-label{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+
+  /* Recipe grid */
+  .grid-section{padding:64px 0 96px}
+  .grid-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:28px}
+  .grid-head h2{font-family:var(--serif);font-weight:500;font-size:36px;letter-spacing:-.015em;margin:0;line-height:1.05}
+  .grid-head h2 em{font-style:italic;color:var(--accent-deep)}
+  .grid-head .count{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  .recipe-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
+
+  /* Recipe card */
+  .rcard{background:#fff;border:1px solid var(--line);border-radius:20px;overflow:hidden;cursor:pointer;transition:transform .25s,box-shadow .25s,border-color .25s;position:relative}
+  .rcard:hover{transform:translateY(-4px);box-shadow:0 22px 44px -24px rgba(0,0,0,.18);border-color:rgba(109,190,123,.4)}
+  .rcard.active{border-color:var(--accent);box-shadow:0 0 0 2px var(--matcha)}
+  .rcard .img{aspect-ratio:4/3;position:relative}
+  .rcard .time-badge{position:absolute;top:10px;left:10px;background:#fff;border-radius:999px;padding:5px 10px;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;color:var(--ink);display:inline-flex;gap:6px;align-items:center;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+  .rcard .fav{position:absolute;top:10px;right:10px;width:32px;height:32px;border-radius:999px;background:#fff;display:grid;place-items:center;color:var(--ink);transition:all .2s;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+  .rcard .fav:hover{color:var(--peach-deep);transform:scale(1.1)}
+  .rcard .fav.on{color:var(--peach-deep)}
+  .rcard .body{padding:16px 16px 10px}
+  .rcard .name{font-family:var(--serif);font-weight:500;font-size:19px;letter-spacing:-.005em;margin:0 0 4px;line-height:1.2}
+  .rcard .tags{font-size:12.5px;color:var(--muted)}
+  .rcard .foot{display:flex;justify-content:space-between;align-items:center;padding:8px 16px 14px}
+  .rcard .stars{font-family:var(--mono);font-size:11px;color:var(--muted)}
+  .rcard .arrow{width:28px;height:28px;border-radius:999px;background:var(--surface);display:grid;place-items:center;transition:all .2s}
+  .rcard:hover .arrow{background:var(--accent);color:#fff}
+
+  /* ─── Recipe Detail Panel ─── */
+  /* Full-width panel that expands below the row of the active card */
+  .detail-panel{background:var(--surface);border-top:1px solid var(--line);border-bottom:1px solid var(--line);overflow:hidden;transition:max-height .4s cubic-bezier(.2,.8,.2,1);max-height:0}
+  .detail-panel.open{max-height:2000px}
+  .detail-inner{padding:56px 0 64px}
+  .detail-layout{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start}
+
+  /* Left col */
+  .detail-img-wrap{position:relative;border-radius:24px;overflow:hidden}
+  .detail-img{aspect-ratio:4/3}
+  .detail-meta-row{display:flex;gap:16px;flex-wrap:wrap;margin-top:16px}
+  .dmeta{display:inline-flex;align-items:center;gap:7px;background:#fff;border:1px solid var(--line);border-radius:999px;padding:7px 12px;font-size:13px}
+  .dmeta .d{width:5px;height:5px;border-radius:999px;background:var(--accent);flex-shrink:0}
+
+  /* Right col */
+  .detail-head .eyebrow{margin-bottom:14px}
+  .detail-head h2{font-family:var(--serif);font-weight:500;font-size:44px;letter-spacing:-.02em;line-height:1.05;margin:0 0 14px}
+  .detail-head .desc{font-size:16px;line-height:1.65;color:#2b2b2b;margin:0 0 28px;max-width:480px}
+  .detail-head .benefits{display:flex;flex-direction:column;gap:8px;margin:0 0 28px;padding:20px;background:#fff;border-radius:16px;border:1px solid var(--line)}
+  .detail-head .benefits .b-label{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+  .detail-head .benefits ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:8px}
+  .detail-head .benefits li{display:flex;gap:10px;align-items:flex-start;font-size:14px;line-height:1.45}
+  .detail-head .benefits li .m{width:18px;height:18px;border-radius:999px;background:rgba(109,190,123,.18);color:var(--accent-deep);display:grid;place-items:center;flex-shrink:0;margin-top:1px}
+
+  /* Tabs */
+  .tabs{display:flex;gap:0;border-bottom:1px solid var(--line);margin-bottom:24px}
+  .tab-btn{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:12px 20px;border-bottom:2px solid transparent;color:var(--muted);transition:color .2s,border-color .2s;cursor:pointer;background:none}
+  .tab-btn.on{color:var(--ink);border-bottom-color:var(--accent)}
+  .tab-btn:hover{color:var(--ink)}
+
+  /* Ingredients */
+  .ingredients{display:flex;flex-direction:column;gap:8px}
+  .ing{display:flex;justify-content:space-between;align-items:center;padding:11px 14px;border-radius:10px;background:#fff;border:1px solid var(--line);font-size:14px}
+  .ing .amt{font-family:var(--mono);font-size:12px;color:var(--muted)}
+
+  /* Steps */
+  .steps{display:flex;flex-direction:column;gap:16px}
+  .step{display:flex;gap:16px;align-items:flex-start}
+  .step .num{width:32px;height:32px;border-radius:999px;background:var(--ink);color:#fff;display:grid;place-items:center;font-family:var(--mono);font-size:12px;flex-shrink:0;margin-top:1px}
+  .step .text{font-size:15px;line-height:1.65;color:#2b2b2b;padding-top:5px}
+  .step .text b{font-weight:600;color:var(--ink)}
+
+  /* ⭐ Affiliate block — the money section */
+  .affiliate-block{margin-top:40px;border-top:2px solid var(--line);padding-top:32px}
+  .affiliate-block .af-head{display:flex;align-items:flex-start;gap:14px;margin-bottom:24px}
+  .affiliate-block .af-head .i{width:40px;height:40px;border-radius:12px;background:rgba(109,190,123,.15);color:var(--accent-deep);display:grid;place-items:center;flex-shrink:0}
+  .affiliate-block .af-head h3{font-family:var(--serif);font-weight:500;font-size:24px;letter-spacing:-.01em;margin:0 0 4px}
+  .affiliate-block .af-head p{font-size:14px;color:var(--muted);margin:0}
+  .af-products{display:flex;flex-direction:column;gap:12px}
+  .af-item{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px 18px;display:grid;grid-template-columns:56px 1fr auto;gap:14px;align-items:center;transition:border-color .2s,box-shadow .2s}
+  .af-item:hover{border-color:rgba(109,190,123,.5);box-shadow:0 4px 16px -8px rgba(0,0,0,.1)}
+  .af-item .img{width:56px;height:56px;border-radius:12px;overflow:hidden;flex-shrink:0}
+  .af-item .info .name{font-family:var(--serif);font-weight:500;font-size:16px;margin:0 0 2px;letter-spacing:-.005em}
+  .af-item .info .why{font-size:13px;color:var(--muted);line-height:1.4}
+  .af-item .info .note{font-size:12px;font-style:italic;color:var(--accent-deep);font-family:var(--serif);margin-top:3px}
+  .af-cta{display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:#fff;border-radius:999px;padding:0 16px;height:36px;font-size:12.5px;font-weight:600;white-space:nowrap;transition:background .2s,transform .2s;flex-shrink:0}
+  .af-cta:hover{background:var(--accent-deep);transform:translateY(-1px)}
+  .af-disclaimer{margin-top:16px;font-size:12px;color:var(--muted);font-family:var(--serif);font-style:italic;line-height:1.5}
+
+  /* Newsletter */
+  .news{background:var(--accent);color:#fff;padding:32px 0}
+  .news-inner{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
+  .news h3{font-family:var(--serif);font-weight:500;font-size:28px;margin:0;letter-spacing:-.015em;line-height:1.1}
+  .news p{margin:6px 0 0;font-size:14px;opacity:.92;line-height:1.4}
+  .news-form{display:flex;gap:6px;justify-self:end;width:520px;background:#fff;border-radius:999px;padding:5px;box-shadow:0 10px 24px -14px rgba(0,0,0,.2)}
+  .news-form input{flex:1;height:46px;border:0;outline:0;padding:0 20px;font-family:inherit;font-size:14px;color:var(--ink);background:transparent}
+  .news-form input::placeholder{color:var(--muted)}
+  .news-form button{height:46px;padding:0 28px;border-radius:999px;background:var(--accent);color:#fff;font-weight:600;font-size:12px;letter-spacing:.16em;text-transform:uppercase;transition:background .2s}
+  .news-form button:hover{background:var(--accent-deep)}
+
+  /* Footer */
+  footer{background:#fff;color:var(--ink);padding:64px 0 28px;border-top:1px solid var(--line)}
+  .foot-top{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr 1.3fr;gap:40px;padding-bottom:40px;align-items:flex-start}
+  .foot-top h5{font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin:0 0 18px;font-weight:500}
+  .foot-top ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:12px}
+  .foot-top li a{font-size:14px;color:var(--ink);transition:color .2s}
+  .foot-top li a:hover{color:var(--accent-deep)}
+  .foot-top .brand .taglines{margin-top:18px;font-size:13px;color:var(--muted);line-height:1.6;max-width:260px}
+  .socials{display:flex;gap:10px}
+  .socials a{width:38px;height:38px;border-radius:999px;background:var(--surface);display:grid;place-items:center;color:var(--ink);transition:background .2s,color .2s}
+  .socials a:hover{background:var(--accent);color:#fff}
+  .foot-bot{display:flex;justify-content:space-between;align-items:center;padding-top:24px;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px}
+  .foot-bot .legal{display:flex;gap:18px}
+
+  @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .anim{animation:fadeUp .35s cubic-bezier(.2,.8,.2,1) both}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useRef } = React;
+
+const Icon = ({name,size=18,stroke=1.8,fill="none"}) => {
+  const c={width:size,height:size,viewBox:"0 0 24 24",fill,stroke:"currentColor",strokeWidth:stroke,strokeLinecap:"round",strokeLinejoin:"round"};
+  const p={
+    search:<><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></>,
+    ig:<><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></>,
+    tt:<path d="M15 3v9.5a3.5 3.5 0 1 1-3.5-3.5M15 3c0 2.5 2 4.5 4.5 4.5V10c-2 0-3.7-.6-5-1.7"/>,
+    fb:<path d="M14 8h2V5h-2a3 3 0 0 0-3 3v2H9v3h2v6h3v-6h2l.5-3H14V8z"/>,
+    yt:<><rect x="3" y="5" width="18" height="14" rx="4"/><path d="m10 9 6 3-6 3z" fill="currentColor"/></>,
+    mail:<><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></>,
+    arrow:<><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></>,
+    clock:<><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></>,
+    check:<path d="m5 12 5 5 9-11"/>,
+    close:<><path d="M6 6l12 12"/><path d="m18 6-12 12"/></>,
+    heart:<path d="M12 21s-7-4.5-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 6C19 16.5 12 21 12 21z"/>,
+    heartFill:<path d="M12 21s-7-4.5-9.5-9A5.5 5.5 0 0 1 12 6a5.5 5.5 0 0 1 9.5 6C19 16.5 12 21 12 21z" fill="currentColor" stroke="currentColor"/>,
+    leaf:<path d="M4 20c0-8 6-14 14-14 0 8-6 14-14 14zM4 20c2-6 8-10 14-12"/>,
+    external:<><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="m10 14 11-11"/></>,
+    bowl:<><path d="M3 11h18a9 9 0 1 1-18 0z"/><path d="M7 7c1-2 3-3 5-3"/></>,
+    zap:<path d="M13 3 4 14h6l-1 7 9-11h-6z"/>,
+    pkg:<><path d="m12 3 9 5v8l-9 5-9-5V8z"/><path d="m3 8 9 5 9-5M12 13v10"/></>,
+  };
+  return <svg {...c}>{p[name]}</svg>;
+};
+
+/* ─────────── Data ─────────── */
+/* NOTE: shopeeHref values — replace with real Shopee affiliate URLs.
+   Generate at: Shopee Affiliate Dashboard → Product Link Generator         */
+const CATS = [
+  {id:"all",label:"All Recipes",n:128},
+  {id:"quick",label:"Quick Meals",n:34},
+  {id:"weight",label:"Weight Management",n:28},
+  {id:"gut",label:"Gut Health",n:22},
+  {id:"breakfast",label:"Breakfast",n:24},
+  {id:"snacks",label:"Snacks",n:21},
+];
+
+const RECIPES = [
+  {
+    id:1, slug:"green-protein-smoothie",
+    name:"Green Protein Smoothie", cat:"quick", tags:"Quick · High Protein · Filling",
+    time:"5 min", stars:"★ 4.9", reviews:231, kind:"matcha",
+    desc:"The smoothie I make every single morning. Takes 5 minutes, keeps me full until lunch, and tastes better than anything I've bought.",
+    benefits:["High in plant protein — keeps you full for hours","Spinach adds iron without any detectable taste","Natural energy boost without the crash"],
+    ingredients:[
+      {name:"Frozen spinach",amt:"1 large handful"},
+      {name:"Banana (frozen)",amt:"1 medium"},
+      {name:"Protein powder (vanilla)",amt:"1 scoop"},
+      {name:"Almond milk",amt:"250 ml"},
+      {name:"Almond butter",amt:"1 tbsp"},
+      {name:"Chia seeds",amt:"1 tsp"},
+      {name:"Ice",amt:"4–5 cubes"},
+    ],
+    steps:[
+      {text:"Add all ingredients to the blender in this order: liquid first, then soft ingredients, frozen items last. This helps the blades catch everything."},
+      {text:"Blend on high for <b>45–60 seconds</b> until completely smooth. Scrape down the sides if needed and blend again for 10 seconds."},
+      {text:"Taste and adjust. Too thick? Add a splash of almond milk. Want it sweeter? Half a medjool date works perfectly."},
+      {text:"Pour immediately and drink within 10 minutes for best texture and nutrition."},
+    ],
+    affiliates:[
+      {name:"Vitamix Blender",why:"The blender I use every morning for this recipe.",note:"This is the exact one I use daily",price:"from $379",kind:"matcha",shopeeHref:"#shopee-vitamix-blender"},
+      {name:"Vanilla Protein Powder",why:"Clean ingredients, mixes perfectly, no grainy texture.",note:"I've tried 6 brands — this one wins",price:"$38",kind:"peach",shopeeHref:"#shopee-protein-powder"},
+      {name:"Organic Almond Butter",why:"Unsweetened, just almonds. No palm oil.",note:"The one I keep re-ordering",price:"$14",kind:"",shopeeHref:"#shopee-almond-butter"},
+    ]
+  },
+  {
+    id:2, slug:"chicken-quinoa-bowl",
+    name:"Chicken Quinoa Bowl", cat:"weight", tags:"High Protein · Balanced · Meal Prep",
+    time:"15 min", stars:"★ 4.8", reviews:412, kind:"peach",
+    desc:"My go-to meal prep staple. Make a big batch Sunday, eat it for three days. Protein-packed, filling, and actually delicious cold.",
+    benefits:["Complete protein from both chicken and quinoa","Complex carbs for sustained energy","Easy to batch — scales perfectly for 4 servings"],
+    ingredients:[
+      {name:"Chicken breast",amt:"200g"},
+      {name:"Quinoa (dry)",amt:"80g"},
+      {name:"Cherry tomatoes",amt:"100g"},
+      {name:"Cucumber",amt:"½ medium"},
+      {name:"Olive oil",amt:"1 tbsp"},
+      {name:"Lemon juice",amt:"1 tbsp"},
+      {name:"Salt & pepper",amt:"to taste"},
+      {name:"Fresh herbs (optional)",amt:"handful"},
+    ],
+    steps:[
+      {text:"Cook quinoa: rinse well, then combine with 160ml water and a pinch of salt. Bring to boil, cover and simmer for <b>12 minutes</b>. Fluff with a fork and let cool."},
+      {text:"Season chicken with salt, pepper and a drizzle of olive oil. Cook in a non-stick pan on medium-high for <b>6 minutes per side</b> until cooked through. Rest 5 minutes before slicing."},
+      {text:"Halve the cherry tomatoes, dice the cucumber. Toss with lemon juice, olive oil, salt and pepper."},
+      {text:"Assemble: quinoa base, sliced chicken, vegetables. Finish with fresh herbs if using. Works warm or cold."},
+    ],
+    affiliates:[
+      {name:"Non-Toxic Cookware",why:"What I cook the chicken in every time — no harmful coatings.",note:"The pan I've used for 2 years",price:"from $89",kind:"",shopeeHref:"#shopee-ceramic-cookware"},
+      {name:"Glass Meal Prep Containers",why:"Perfect for batching this recipe for the week.",note:"Oven-safe, stackable, no smells",price:"$34",kind:"peach",shopeeHref:"#shopee-glass-containers"},
+      {name:"Digital Kitchen Scale",why:"Accurate portions make this recipe work every time.",note:"Accurate to 1g",price:"$18",kind:"",shopeeHref:"#shopee-kitchen-scale"},
+    ]
+  },
+  {
+    id:3, slug:"berry-overnight-oats",
+    name:"Berry Overnight Oats", cat:"breakfast", tags:"No Cook · Meal Prep · Gut Health",
+    time:"8 min", stars:"★ 4.9", reviews:518, kind:"",
+    desc:"Sunday night, 8 minutes. Monday morning, breakfast is done. This is one of the highest-traffic recipes on my TikTok for good reason.",
+    benefits:["Beta-glucan fibre from oats feeds beneficial gut bacteria","Berries add antioxidants with no added sugar","Zero effort in the morning — it's already made"],
+    ingredients:[
+      {name:"Rolled oats",amt:"80g"},
+      {name:"Almond milk",amt:"200ml"},
+      {name:"Greek yoghurt",amt:"3 tbsp"},
+      {name:"Chia seeds",amt:"1 tbsp"},
+      {name:"Mixed berries (frozen)",amt:"100g"},
+      {name:"Honey or maple syrup",amt:"1 tsp"},
+      {name:"Vanilla extract",amt:"¼ tsp"},
+    ],
+    steps:[
+      {text:"Combine oats, almond milk, yoghurt, chia seeds, honey and vanilla in a jar or container. Stir well — make sure the chia seeds are evenly distributed."},
+      {text:"Add the frozen berries on top (they thaw overnight and create a natural jam layer)."},
+      {text:"Cover and refrigerate for <b>at least 6 hours</b>, ideally overnight."},
+      {text:"In the morning, stir, add fresh toppings if you like (granola, more fruit, nut butter) and eat cold."},
+    ],
+    affiliates:[
+      {name:"Glass Food Containers",why:"The jars I use for these every single Sunday.",note:"Seal perfectly, easy to stack",price:"$34",kind:"peach",shopeeHref:"#shopee-glass-containers"},
+      {name:"Organic Chia Seeds",why:"Non-negotiable for the texture and the omega-3s.",note:"What I always have stocked",price:"$12",kind:"matcha",shopeeHref:"#shopee-chia-seeds"},
+      {name:"Almond Butter",why:"I add a tablespoon on top each morning.",note:"Unsweetened, just almonds",price:"$14",kind:"",shopeeHref:"#shopee-almond-butter"},
+    ]
+  },
+  {
+    id:4, slug:"creamy-avocado-pasta",
+    name:"Creamy Avocado Pasta", cat:"quick", tags:"Easy · Dairy-Free · Delicious",
+    time:"20 min", stars:"★ 4.7", reviews:289, kind:"matcha",
+    desc:"Creamy without cream. Ready in 20 minutes. The sauce is just blended avocado — which sounds weird until you try it.",
+    benefits:["Healthy monounsaturated fats from avocado","Dairy-free naturally — no substitutions needed","Ripe avocado creates genuine creaminess"],
+    ingredients:[
+      {name:"Pasta (any shape)",amt:"160g dry"},
+      {name:"Ripe avocado",amt:"2 medium"},
+      {name:"Garlic",amt:"2 cloves"},
+      {name:"Lemon juice",amt:"2 tbsp"},
+      {name:"Olive oil",amt:"2 tbsp"},
+      {name:"Fresh basil",amt:"large handful"},
+      {name:"Salt & black pepper",amt:"to taste"},
+      {name:"Cherry tomatoes (to serve)",amt:"handful"},
+    ],
+    steps:[
+      {text:"Cook pasta in well-salted boiling water until al dente. Reserve <b>½ cup of pasta water</b> before draining."},
+      {text:"While pasta cooks, blend avocado, garlic, lemon juice, olive oil, basil, salt and pepper until completely smooth."},
+      {text:"Toss hot drained pasta with the avocado sauce. Add pasta water a splash at a time until you reach a silky consistency."},
+      {text:"Serve immediately topped with cherry tomatoes and extra black pepper. This doesn't keep — eat it fresh."},
+    ],
+    affiliates:[
+      {name:"Non-Toxic Cookware",why:"What I boil the pasta in — wide enough for even cooking.",note:"The set I've used for 2 years",price:"from $89",kind:"",shopeeHref:"#shopee-ceramic-cookware"},
+      {name:"Vitamix Blender",why:"Makes the avocado sauce genuinely silky smooth.",note:"Worth it for the sauce alone",price:"from $379",kind:"matcha",shopeeHref:"#shopee-vitamix-blender"},
+    ]
+  },
+  {
+    id:5, slug:"no-bake-energy-balls",
+    name:"No-Bake Energy Balls", cat:"snacks", tags:"Healthy · No Sugar · No Cook",
+    time:"10 min", stars:"★ 4.9", reviews:603, kind:"peach",
+    desc:"30 minutes of effort on Sunday gives you snacks for the whole week. High in fibre, naturally sweet, no refined sugar.",
+    benefits:["Dates provide natural sweetness without blood sugar spikes","Oats and seeds give slow-release energy","Batch-friendly — store in fridge up to 2 weeks"],
+    ingredients:[
+      {name:"Medjool dates (pitted)",amt:"200g"},
+      {name:"Rolled oats",amt:"150g"},
+      {name:"Almond butter",amt:"3 tbsp"},
+      {name:"Cacao powder",amt:"2 tbsp"},
+      {name:"Chia seeds",amt:"1 tbsp"},
+      {name:"Desiccated coconut (to roll)",amt:"4 tbsp"},
+      {name:"Pinch of sea salt",amt:""},
+    ],
+    steps:[
+      {text:"Soak dates in warm water for 10 minutes if they feel dry. Drain well."},
+      {text:"Blend dates in a food processor until they form a paste. Add oats, almond butter, cacao, chia seeds and salt. Pulse until it comes together as a sticky dough — don't over-blend, some texture is good."},
+      {text:"Refrigerate the mixture for <b>15 minutes</b> — easier to roll when cold."},
+      {text:"Roll into balls (about 2 tbsp each) and roll in desiccated coconut. Store in an airtight container in the fridge for up to 2 weeks."},
+    ],
+    affiliates:[
+      {name:"Glass Food Containers",why:"Airtight seal keeps these fresh for 2 weeks in the fridge.",note:"The ones I store everything in",price:"$34",kind:"peach",shopeeHref:"#shopee-glass-containers"},
+      {name:"Organic Almond Butter",why:"The binding ingredient — quality here matters.",note:"Unsweetened, just almonds",price:"$14",kind:"",shopeeHref:"#shopee-almond-butter"},
+      {name:"Raw Cacao Powder",why:"Richer flavour than cocoa, better nutritional profile.",note:"What I always use",price:"$16",kind:"matcha",shopeeHref:"#shopee-cacao-powder"},
+    ]
+  },
+  {
+    id:6, slug:"gut-health-smoothie-bowl",
+    name:"Gut Health Smoothie Bowl", cat:"gut", tags:"Probiotic · Gut Health · Breakfast",
+    time:"12 min", stars:"★ 4.8", reviews:347, kind:"",
+    desc:"My most-requested recipe after the green smoothie. The thick consistency comes from the ratio — less liquid, more frozen fruit.",
+    benefits:["Live cultures from kefir or yoghurt support gut microbiome","Prebiotic fibre from banana and oats feeds good bacteria","High in antioxidants from mixed berries"],
+    ingredients:[
+      {name:"Frozen mango",amt:"150g"},
+      {name:"Frozen banana",amt:"1 medium"},
+      {name:"Plain kefir or yoghurt",amt:"100ml"},
+      {name:"Spinach",amt:"1 handful"},
+      {name:"Rolled oats (to top)",amt:"3 tbsp"},
+      {name:"Mixed berries (to top)",amt:"handful"},
+      {name:"Honey drizzle",amt:"1 tsp"},
+    ],
+    steps:[
+      {text:"Blend frozen mango, banana, kefir and spinach with <b>minimal liquid</b>. The goal is a thick, spoonable consistency — stop as soon as it blends."},
+      {text:"Pour into a cold bowl (chilling the bowl first keeps it thick longer)."},
+      {text:"Top with oats, fresh berries, a drizzle of honey and any other toppings you like — granola, coconut flakes, seeds."},
+      {text:"Eat immediately before it melts."},
+    ],
+    affiliates:[
+      {name:"Vitamix Blender",why:"High-powered enough to blend frozen fruit without extra liquid.",note:"The key to the thick texture",price:"from $379",kind:"matcha",shopeeHref:"#shopee-vitamix-blender"},
+      {name:"Organic Chia Seeds",why:"My go-to topping for extra fibre and omega-3s.",note:"I add these to every bowl",price:"$12",kind:"",shopeeHref:"#shopee-chia-seeds"},
+    ]
+  },
+  {
+    id:7, slug:"lemon-baked-salmon",
+    name:"Lemon Baked Salmon", cat:"weight", tags:"High Protein · Omega-3 · Easy",
+    time:"18 min", stars:"★ 4.8", reviews:276, kind:"peach",
+    desc:"The recipe I send to anyone who says they don't know how to cook fish. 4 ingredients, one pan, done in under 20 minutes.",
+    benefits:["Rich in omega-3 fatty acids for anti-inflammatory support","High-quality protein — around 35g per portion","Zero prep except seasoning"],
+    ingredients:[
+      {name:"Salmon fillet",amt:"200g"},
+      {name:"Lemon",amt:"½, sliced"},
+      {name:"Olive oil",amt:"1 tbsp"},
+      {name:"Garlic powder",amt:"½ tsp"},
+      {name:"Salt & pepper",amt:"to taste"},
+      {name:"Fresh dill (optional)",amt:"small sprig"},
+    ],
+    steps:[
+      {text:"Preheat oven to 200°C. Line a baking tray with parchment paper."},
+      {text:"Pat the salmon dry. Drizzle with olive oil, season with garlic powder, salt and pepper."},
+      {text:"Lay lemon slices underneath and on top of the fillet. Bake for <b>12–14 minutes</b> depending on thickness. It's done when it flakes easily with a fork."},
+      {text:"Rest for 2 minutes before serving. Finish with fresh dill if using."},
+    ],
+    affiliates:[
+      {name:"Non-Toxic Cookware",why:"The baking tray and pan I use for fish — safe coating.",note:"No weird smells, easy clean",price:"from $89",kind:"",shopeeHref:"#shopee-ceramic-cookware"},
+      {name:"Digital Kitchen Scale",why:"Accurate portioning helps with consistent macros.",note:"Accurate to 1g",price:"$18",kind:"matcha",shopeeHref:"#shopee-kitchen-scale"},
+    ]
+  },
+  {
+    id:8, slug:"high-protein-chia-pudding",
+    name:"High-Protein Chia Pudding", cat:"snacks", tags:"No Cook · High Protein · Gut Health",
+    time:"5 min", stars:"★ 4.7", reviews:198, kind:"matcha",
+    desc:"Make it in a jar on Sunday night. It's dessert that works as breakfast. The protein version uses Greek yoghurt instead of just milk.",
+    benefits:["Chia seeds expand to create a gel that keeps you full","Greek yoghurt adds 15g protein per serving","Prebiotic fibre supports digestive health"],
+    ingredients:[
+      {name:"Chia seeds",amt:"3 tbsp"},
+      {name:"Greek yoghurt",amt:"150g"},
+      {name:"Almond milk",amt:"100ml"},
+      {name:"Vanilla extract",amt:"¼ tsp"},
+      {name:"Honey",amt:"1 tsp"},
+      {name:"Toppings of choice",amt:""},
+    ],
+    steps:[
+      {text:"Whisk together chia seeds, yoghurt, almond milk, vanilla and honey in a jar."},
+      {text:"Stir again after 5 minutes to break up any clumps that form."},
+      {text:"Cover and refrigerate for <b>at least 4 hours</b> or overnight."},
+      {text:"Top with fruit, granola, or a drizzle of nut butter before eating."},
+    ],
+    affiliates:[
+      {name:"Organic Chia Seeds",why:"The hero ingredient — quality makes a big difference.",note:"What I always keep stocked",price:"$12",kind:"matcha",shopeeHref:"#shopee-chia-seeds"},
+      {name:"Glass Food Containers",why:"The jars I set these up in every week.",note:"Wide-mouth jars are easiest",price:"$34",kind:"",shopeeHref:"#shopee-glass-containers"},
+    ]
+  },
+];
+
+const FEATURED = RECIPES.slice(0,3);
+
+/* ─── Header ─── */
+function Header(){
+  return (
+    <header className="site-header">
+      <div className="wrap">
+        <div className="nav">
+          <a href="Myumminess.html" style={{display:"inline-flex",alignItems:"center",lineHeight:0}}>
+            <img src="assets/logo-black.png" alt="Myumminess" style={{height:22,width:"auto"}}/>
+          </a>
+          <nav className="nav-links">
+            <a href="Myumminess.html">Home<span className="u"/></a>
+            <a href="Recipes.html" className="active">Recipes<span className="u"/></a>
+            <a href="Blog.html">Blog<span className="u"/></a>
+            <a href="Shop.html">Shop<span className="u"/></a>
+            <a href="About Me.html">About<span className="u"/></a>
+            <a href="Contact.html">Work With Me<span className="u"/></a>
+            <a href="Follow Me.html">Follow<span className="u"/></a>
+          </nav>
+          <div className="nav-right">
+            <div className="search-bar" role="search">
+              <Icon name="search" size={15}/>
+              <input placeholder="Search recipes…" aria-label="Search"/>
+            </div>
+            <a className="icon-btn" href="#" aria-label="Instagram"><Icon name="ig" size={15}/></a>
+            <a className="icon-btn" href="#" aria-label="TikTok"><Icon name="tt" size={15}/></a>
+            <a className="icon-btn" href="#" aria-label="Facebook"><Icon name="fb" size={15}/></a>
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+/* ─── Cat nav ─── */
+function CatNav({active,setActive}){
+  return (
+    <nav className="cat-nav" aria-label="Recipe categories">
+      <div className="cat-nav-inner">
+        {CATS.map(c=>(
+          <button key={c.id} className={active===c.id?"on":""} onClick={()=>setActive(c.id)}>
+            {c.label} <span className="n">{c.n}</span>
+          </button>
+        ))}
+      </div>
+    </nav>
+  );
+}
+
+/* ─── Hero ─── */
+function Hero({onOpen}){
+  return (
+    <section className="hero">
+      <div className="wrap">
+        <div className="hero-inner">
+          <div>
+            <div className="eyebrow"><span className="dot"/>Tested in my own kitchen</div>
+            <h1>Simple recipes.<br/><em>Real results.</em></h1>
+            <p className="sub">128 recipes — all tested, all quick, all designed for the kind of life that doesn't stop for meal prep.</p>
+          </div>
+          <div className="featured">
+            <div className="feat-label">This week's top picks</div>
+            {FEATURED.map(r=>(
+              <div className="feat-card" key={r.id} onClick={()=>onOpen(r)}>
+                <div className={"ph img " + r.kind}><div className="ph-center">[ {r.name} ]</div></div>
+                <div className="body">
+                  <div className="m">{r.time} · {r.stars}</div>
+                  <div className="t">{r.name}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── Recipe card ─── */
+function RecipeCard({recipe,active,onOpen,favs,toggleFav}){
+  return (
+    <article className={"rcard " + (active?"active":"")}>
+      <div className={"ph img " + recipe.kind} onClick={()=>onOpen(recipe)}>
+        <div className="ph-center">[ {recipe.name} ]</div>
+        <div className="time-badge"><Icon name="clock" size={11}/> {recipe.time}</div>
+        <button className={"fav " + (favs[recipe.id]?"on":"")} onClick={e=>{e.stopPropagation();toggleFav(recipe.id);}}>
+          <Icon name={favs[recipe.id]?"heartFill":"heart"} size={14}/>
+        </button>
+      </div>
+      <div className="body" onClick={()=>onOpen(recipe)}>
+        <h3 className="name">{recipe.name}</h3>
+        <div className="tags">{recipe.tags}</div>
+      </div>
+      <div className="foot" onClick={()=>onOpen(recipe)}>
+        <div className="stars">{recipe.stars} · {recipe.reviews}</div>
+        <div className="arrow"><Icon name="arrow" size={12}/></div>
+      </div>
+    </article>
+  );
+}
+
+/* ─── Detail panel ─── */
+function DetailPanel({recipe, open, onClose}){
+  const [tab, setTab] = useState("ingredients");
+  const panelRef = useRef(null);
+
+  useEffect(()=>{
+    if(open && panelRef.current){
+      setTimeout(()=>panelRef.current.scrollIntoView({behavior:"smooth",block:"start"}),80);
+    }
+  },[open, recipe]);
+
+  useEffect(()=>{ setTab("ingredients"); },[recipe]);
+
+  if(!recipe) return <div className="detail-panel" ref={panelRef}/>;
+
+  return (
+    <div className={"detail-panel " + (open?"open":"")} ref={panelRef}>
+      {open && (
+        <div className="detail-inner">
+          <div className="wrap">
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:40}}>
+              <div className="eyebrow"><span className="dot"/>{recipe.tags}</div>
+              <button className="btn btn-light btn-sm" onClick={onClose} style={{gap:6}}>
+                <Icon name="close" size={12}/> Close
+              </button>
+            </div>
+            <div className="detail-layout">
+              {/* Left — image + meta */}
+              <div>
+                <div className="detail-img-wrap">
+                  <div className={"ph detail-img " + recipe.kind}>
+                    <div className="ph-center">[ {recipe.name} · hero image · 960×720 ]</div>
+                    <div className="ph-label">recipe-hero.jpg</div>
+                  </div>
+                </div>
+                <div className="detail-meta-row">
+                  <span className="dmeta"><span className="d"/><Icon name="clock" size={13}/> {recipe.time}</span>
+                  <span className="dmeta"><span className="d"/> {recipe.stars} ({recipe.reviews} reviews)</span>
+                  <span className="dmeta"><span className="d"/> {recipe.tags.split(" · ")[0]}</span>
+                </div>
+
+                {/* ⭐ AFFILIATE BLOCK — primary revenue section */}
+                <div className="affiliate-block">
+                  <div className="af-head">
+                    <div className="i"><Icon name="pkg" size={19}/></div>
+                    <div>
+                      <h3>What I use for this</h3>
+                      <p>The exact tools and ingredients I reach for every time I make this recipe.</p>
+                    </div>
+                  </div>
+                  <div className="af-products">
+                    {recipe.affiliates.map((a,i)=>(
+                      <div className="af-item" key={i}>
+                        <div className={"ph img " + a.kind} style={{width:56,height:56,borderRadius:12,flexShrink:0}}>
+                          <div className="ph-center" style={{fontSize:8}}>{a.name.split(" ")[0]}</div>
+                        </div>
+                        <div className="info">
+                          <div className="name">{a.name}</div>
+                          <div className="why">{a.why}</div>
+                          <div className="note">"{a.note}"</div>
+                        </div>
+                        <a
+                          className="af-cta"
+                          href={a.shopeeHref}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          View on Shopee <Icon name="external" size={11}/>
+                        </a>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="af-disclaimer">
+                    These are affiliate links to Shopee Vietnam. If you buy through them, I earn a small commission at no extra cost to you. I only link products I personally use and trust.
+                  </p>
+                </div>
+              </div>
+
+              {/* Right — recipe content */}
+              <div>
+                <div className="detail-head">
+                  <div className="eyebrow"><span className="dot"/>Recipe</div>
+                  <h2>{recipe.name}</h2>
+                  <p className="desc">{recipe.desc}</p>
+                  <div className="benefits">
+                    <div className="b-label">Why this works</div>
+                    <ul>
+                      {recipe.benefits.map((b,i)=>(
+                        <li key={i}><span className="m"><Icon name="leaf" size={11}/></span>{b}</li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="tabs">
+                  <button className={"tab-btn " + (tab==="ingredients"?"on":"")} onClick={()=>setTab("ingredients")}>Ingredients</button>
+                  <button className={"tab-btn " + (tab==="steps"?"on":"")} onClick={()=>setTab("steps")}>Steps</button>
+                </div>
+
+                {tab==="ingredients" && (
+                  <div className="ingredients anim">
+                    {recipe.ingredients.map((ing,i)=>(
+                      <div className="ing" key={i}>
+                        <span>{ing.name}</span>
+                        <span className="amt">{ing.amt}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {tab==="steps" && (
+                  <div className="steps anim">
+                    {recipe.steps.map((s,i)=>(
+                      <div className="step" key={i}>
+                        <div className="num">{i+1}</div>
+                        <div className="text" dangerouslySetInnerHTML={{__html:s.text}}/>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <div style={{marginTop:28,display:"flex",gap:10}}>
+                  <a href="Shop.html" className="btn btn-primary">Shop all essentials <Icon name="arrow" size={13}/></a>
+                  <button className="btn btn-light" onClick={onClose}>Back to recipes</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ─── Newsletter ─── */
+function Newsletter(){
+  const [email,setEmail]=useState(""); const [ok,setOk]=useState(false);
+  const sub=(e)=>{e.preventDefault();if(/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){setOk(true);setEmail("");setTimeout(()=>setOk(false),4000);}};
+  return (
+    <section className="news">
+      <div className="wrap news-inner">
+        <div><h3>Get new recipes in your inbox</h3><p>Join 20,000+ people who cook Myumminess recipes every week.</p></div>
+        <form className="news-form" onSubmit={sub}>
+          {ok?<div style={{flex:1,textAlign:"center",alignSelf:"center",fontSize:14,fontWeight:500,color:"var(--accent-deep)"}}>✓ You're in. Check your inbox 🌿</div>
+            :<><input type="email" placeholder="Your email address" value={email} onChange={e=>setEmail(e.target.value)}/><button type="submit">Subscribe</button></>}
+        </form>
+      </div>
+    </section>
+  );
+}
+
+/* ─── Footer ─── */
+function Footer(){
+  return (
+    <footer>
+      <div className="wrap">
+        <div className="foot-top">
+          <div className="brand">
+            <a href="Myumminess.html" style={{lineHeight:0,display:"inline-block"}}>
+              <img src="assets/logo-black.png" alt="Myumminess" style={{height:22,width:"auto"}}/>
+            </a>
+            <p className="taglines">Eat better. Feel better. Live better.</p>
+          </div>
+          <div><h5>Recipes</h5><ul><li><a href="#">Quick Meals</a></li><li><a href="#">Weight Management</a></li><li><a href="#">Gut Health</a></li><li><a href="#">Snacks</a></li></ul></div>
+          <div><h5>Shop</h5><ul><li><a href="Shop.html">All Products</a></li><li><a href="#">Kitchen Tools</a></li><li><a href="#">Supplements</a></li><li><a href="#">Snacks</a></li></ul></div>
+          <div><h5>Resources</h5><ul><li><a href="#">Meal Prep Guide</a></li><li><a href="#">Healthy Habits</a></li><li><a href="#">Affiliate Disclosure</a></li><li><a href="#">Privacy Policy</a></li></ul></div>
+          <div><h5>Let's Connect</h5>
+            <div className="socials">
+              <a href="#" aria-label="TikTok"><Icon name="tt" size={16}/></a>
+              <a href="#" aria-label="Instagram"><Icon name="ig" size={16}/></a>
+              <a href="#" aria-label="Facebook"><Icon name="fb" size={16}/></a>
+              <a href="#" aria-label="YouTube"><Icon name="yt" size={16}/></a>
+              <a href="mailto:hellochi3@myumminess.com" aria-label="Email"><Icon name="mail" size={16}/></a>
+            </div>
+          </div>
+        </div>
+        <div className="foot-bot">
+          <div>© 2026 Myumminess. All rights reserved.</div>
+          <div className="legal"><a href="#">Terms</a><a href="#">Privacy</a><a href="#">Affiliate Disclosure</a></div>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+/* ─── App ─── */
+function App(){
+  const [cat, setCat] = useState("all");
+  const [activeRecipe, setActiveRecipe] = useState(null);
+  const [favs, setFavs] = useState({});
+
+  const visible = cat==="all" ? RECIPES : RECIPES.filter(r=>r.cat===cat);
+
+  const openRecipe = (r) => {
+    setActiveRecipe(prev => prev?.id===r.id ? null : r);
+  };
+  const closeRecipe = () => setActiveRecipe(null);
+  const toggleFav = (id) => setFavs(f=>({...f,[id]:!f[id]}));
+
+  const catLabel = CATS.find(c=>c.id===cat)?.label || "All Recipes";
+  const count = visible.length;
+
+  return (
+    <>
+      <Header/>
+      <CatNav active={cat} setActive={(c)=>{setCat(c);setActiveRecipe(null);}}/>
+      <Hero onOpen={openRecipe}/>
+      <section className="grid-section">
+        <div className="wrap">
+          <div className="grid-head">
+            <h2>{catLabel==="All Recipes" ? <>All <em>Recipes</em></> : <em>{catLabel}</em>}</h2>
+            <span className="count">{count} recipe{count!==1?"s":""}</span>
+          </div>
+          <div className="recipe-grid">
+            {visible.map(r=>(
+              <RecipeCard
+                key={r.id}
+                recipe={r}
+                active={activeRecipe?.id===r.id}
+                onOpen={openRecipe}
+                favs={favs}
+                toggleFav={toggleFav}
+              />
+            ))}
+          </div>
+          <DetailPanel
+            recipe={activeRecipe}
+            open={!!activeRecipe}
+            onClose={closeRecipe}
+          />
+        </div>
+      </section>
+      <Newsletter/>
+      <Footer/>
+    </>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>

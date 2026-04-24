@@ -1,0 +1,470 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>Blog — Myumminess</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+  :root{
+    --ink:#1A1A1A;--muted:#7A7A7A;--line:#E6E4DE;--paper:#fff;
+    --surface:#FAF8F4;--surface-2:#F3EFE7;--input:#F3F3F3;
+    --matcha:#6DBE7B;--matcha-deep:#4E9A5E;
+    --peach:#FF9B7A;--peach-deep:#E87A56;
+    --accent:var(--matcha);--accent-deep:var(--matcha-deep);
+    --serif:'Playfair Display',Georgia,serif;
+    --sans:'Inter','Helvetica Neue',Helvetica,Arial,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+  body{min-width:1440px}
+  a{color:inherit;text-decoration:none}
+  button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit;padding:0}
+  img{display:block;max-width:100%}
+  ::selection{background:var(--accent);color:#fff}
+
+  /* Wrap */
+  .wrap{max-width:1280px;margin:0 auto;padding:0 40px}
+
+  /* Placeholder images */
+  .ph{background:repeating-linear-gradient(135deg,var(--surface) 0,var(--surface) 10px,var(--surface-2) 10px,var(--surface-2) 20px);display:flex;align-items:center;justify-content:center}
+  .ph-label{font-family:var(--mono);font-size:10px;letter-spacing:.12em;color:var(--muted);text-align:center;padding:8px}
+
+  /* Header */
+  .site-header{position:sticky;top:0;z-index:50;height:72px;background:rgba(255,255,255,.95);backdrop-filter:saturate(1.8) blur(12px);border-bottom:1px solid var(--line)}
+  .nav{display:flex;align-items:center;height:72px}
+  .nav-links{display:flex;gap:28px;margin-left:48px}
+  .nav-links a{font-size:13px;letter-spacing:.12em;text-transform:uppercase;font-weight:500;position:relative;padding:6px 0;color:var(--ink)}
+  .nav-links a .u{position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--ink);transform:scaleX(0);transform-origin:left;transition:transform .3s ease}
+  .nav-links a:hover .u,.nav-links a.active .u{transform:scaleX(1)}
+  .nav-right{display:flex;align-items:center;gap:10px;margin-left:auto}
+  .icon-btn{width:38px;height:38px;border-radius:999px;display:grid;place-items:center;transition:background .2s}
+  .icon-btn:hover{background:var(--surface-2)}
+
+  /* Category nav */
+  .cat-nav{position:sticky;top:72px;z-index:30;background:rgba(255,255,255,.94);backdrop-filter:saturate(1.1) blur(10px);border-bottom:1px solid var(--line)}
+  .cat-nav-inner{display:flex;overflow-x:auto;scrollbar-width:none;padding:0 40px;max-width:1280px;margin:0 auto;align-items:stretch;gap:4px}
+  .cat-nav-inner::-webkit-scrollbar{display:none}
+  .cat-nav-inner button{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);padding:14px 20px;border-bottom:2px solid transparent;transition:color .2s,border-color .2s;white-space:nowrap;background:none;border-left:0;border-right:0;border-top:0;cursor:pointer}
+  .cat-nav-inner button:hover{color:var(--ink)}
+  .cat-nav-inner button.on{color:var(--ink);border-bottom-color:var(--accent)}
+
+  /* Hero */
+  .hero{padding:80px 0 64px;background:var(--surface);border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+  .hero-inner{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
+  .hero-eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:20px;display:flex;align-items:center;gap:8px}
+  .hero-eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--accent);flex-shrink:0}
+  .hero h1{font-family:var(--serif);font-size:52px;font-weight:400;line-height:1.15;margin:0 0 24px;letter-spacing:-.02em}
+  .hero h1 em{font-style:italic;color:var(--accent-deep)}
+  .hero-sub{font-size:16px;line-height:1.7;color:var(--muted);margin:0 0 32px;max-width:460px}
+  .hero-stats{display:flex;gap:32px}
+  .hs .n{font-family:var(--serif);font-size:32px;font-weight:500;line-height:1}
+  .hs .l{font-size:12px;color:var(--muted);margin-top:4px;font-weight:500;letter-spacing:.04em}
+  .hero-art{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .hero-art-card{border-radius:16px;overflow:hidden;position:relative}
+  .hero-art-card .ph{height:180px;border-radius:16px}
+  .hero-art-card .tag{position:absolute;top:12px;left:12px;background:rgba(255,255,255,.92);font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;padding:5px 10px;border-radius:999px;font-weight:500}
+
+  /* Featured post */
+  .featured-section{padding:56px 0 0}
+  .featured-label{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:24px}
+  .featured-card{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--line);border-radius:20px;overflow:hidden;cursor:pointer;transition:box-shadow .25s}
+  .featured-card:hover{box-shadow:0 8px 40px rgba(0,0,0,.08)}
+  .featured-img{height:420px}
+  .featured-body{padding:48px;display:flex;flex-direction:column;justify-content:center;background:var(--surface)}
+  .featured-cat{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;padding:5px 12px;border-radius:999px;display:inline-flex;margin-bottom:20px;font-weight:500}
+  .featured-cat.matcha{background:#e8f5ec;color:var(--matcha-deep)}
+  .featured-cat.peach{background:#fff0eb;color:var(--peach-deep)}
+  .featured-cat.neutral{background:var(--surface-2);color:var(--ink)}
+  .featured-title{font-family:var(--serif);font-size:34px;font-weight:400;line-height:1.25;margin:0 0 16px;letter-spacing:-.01em}
+  .featured-title em{font-style:italic}
+  .featured-excerpt{font-size:15px;line-height:1.75;color:var(--muted);margin:0 0 28px}
+  .featured-meta{display:flex;align-items:center;gap:16px;font-size:12px;color:var(--muted)}
+  .featured-meta .sep{width:3px;height:3px;border-radius:50%;background:var(--muted)}
+  .read-link{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--accent-deep);margin-top:24px;transition:gap .2s}
+  .read-link:hover{gap:10px}
+
+  /* Post grid */
+  .posts-section{padding:48px 0 80px}
+  .posts-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:32px}
+  .post-card{border:1px solid var(--line);border-radius:16px;overflow:hidden;cursor:pointer;transition:box-shadow .25s,transform .2s;display:flex;flex-direction:column}
+  .post-card:hover{box-shadow:0 6px 30px rgba(0,0,0,.08);transform:translateY(-2px)}
+  .post-img{height:220px;position:relative}
+  .post-img .badge{position:absolute;top:12px;left:12px;font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;padding:5px 10px;border-radius:999px;font-weight:500}
+  .post-img .badge.matcha{background:#e8f5ec;color:var(--matcha-deep)}
+  .post-img .badge.peach{background:#fff0eb;color:var(--peach-deep)}
+  .post-img .badge.neutral{background:rgba(255,255,255,.92);color:var(--ink)}
+  .post-body{padding:24px;flex:1;display:flex;flex-direction:column}
+  .post-title{font-family:var(--serif);font-size:20px;font-weight:500;line-height:1.3;margin:0 0 10px;letter-spacing:-.01em}
+  .post-excerpt{font-size:13.5px;line-height:1.7;color:var(--muted);margin:0;flex:1}
+  .post-foot{padding:16px 24px;border-top:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+  .post-meta{font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:8px}
+  .post-meta .dot{width:3px;height:3px;border-radius:50%;background:var(--muted)}
+  .post-arrow{width:32px;height:32px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;transition:background .2s,border-color .2s}
+  .post-card:hover .post-arrow{background:var(--ink);border-color:var(--ink);color:#fff}
+
+  /* Internal link strip */
+  .internal-strip{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px 28px;display:flex;align-items:center;gap:16px;margin-top:20px}
+  .internal-strip .icon{width:36px;height:36px;background:var(--surface-2);border-radius:8px;display:grid;place-items:center;flex-shrink:0}
+  .internal-strip .text{flex:1}
+  .internal-strip .text strong{display:block;font-size:13px;font-weight:600;margin-bottom:2px}
+  .internal-strip .text span{font-size:12px;color:var(--muted)}
+  .internal-strip a{font-size:12px;font-weight:600;color:var(--accent-deep);white-space:nowrap}
+
+  /* Topics band */
+  .topics-band{background:var(--ink);padding:56px 0;margin:0}
+  .topics-inner{display:grid;grid-template-columns:repeat(4,1fr);gap:32px}
+  .topic-cell{color:#fff;padding:32px;border:1px solid rgba(255,255,255,.12);border-radius:16px;cursor:pointer;transition:background .2s}
+  .topic-cell:hover{background:rgba(255,255,255,.06)}
+  .topic-num{font-family:var(--mono);font-size:10px;letter-spacing:.15em;color:rgba(255,255,255,.4);margin-bottom:16px}
+  .topic-title{font-family:var(--serif);font-size:22px;font-weight:400;margin:0 0 10px}
+  .topic-title em{font-style:italic;color:var(--matcha)}
+  .topic-count{font-size:12px;color:rgba(255,255,255,.5)}
+
+  /* Newsletter */
+  .news{padding:64px 0;background:var(--surface);border-top:1px solid var(--line)}
+  .news-inner{display:flex;align-items:center;justify-content:space-between;gap:40px}
+  .news h3{font-family:var(--serif);font-size:28px;font-weight:400;margin:0 0 6px}
+  .news p{margin:0;font-size:14px;color:var(--muted)}
+  .news-form{display:flex;gap:12px;flex-shrink:0}
+  .news-form input{border:1px solid var(--line);border-radius:999px;height:46px;padding:0 20px;font-size:14px;font-family:inherit;width:300px;outline:none;transition:border-color .2s}
+  .news-form input:focus{border-color:var(--accent)}
+  .news-form button{height:46px;padding:0 28px;background:var(--ink);color:#fff;border-radius:999px;font-size:13px;font-weight:600;letter-spacing:.06em;transition:background .2s}
+  .news-form button:hover{background:#333}
+
+  /* Footer */
+  footer{background:var(--surface);border-top:1px solid var(--line);padding:48px 0 32px}
+  .foot-top{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:48px;padding-bottom:40px;border-bottom:1px solid var(--line)}
+  .foot-brand p{font-size:13px;color:var(--muted);line-height:1.7;margin:12px 0 0;max-width:240px}
+  .foot-col h4{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin:0 0 16px}
+  .foot-col a{display:block;font-size:13px;color:var(--ink);margin-bottom:10px;transition:color .2s}
+  .foot-col a:hover{color:var(--accent-deep)}
+  .foot-bottom{display:flex;align-items:center;justify-content:space-between;padding-top:24px;font-size:12px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" data-presets="react">
+const {useState, useEffect} = React;
+
+/* ─── Icons ─── */
+function Icon({name,size=16}){
+  const s={width:size,height:size,display:"block",strokeWidth:1.5,stroke:"currentColor",fill:"none",strokeLinecap:"round",strokeLinejoin:"round"};
+  if(name==="home")   return <svg viewBox="0 0 24 24" style={s}><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>;
+  if(name==="search") return <svg viewBox="0 0 24 24" style={s}><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>;
+  if(name==="arrow")  return <svg viewBox="0 0 24 24" style={s}><path d="M5 12h14M12 5l7 7-7 7"/></svg>;
+  if(name==="clock")  return <svg viewBox="0 0 24 24" style={s}><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>;
+  if(name==="ig")     return <svg viewBox="0 0 24 24" style={s}><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r=".5" fill="currentColor" stroke="none"/></svg>;
+  if(name==="tt")     return <svg viewBox="0 0 24 24" style={s}><path d="M9 12a4 4 0 104 4V4a5 5 0 005 5"/></svg>;
+  return null;
+}
+
+/* ─── Post data ─── */
+const POSTS = [
+  {id:1,cat:"recipes",title:"The Protein Smoothie Formula I Make Every Morning",excerpt:"Three ingredients, five minutes, keeps me full until lunch. I've made this 500+ times and I've never gotten bored of it.",readTime:4,date:"Apr 15, 2026",badge:"recipes",badgeColor:"matcha",featured:true,internalLink:"Recipes.html",internalLinkLabel:"See the full recipe in Recipes →"},
+  {id:2,cat:"recipes",title:"My Weekly Meal Prep Routine (Full Sunday Walkthrough)",excerpt:"Two hours on Sunday prevents five bad food decisions on weekdays. Here's every container I fill, in order.",readTime:8,date:"Apr 8, 2026",badge:"recipes",badgeColor:"matcha",internalLink:"Recipes.html",internalLinkLabel:"Browse all recipes →"},
+  {id:3,cat:"recipes",title:"Overnight Oats: The Ratio That Changes Everything",excerpt:"Once you understand the formula, you can make a different version every week. The base always stays the same.",readTime:5,date:"Apr 1, 2026",badge:"recipes",badgeColor:"matcha",internalLink:"Recipes.html",internalLinkLabel:"Get the recipe →"},
+  {id:4,cat:"wellness",title:"What I Actually Eat in a Day (Realistic, Not Perfect)",excerpt:"Not the ideal wellness day. The real one — shortcuts, small slip-ups, and the habits that actually stuck.",readTime:6,date:"Mar 25, 2026",badge:"wellness",badgeColor:"neutral"},
+  {id:5,cat:"wellness",title:"Why I Cut Most Added Sugar (60 Days Later)",excerpt:"Not a challenge or a reset. A quiet experiment that permanently changed how I read food labels.",readTime:7,date:"Mar 18, 2026",badge:"wellness",badgeColor:"peach",internalLink:"Shop.html",internalLinkLabel:"Low-sugar products I use →"},
+  {id:6,cat:"wellness",title:"My Morning Routine: What's Real vs. What's Curated",excerpt:"There's the 6-minute version and the 90-minute version. Most mornings I do neither. Here's the actual truth.",readTime:5,date:"Mar 10, 2026",badge:"wellness",badgeColor:"neutral"},
+  {id:7,cat:"nutrition",title:"Gut Health 101: What Changed When I Started Paying Attention",excerpt:"I started with one change — fermented foods three times a week. Six months later, things had quietly shifted.",readTime:9,date:"Mar 4, 2026",badge:"nutrition",badgeColor:"matcha",internalLink:"Recipes.html",internalLinkLabel:"See Gut Health recipes →"},
+  {id:8,cat:"nutrition",title:"The 3 Supplements I Actually Take (After Trying 20+)",excerpt:"I've spent too much money on supplements that did nothing. Here's what passed my personal two-month test.",readTime:6,date:"Feb 25, 2026",badge:"nutrition",badgeColor:"neutral",internalLink:"Shop.html",internalLinkLabel:"See them in my Shop →"},
+  {id:9,cat:"nutrition",title:"Reading Food Labels in Vietnam: A Practical Guide",excerpt:"The traffic light system doesn't exist here. Here's how I actually decode what's in my food at the local market.",readTime:7,date:"Feb 18, 2026",badge:"nutrition",badgeColor:"peach"},
+  {id:10,cat:"lifestyle",title:"Content Creator Burnout: What I Did When I Hit a Wall",excerpt:"Three months ago I almost quit entirely. I didn't post for 11 days. Here's what happened and what I came back with.",readTime:8,date:"Feb 10, 2026",badge:"lifestyle",badgeColor:"neutral"},
+  {id:11,cat:"lifestyle",title:"Eating Well While Traveling Across Vietnam",excerpt:"Street food, convenience store meals, overnight buses. How I stay mostly on track without being insufferable about it.",readTime:6,date:"Feb 3, 2026",badge:"lifestyle",badgeColor:"matcha"},
+  {id:12,cat:"lifestyle",title:"How I Started: The First 6 Months of Myumminess",excerpt:"No audience, no strategy, no idea what I was doing. Just a phone, a kitchen, and strong opinions about food.",readTime:10,date:"Jan 26, 2026",badge:"lifestyle",badgeColor:"peach",internalLink:"About Me.html",internalLinkLabel:"Read my full story →"},
+];
+
+const CATS = ["all","recipes","wellness","nutrition","lifestyle"];
+const CAT_LABELS = {all:"All Posts",recipes:"Recipes",wellness:"Health & Wellness",nutrition:"Nutrition",lifestyle:"Mindset & Lifestyle"};
+
+/* ─── Header ─── */
+function Header(){
+  return(
+    <header className="site-header">
+      <div className="wrap">
+        <div className="nav">
+          <a href="Myumminess.html" style={{display:"inline-flex",alignItems:"center",lineHeight:0}}>
+            <img src="assets/logo-black.png" alt="Myumminess" style={{height:22,width:"auto"}}/>
+          </a>
+          <nav className="nav-links">
+            <a href="Myumminess.html">Home<span className="u"/></a>
+            <a href="Recipes.html">Recipes<span className="u"/></a>
+            <a href="Blog.html" className="active">Blog<span className="u"/></a>
+            <a href="Shop.html">Shop<span className="u"/></a>
+            <a href="About Me.html">About<span className="u"/></a>
+            <a href="Contact.html">Work With Me<span className="u"/></a>
+            <a href="Follow Me.html">Follow<span className="u"/></a>
+          </nav>
+          <div className="nav-right">
+            <a className="icon-btn" href="#" aria-label="Instagram"><Icon name="ig" size={15}/></a>
+            <a className="icon-btn" href="#" aria-label="TikTok"><Icon name="tt" size={15}/></a>
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+/* ─── Category nav ─── */
+function CatNav({active, setActive}){
+  return(
+    <nav className="cat-nav" aria-label="Post categories">
+      <div className="cat-nav-inner">
+        {CATS.map(id=>(
+          <button key={id} className={active===id?"on":""} onClick={()=>setActive(id)}>
+            {CAT_LABELS[id]}
+          </button>
+        ))}
+      </div>
+    </nav>
+  );
+}
+
+/* ─── Hero ─── */
+function Hero(){
+  return(
+    <section className="hero">
+      <div className="wrap">
+        <div className="hero-inner">
+          <div>
+            <div className="hero-eyebrow"><span className="dot"/>Notes from my kitchen & life</div>
+            <h1>Recipes, Wellness<br/>& <em>Honest takes.</em></h1>
+            <p className="hero-sub">Long-form content behind the recipes you see on TikTok — the how, the why, and everything that didn't fit in 60 seconds.</p>
+            <div className="hero-stats">
+              <div className="hs"><div className="n">12</div><div className="l">Posts</div></div>
+              <div className="hs"><div className="n">4</div><div className="l">Topics</div></div>
+              <div className="hs"><div className="n">Weekly</div><div className="l">New content</div></div>
+            </div>
+          </div>
+          <div className="hero-art">
+            <div className="hero-art-card">
+              <div className="ph" style={{height:180}}><div className="ph-label">[ Featured image ]</div></div>
+              <div className="tag">Recipes</div>
+            </div>
+            <div className="hero-art-card" style={{marginTop:32}}>
+              <div className="ph" style={{height:180}}><div className="ph-label">[ Wellness photo ]</div></div>
+              <div className="tag">Wellness</div>
+            </div>
+            <div className="hero-art-card">
+              <div className="ph" style={{height:180}}><div className="ph-label">[ Nutrition photo ]</div></div>
+              <div className="tag">Nutrition</div>
+            </div>
+            <div className="hero-art-card" style={{marginTop:32}}>
+              <div className="ph" style={{height:180}}><div className="ph-label">[ Lifestyle photo ]</div></div>
+              <div className="tag">Lifestyle</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── Featured post ─── */
+function FeaturedPost({post}){
+  const colorClass = post.badgeColor==="matcha"?"matcha":post.badgeColor==="peach"?"peach":"neutral";
+  return(
+    <div className="featured-section">
+      <div className="wrap">
+        <div className="featured-label">Featured post</div>
+        <div className="featured-card">
+          <div className={"featured-img ph"}><div className="ph-label">[ {post.title} ]</div></div>
+          <div className="featured-body">
+            <div className={"featured-cat "+colorClass}>{CAT_LABELS[post.cat]}</div>
+            <h2 className="featured-title">{post.title}</h2>
+            <p className="featured-excerpt">{post.excerpt}</p>
+            <div className="featured-meta">
+              <span>{post.date}</span>
+              <span className="sep"/>
+              <Icon name="clock" size={12}/>
+              <span>{post.readTime} min read</span>
+            </div>
+            {post.internalLink && (
+              <div className="internal-strip" style={{marginTop:24}}>
+                <div className="icon" style={{fontSize:16}}>→</div>
+                <div className="text">
+                  <strong>Related page</strong>
+                  <span>Jump directly to the full content</span>
+                </div>
+                <a href={post.internalLink}>{post.internalLinkLabel}</a>
+              </div>
+            )}
+            <a className="read-link" href="#">Read full post <Icon name="arrow" size={14}/></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Post card ─── */
+function PostCard({post}){
+  const colorClass = post.badgeColor==="matcha"?"matcha":post.badgeColor==="peach"?"peach":"neutral";
+  return(
+    <article className="post-card">
+      <div className={"post-img ph"}>
+        <div className="ph-label">[ {post.title} ]</div>
+        <div className={"badge "+colorClass}>{CAT_LABELS[post.cat]}</div>
+      </div>
+      <div className="post-body">
+        <h3 className="post-title">{post.title}</h3>
+        <p className="post-excerpt">{post.excerpt}</p>
+        {post.internalLink && (
+          <div style={{marginTop:16,paddingTop:16,borderTop:"1px solid var(--line)"}}>
+            <a href={post.internalLink} style={{fontSize:12,fontWeight:600,color:"var(--accent-deep)",display:"inline-flex",alignItems:"center",gap:4}}>
+              {post.internalLinkLabel} <Icon name="arrow" size={11}/>
+            </a>
+          </div>
+        )}
+      </div>
+      <div className="post-foot">
+        <div className="post-meta">
+          <span>{post.date}</span>
+          <span className="dot"/>
+          <Icon name="clock" size={11}/>
+          <span>{post.readTime} min</span>
+        </div>
+        <div className="post-arrow"><Icon name="arrow" size={13}/></div>
+      </div>
+    </article>
+  );
+}
+
+/* ─── Topics band ─── */
+function TopicsBand({setActive}){
+  const topics = [
+    {id:"recipes",  num:"01", title:"Recipes &\nFood",      count:"3 posts",  desc:"Formulas, ratios, and the thinking behind every dish."},
+    {id:"wellness", num:"02", title:"Health &\nWellness",   count:"3 posts",  desc:"What's working, what isn't, and what I actually kept."},
+    {id:"nutrition",num:"03", title:"Nutrition\nScience",   count:"3 posts",  desc:"Evidence-backed reads with a practical lens."},
+    {id:"lifestyle",num:"04", title:"Mindset &\nLifestyle", count:"3 posts",  desc:"Creator life, travel eating, and the messy parts."},
+  ];
+  return(
+    <div className="topics-band">
+      <div className="wrap">
+        <div style={{marginBottom:40}}>
+          <div style={{fontFamily:"var(--mono)",fontSize:11,letterSpacing:".18em",textTransform:"uppercase",color:"rgba(255,255,255,.4)",marginBottom:12}}>Browse by topic</div>
+          <div style={{fontFamily:"var(--serif)",fontSize:36,fontWeight:400,color:"#fff",lineHeight:1.2}}>Four areas.<br/><em style={{fontStyle:"italic",color:"var(--matcha)"}}>One lifestyle.</em></div>
+        </div>
+        <div className="topics-inner">
+          {topics.map(t=>(
+            <div key={t.id} className="topic-cell" onClick={()=>setActive(t.id)}>
+              <div className="topic-num">{t.num} — {t.count}</div>
+              <h3 className="topic-title" style={{whiteSpace:"pre-line"}}>{t.title}</h3>
+              <p style={{fontSize:13,lineHeight:1.65,color:"rgba(255,255,255,.55)",margin:"0 0 20px"}}>{t.desc}</p>
+              <div style={{fontSize:12,fontWeight:600,color:"var(--matcha)",display:"flex",alignItems:"center",gap:6}}>
+                Read posts <Icon name="arrow" size={12}/>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Newsletter ─── */
+function Newsletter(){
+  const [email,setEmail]=useState(""); const [ok,setOk]=useState(false);
+  const sub=(e)=>{e.preventDefault();if(/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){setOk(true);setEmail("");setTimeout(()=>setOk(false),4000);}};
+  return(
+    <section className="news">
+      <div className="wrap news-inner">
+        <div>
+          <h3>Get new posts in your inbox</h3>
+          <p>Recipes, wellness reads, and honest takes — delivered weekly. No spam, ever.</p>
+        </div>
+        <form className="news-form" onSubmit={sub}>
+          {ok
+            ?<div style={{alignSelf:"center",fontSize:14,fontWeight:500,color:"var(--accent-deep)"}}>✓ You're in. See you next week.</div>
+            :<><input type="email" placeholder="Your email address" value={email} onChange={e=>setEmail(e.target.value)}/><button type="submit">Subscribe</button></>
+          }
+        </form>
+      </div>
+    </section>
+  );
+}
+
+/* ─── Footer ─── */
+function Footer(){
+  return(
+    <footer>
+      <div className="wrap">
+        <div className="foot-top">
+          <div className="foot-brand">
+            <a href="Myumminess.html" style={{lineHeight:0,display:"inline-block"}}>
+              <img src="assets/logo-black.png" alt="Myumminess" style={{height:22,width:"auto"}}/>
+            </a>
+            <p>Healthy eating, honest content, and the tools that actually help — all in one place.</p>
+          </div>
+          <div className="foot-col">
+            <h4>Content</h4>
+            <a href="Recipes.html">Recipes</a>
+            <a href="Blog.html">Blog</a>
+            <a href="Follow Me.html">Follow</a>
+          </div>
+          <div className="foot-col">
+            <h4>Site</h4>
+            <a href="Myumminess.html">Home</a>
+            <a href="Shop.html">Shop</a>
+            <a href="About Me.html">About</a>
+            <a href="Booking.html">Book a Session</a>
+          </div>
+          <div className="foot-col">
+            <h4>Connect</h4>
+            <a href="Contact.html">Work With Me</a>
+            <a href="Sitemap.html">Sitemap</a>
+          </div>
+        </div>
+        <div className="foot-bottom">
+          <span>© 2026 Myumminess. All rights reserved.</span>
+          <span>Affiliate links may earn a small commission.</span>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+/* ─── App ─── */
+function App(){
+  const [cat, setCat] = useState("all");
+  const featured = POSTS.find(p=>p.featured);
+  const grid = POSTS.filter(p=>!p.featured && (cat==="all" || p.cat===cat));
+  const filteredFeatured = cat!=="all" && featured.cat!==cat ? null : featured;
+
+  return(
+    <>
+      <Header/>
+      <CatNav active={cat} setActive={setCat}/>
+      <Hero/>
+      {filteredFeatured && <FeaturedPost post={filteredFeatured}/>}
+      <div className="posts-section">
+        <div className="wrap">
+          {grid.length===0
+            ? <div style={{textAlign:"center",padding:"80px 0",color:"var(--muted)"}}>
+                <div style={{fontFamily:"var(--serif)",fontSize:24,marginBottom:8}}>No posts in this category yet.</div>
+                <div style={{fontSize:14}}>Check back soon — I'm writing.</div>
+              </div>
+            : <div className="posts-grid">
+                {grid.map(p=><PostCard key={p.id} post={p}/>)}
+              </div>
+          }
+        </div>
+      </div>
+      <TopicsBand setActive={cat=>setCat(cat)}/>
+      <Newsletter/>
+      <Footer/>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>

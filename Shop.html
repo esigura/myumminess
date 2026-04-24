@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>Shop My Essentials — Myumminess</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+  :root{
+    --ink:#1A1A1A;--muted:#7A7A7A;--line:#E6E4DE;--paper:#fff;
+    --surface:#FAF8F4;--surface-2:#F3EFE7;--input:#F3F3F3;
+    --matcha:#6DBE7B;--matcha-deep:#4E9A5E;
+    --peach:#FF9B7A;--peach-deep:#E87A56;
+    --accent:var(--matcha);--accent-deep:var(--matcha-deep);
+    --serif:'Playfair Display',Georgia,serif;
+    --sans:'Inter','Helvetica Neue',Helvetica,Arial,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+  body{min-width:1440px}
+  a{color:inherit;text-decoration:none}
+  button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit;padding:0}
+  img{display:block;max-width:100%}
+  ::selection{background:var(--accent);color:#fff}
+
+  /* Placeholders */
+  .ph{position:relative;overflow:hidden;background-image:repeating-linear-gradient(135deg,rgba(26,26,26,.035) 0 2px,transparent 2px 14px),linear-gradient(180deg,#EFECE4,#E6E1D5);color:#6b6658}
+  .ph.matcha{background-image:repeating-linear-gradient(135deg,rgba(26,26,26,.05) 0 2px,transparent 2px 14px),linear-gradient(180deg,#cfe3c8,#a9cfa9);color:#2f4a30}
+  .ph.peach{background-image:repeating-linear-gradient(135deg,rgba(26,26,26,.05) 0 2px,transparent 2px 14px),linear-gradient(180deg,#ffd6c2,#ffb79a);color:#7a3b25}
+  .ph.dark{background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.04) 0 2px,transparent 2px 14px),linear-gradient(180deg,#2a2a2a,#1a1a1a);color:#b7b3a8}
+  .ph>.ph-center{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;opacity:.65;text-align:center;padding:0 10px}
+  .ph>.ph-label{position:absolute;left:10px;bottom:8px;font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;opacity:.8}
+
+  .wrap{max-width:1280px;margin:0 auto;padding:0 32px}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}
+  .eyebrow .dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--accent);margin-right:10px;vertical-align:middle}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 20px;border-radius:999px;font-weight:500;font-size:13.5px;letter-spacing:.02em;transition:transform .2s,background .2s,color .2s;white-space:nowrap;cursor:pointer;font-family:inherit}
+  .btn-primary{background:var(--accent);color:#fff;box-shadow:0 1px 0 rgba(0,0,0,.04),0 8px 20px -12px rgba(78,154,94,.55)}
+  .btn-primary:hover{background:var(--accent-deep);transform:translateY(-1px)}
+  .btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--ink)}
+  .btn-ghost:hover{background:var(--ink);color:#fff}
+  .btn-ink{background:var(--ink);color:#fff}
+  .btn-ink:hover{background:#000;transform:translateY(-1px)}
+  .btn-light{background:#fff;color:var(--ink);border:1px solid var(--line)}
+  .btn-light:hover{border-color:var(--ink)}
+  .btn-lg{height:52px;padding:0 28px;font-size:15px}
+  .btn-sm{height:34px;padding:0 14px;font-size:12px}
+  :focus-visible{outline:2px solid var(--accent-deep);outline-offset:2px;border-radius:6px}
+
+  /* Header */
+  .site-header{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.9);backdrop-filter:saturate(1.1) blur(12px);border-bottom:1px solid var(--line)}
+  .nav{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:40px;height:72px}
+  .nav-links{display:flex;gap:28px;margin-left:48px}
+  .nav-links a{font-size:13px;letter-spacing:.12em;text-transform:uppercase;font-weight:500;position:relative;padding:6px 0;color:var(--ink)}
+  .nav-links a .u{position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--ink);transform:scaleX(0);transform-origin:left;transition:transform .3s ease}
+  .nav-links a:hover .u,.nav-links a.active .u{transform:scaleX(1)}
+  .nav-right{display:flex;align-items:center;gap:10px}
+  .search{display:flex;align-items:center;gap:8px;background:var(--input);border-radius:999px;height:38px;padding:0 14px;width:240px}
+  .search input{border:0;outline:0;background:transparent;font-size:13px;flex:1;font-family:inherit}
+  .icon-btn{width:38px;height:38px;border-radius:999px;display:grid;place-items:center;transition:background .2s}
+  .icon-btn:hover{background:var(--surface-2)}
+  .cart-badge{position:relative}
+  .cart-badge .cb{position:absolute;top:-2px;right:-2px;background:var(--peach-deep);color:#fff;font-size:10px;font-weight:600;min-width:16px;height:16px;border-radius:999px;display:grid;place-items:center;padding:0 3px;border:2px solid #fff}
+
+  /* Category sub-nav */
+  .cat-nav{position:sticky;top:72px;z-index:30;background:rgba(255,255,255,.94);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  .cat-nav-inner{display:flex;align-items:stretch;overflow-x:auto;scrollbar-width:none;padding:0 32px;max-width:1280px;margin:0 auto;gap:0}
+  .cat-nav-inner::-webkit-scrollbar{display:none}
+  .cat-nav-inner button{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);padding:14px 20px;border-bottom:2px solid transparent;white-space:nowrap;transition:color .2s,border-color .2s;flex-shrink:0;background:none;cursor:pointer}
+  .cat-nav-inner button:hover{color:var(--ink)}
+  .cat-nav-inner button.on{color:var(--ink);border-bottom-color:var(--accent)}
+
+  /* Hero */
+  .hero{padding:80px 0 64px;background:var(--surface);border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+  .hero::after{content:"";position:absolute;right:-60px;top:-60px;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(109,190,123,.14),transparent 70%);pointer-events:none}
+  .hero-inner{position:relative;display:grid;grid-template-columns:1fr auto;gap:48px;align-items:flex-end}
+  .hero h1{font-family:var(--serif);font-weight:500;font-size:72px;line-height:1.02;letter-spacing:-.025em;margin:18px 0 20px}
+  .hero h1 em{font-style:italic;color:var(--accent-deep)}
+  .hero .sub{font-size:17px;line-height:1.6;color:#2b2b2b;max-width:540px;margin:0}
+  .hero-stats{display:flex;gap:32px;padding-top:28px;margin-top:28px;border-top:1px solid rgba(26,26,26,.1)}
+  .hs .n{font-family:var(--serif);font-size:26px;line-height:1;font-weight:500}
+  .hs .l{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-top:5px}
+  .hero-note{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px 22px;max-width:340px;display:flex;gap:14px;align-items:flex-start;flex-shrink:0}
+  .hero-note .i{width:38px;height:38px;border-radius:10px;background:rgba(109,190,123,.15);color:var(--accent-deep);display:grid;place-items:center;flex-shrink:0;margin-top:2px}
+  .hero-note .t{font-size:13.5px;line-height:1.55;color:#3d3d3d}
+  .hero-note .t b{display:block;font-weight:600;font-size:14px;color:var(--ink);margin-bottom:4px}
+
+  /* Product grid */
+  .products-section{padding:64px 0 96px}
+  .cat-block{margin-bottom:72px}
+  .cat-block:last-child{margin-bottom:0}
+  .cat-block-head{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid var(--line)}
+  .cat-block-head h2{font-family:var(--serif);font-weight:500;font-size:38px;letter-spacing:-.015em;margin:8px 0 0;line-height:1.05}
+  .cat-block-head h2 em{font-style:italic;color:var(--accent-deep)}
+  .cat-block-head p{font-size:14.5px;color:var(--muted);margin:6px 0 0;max-width:480px}
+  .product-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
+
+  /* Product card */
+  .pcard{background:#fff;border:1px solid var(--line);border-radius:20px;overflow:hidden;display:flex;flex-direction:column;transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease;position:relative}
+  .pcard:hover{transform:translateY(-4px);box-shadow:0 24px 48px -24px rgba(26,26,26,.18);border-color:rgba(109,190,123,.4)}
+  .pcard .img{aspect-ratio:1/1;position:relative;flex-shrink:0}
+  .pcard .badge{position:absolute;top:10px;left:10px;font-family:var(--mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;padding:5px 9px;border-radius:8px;background:var(--ink);color:#fff;font-weight:500}
+  .pcard .badge.matcha{background:var(--matcha-deep)}
+  .pcard .badge.peach{background:var(--peach-deep)}
+  .pcard .body{padding:18px 18px 14px;display:flex;flex-direction:column;gap:6px;flex:1}
+  .pcard .cat{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+  .pcard .name{font-family:var(--serif);font-weight:500;font-size:20px;margin:0;line-height:1.15;letter-spacing:-.005em}
+  .pcard .note{font-size:13.5px;line-height:1.5;color:#3d3d3d;flex:1;margin:2px 0 4px}
+  .pcard .note em{font-style:italic;color:var(--accent-deep);font-weight:500;font-family:var(--serif)}
+  .pcard .foot{padding:0 18px 18px;display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:auto}
+  .pcard .price{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .pcard .shopee-btn{display:inline-flex;align-items:center;gap:6px;background:var(--accent);color:#fff;border-radius:999px;padding:0 16px;height:36px;font-size:12.5px;font-weight:600;letter-spacing:.02em;transition:background .2s,transform .2s;flex:1;justify-content:center}
+  .pcard .shopee-btn:hover{background:var(--accent-deep);transform:translateY(-1px)}
+  .pcard .shopee-btn.peach{background:var(--peach-deep)}
+  .pcard .shopee-btn.peach:hover{background:#d06640}
+
+  /* Philosophy strip */
+  .why-strip{background:var(--ink);color:#fff;padding:56px 0;border-top:1px solid rgba(255,255,255,.0)}
+  .why-inner{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border:1px solid rgba(255,255,255,.08);border-radius:20px;overflow:hidden}
+  .why-cell{padding:32px 36px;border-right:1px solid rgba(255,255,255,.08);display:flex;flex-direction:column;gap:8px}
+  .why-cell:last-child{border-right:0}
+  .why-cell .num{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--matcha)}
+  .why-cell .t{font-family:var(--serif);font-size:20px;font-weight:500;letter-spacing:-.01em;line-height:1.2}
+  .why-cell .d{font-size:13.5px;line-height:1.55;color:#c7c2b5;margin-top:2px}
+
+  /* Newsletter */
+  .news{background:var(--accent);color:#fff;padding:32px 0}
+  .news-inner{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
+  .news h3{font-family:var(--serif);font-weight:500;font-size:28px;margin:0;letter-spacing:-.015em;line-height:1.1}
+  .news p{margin:6px 0 0;font-size:14px;opacity:.92;line-height:1.4}
+  .news-form{display:flex;gap:6px;justify-self:end;width:520px;background:#fff;border-radius:999px;padding:5px;box-shadow:0 10px 24px -14px rgba(0,0,0,.2)}
+  .news-form input{flex:1;height:46px;border:0;outline:0;padding:0 20px;font-family:inherit;font-size:14px;color:var(--ink);background:transparent}
+  .news-form input::placeholder{color:var(--muted)}
+  .news-form button{height:46px;padding:0 28px;border-radius:999px;background:var(--accent);color:#fff;font-weight:600;font-size:12px;letter-spacing:.16em;text-transform:uppercase;transition:background .2s}
+  .news-form button:hover{background:var(--accent-deep)}
+
+  /* Footer */
+  footer{background:#fff;color:var(--ink);padding:64px 0 28px;border-top:1px solid var(--line)}
+  .foot-top{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr 1.3fr;gap:40px;padding-bottom:40px;align-items:flex-start}
+  .foot-top h5{font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);margin:0 0 18px;font-weight:500}
+  .foot-top ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:12px}
+  .foot-top li a{font-size:14px;color:var(--ink);transition:color .2s}
+  .foot-top li a:hover{color:var(--accent-deep)}
+  .foot-top .brand .taglines{margin-top:18px;font-size:13px;color:var(--muted);line-height:1.6;max-width:260px}
+  .socials{display:flex;gap:10px}
+  .socials a{width:38px;height:38px;border-radius:999px;background:var(--surface);display:grid;place-items:center;color:var(--ink);transition:background .2s,color .2s}
+  .socials a:hover{background:var(--accent);color:#fff}
+  .foot-bot{display:flex;justify-content:space-between;align-items:center;padding-top:24px;border-top:1px solid var(--line);color:var(--muted);font-size:12.5px}
+  .foot-bot .legal{display:flex;gap:18px}
+  .foot-bot .legal a:hover{color:var(--accent-deep)}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" data-presets="react">
+const { useState, useEffect } = React;
+
+const Icon = ({name,size=18,stroke=1.8,fill="none"}) => {
+  const c={width:size,height:size,viewBox:"0 0 24 24",fill,stroke:"currentColor",strokeWidth:stroke,strokeLinecap:"round",strokeLinejoin:"round"};
+  const p={
+    search:<><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></>,
+    ig:<><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></>,
+    tt:<path d="M15 3v9.5a3.5 3.5 0 1 1-3.5-3.5M15 3c0 2.5 2 4.5 4.5 4.5V10c-2 0-3.7-.6-5-1.7"/>,
+    fb:<path d="M14 8h2V5h-2a3 3 0 0 0-3 3v2H9v3h2v6h3v-6h2l.5-3H14V8z"/>,
+    yt:<><rect x="3" y="5" width="18" height="14" rx="4"/><path d="m10 9 6 3-6 3z" fill="currentColor"/></>,
+    mail:<><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></>,
+    arrow:<><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></>,
+    check:<path d="m5 12 5 5 9-11"/>,
+    cart:<><path d="M3 4h2l2.4 12.3a2 2 0 0 0 2 1.7h8.2a2 2 0 0 0 2-1.5L22 8H6"/><circle cx="10" cy="21" r="1.4"/><circle cx="18" cy="21" r="1.4"/></>,
+    shield:<><path d="M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/></>,
+    leaf:<path d="M4 20c0-8 6-14 14-14 0 8-6 14-14 14zM4 20c2-6 8-10 14-12"/>,
+    external:<><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><path d="M15 3h6v6"/><path d="m10 14 11-11"/></>,
+  };
+  return <svg {...c}>{p[name]}</svg>;
+};
+
+/* ─── Product data ─── */
+/* NOTE: Replace href="#shopee-PRODUCT_ID" with your real Shopee affiliate URL.
+   Generate links at: Shopee Affiliate Dashboard → Product Link Generator
+   Format: https://s.shopee.vn/XXXXXXX                                          */
+const CATEGORIES = [
+  {
+    id:"kitchen",
+    label:"Kitchen Tools",
+    title:"Kitchen Tools",
+    desc:"What's actually on my counter, every day.",
+    products:[
+      {name:"Vitamix Blender",cat:"Kitchen Tool",note:"The blender I reach for every morning. Worth every dong — still going strong after 3 years.",price:"from $379",badge:"MY DAILY",badgeColor:"",kind:"matcha",shopeeHref:"#shopee-vitamix-blender"},
+      {name:"Non-Toxic Cookware Set",cat:"Kitchenware",note:"Ceramic-coated, no PFOA. Safe, durable, and looks beautiful on the stove.",price:"from $89",badge:"TRUSTED",badgeColor:"",kind:"",shopeeHref:"#shopee-ceramic-cookware"},
+      {name:"Glass Food Containers",cat:"Meal Prep",note:"Essential for Sunday prep. Stackable, oven-safe, no weird smells after a year.",price:"$34",badge:"MY PICK",badgeColor:"peach",kind:"peach",shopeeHref:"#shopee-glass-containers"},
+      {name:"Digital Kitchen Scale",cat:"Baking",note:"Accurate to 1g. The one tool that actually changed my baking.",price:"$18",badge:"STAPLE",badgeColor:"",kind:"",shopeeHref:"#shopee-kitchen-scale"},
+    ]
+  },
+  {
+    id:"supplements",
+    label:"Supplements",
+    title:"Supplements",
+    desc:"Three things I personally take — after checking with my nutritionist.",
+    products:[
+      {name:"Ceremonial Matcha",cat:"Pantry",note:"My daily boost of energy and focus. Grassy, smooth, zero bitterness when done right.",price:"$28",badge:"FAVORITE",badgeColor:"matcha",kind:"matcha",shopeeHref:"#shopee-ceremonial-matcha"},
+      {name:"Daily Multivitamin",cat:"Supplements",note:"Nothing exotic — just the baseline. Covers what a busy schedule tends to skip.",price:"$24",badge:"DAILY",badgeColor:"",kind:"",shopeeHref:"#shopee-multivitamin"},
+      {name:"Collagen Powder",cat:"Supplements",note:"Unflavoured, dissolves completely. I add it to my morning smoothie — tasteless.",price:"$38",badge:"STAPLE",badgeColor:"",kind:"peach",shopeeHref:"#shopee-collagen"},
+      {name:"Magnesium Glycinate",cat:"Supplements",note:"The sleep supplement that actually works. I noticed a difference in week one.",price:"$32",badge:"NEW FAV",badgeColor:"matcha",kind:"matcha",shopeeHref:"#shopee-magnesium"},
+    ]
+  },
+  {
+    id:"snacks",
+    label:"Healthy Snacks",
+    title:"Healthy Snacks",
+    desc:"Things I keep stocked so I don't reach for something I'll regret.",
+    products:[
+      {name:"VIETNIPA Coconut Syrup",cat:"Pantry",note:"Natural coconut sweetener — no refined sugar, subtly sweet. Goes into my smoothies, overnight oats and baking.",price:"320ml",badge:"ALWAYS IN",badgeColor:"matcha",kind:"matcha",shopeeHref:"https://s.shopee.vn/2VnyvYysAb"},
+      {name:"Almond Butter",cat:"Pantry",note:"Unsweetened, just almonds. On everything. The one I use has no palm oil.",price:"$14",badge:"MY PICK",badgeColor:"peach",kind:"peach",shopeeHref:"#shopee-almond-butter"},
+      {name:"Hengyu Bijen Chocolates",cat:"Snack",note:"Boxed chocolate bars I keep on my counter. Rich, satisfying — one or two pieces sorts out any sweet craving.",price:"See Shopee",badge:"RITUAL",badgeColor:"",kind:"dark",shopeeHref:"https://s.shopee.vn/6AhHIRwCEE"},
+      {name:"Vinamilk Low Sugar Milk",cat:"Drink",note:"Green Farm UHT fresh milk, low sugar. Carton of 48 — my fridge staple for smoothies, overnight oats and drinking straight.",price:"Carton × 48",badge:"STAPLE",badgeColor:"",kind:"",shopeeHref:"https://s.shopee.vn/70GOI0f9db"},
+    ]
+  },
+  {
+    id:"daily",
+    label:"Daily Essentials",
+    title:"Daily Essentials",
+    desc:"The small things that make healthy living easier to maintain.",
+    products:[
+      {name:"Silicone Sleeve Tumbler Set",cat:"Hydration",note:"Insulated tumbler + silicone sleeve combo. Keeps drinks cold for hours. I use this every single day, everywhere I go.",price:"See Shopee",badge:"CARRY DAILY",badgeColor:"matcha",kind:"matcha",shopeeHref:"https://s.shopee.vn/AKWqG7tGbM"},
+      {name:"Meal Prep Containers",cat:"Meal Prep",note:"BPA-free, microwave-safe, tight seal. The ones that actually stack properly.",price:"$22",badge:"WEEKLY",badgeColor:"",kind:"",shopeeHref:"#shopee-meal-containers"},
+      {name:"Yoga Mat",cat:"Fitness",note:"Non-slip, 6mm thick. My morning 15 minutes of movement starts here.",price:"$45",badge:"MORNING",badgeColor:"peach",kind:"peach",shopeeHref:"#shopee-yoga-mat"},
+      {name:"Elixir Tone-Up Sunscreen",cat:"Skincare",note:"Anti-aging SPF with a natural beige tone-up finish. 35g. The sunscreen I've worn every single day this year.",price:"35g",badge:"DAILY SPF",badgeColor:"peach",kind:"peach",shopeeHref:"https://s.shopee.vn/8V5C4fFwCa"},
+    ]
+  },
+];
+
+const ALL_IDS = ["all","kitchen","supplements","snacks","daily"];
+const CAT_LABELS = {all:"All Essentials",kitchen:"Kitchen Tools",supplements:"Supplements",snacks:"Healthy Snacks",daily:"Daily Essentials"};
+
+/* ─── Header ─── */
+function Header({cartCount,onCart}){
+  return (
+    <header className="site-header">
+      <div className="wrap">
+        <div className="nav">
+          <a href="Myumminess.html" style={{display:"inline-flex",alignItems:"center",lineHeight:0}}>
+            <img src="assets/logo-black.png" alt="Myumminess" style={{height:22,width:"auto"}}/>
+          </a>
+          <nav className="nav-links">
+            <a href="Myumminess.html">Home<span className="u"/></a>
+            <a href="Recipes.html">Recipes<span className="u"/></a>
+            <a href="Blog.html">Blog<span className="u"/></a>
+            <a href="Shop.html" className="active">Shop<span className="u"/></a>
+            <a href="About Me.html">About<span className="u"/></a>
+            <a href="Contact.html">Work With Me<span className="u"/></a>
+            <a href="Follow Me.html">Follow<span className="u"/></a>
+          </nav>
+          <div className="nav-right">
+            <div className="search"><Icon name="search" size={15}/><input placeholder="Search products…" aria-label="Search"/></div>
+            <a className="icon-btn" href="#" aria-label="Instagram"><Icon name="ig" size={15}/></a>
+            <a className="icon-btn" href="#" aria-label="TikTok"><Icon name="tt" size={15}/></a>
+            <button className="icon-btn cart-badge" onClick={onCart} aria-label="Saved items">
+              <Icon name="cart" size={16}/>
+              {cartCount>0 && <span className="cb">{cartCount}</span>}
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+/* ─── Category nav ─── */
+function CatNav({active,setActive}){
+  return (
+    <nav className="cat-nav" aria-label="Product categories">
+      <div className="cat-nav-inner">
+        {ALL_IDS.map(id=>(
+          <button key={id} className={active===id?"on":""} onClick={()=>setActive(id)}>
+            {CAT_LABELS[id]}
+          </button>
+        ))}
+      </div>
+    </nav>
+  );
+}
+
+/* ─── Hero ─── */
+function Hero(){
+  return (
+    <section className="hero">
+      <div className="wrap">
+        <div className="hero-inner">
+          <div>
+            <div className="eyebrow"><span className="dot"/>Shop my essentials</div>
+            <h1>Products I love &amp;<br/><em>use every day.</em></h1>
+            <p className="sub">Not sponsored recommendations — just what's actually in my kitchen, on my counter, or in my bag. Every link goes directly to Shopee Vietnam.</p>
+            <div className="hero-stats">
+              <div className="hs"><div className="n">4</div><div className="l">Categories</div></div>
+              <div className="hs"><div className="n">16</div><div className="l">Products</div></div>
+              <div className="hs"><div className="n">100%</div><div className="l">Personal picks</div></div>
+            </div>
+          </div>
+          <div className="hero-note">
+            <div className="i"><Icon name="shield" size={18}/></div>
+            <div className="t">
+              <b>Why I link to Shopee</b>
+              Every product links to Shopee Vietnam. I earn a small affiliate commission when you buy — at no extra cost to you. It helps keep my content free.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ─── Product card ─── */
+function ProductCard({p, onSave, saved}){
+  return (
+    <article className="pcard">
+      <div className={"ph img " + (p.kind||"")}>
+        <div className="ph-center">[ {p.name} ]</div>
+        <div className={"badge " + (p.badgeColor||"")}>{p.badge}</div>
+      </div>
+      <div className="body">
+        <div className="cat">{p.cat}</div>
+        <h3 className="name">{p.name}</h3>
+        <p className="note">{p.note}</p>
+      </div>
+      <div className="foot">
+        <span className="price">{p.price}</span>
+        <a
+          className={"shopee-btn " + (p.badgeColor==="peach"?"peach":"")}
+          href={p.shopeeHref}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={"View " + p.name + " on Shopee"}
+        >
+          View on Shopee <Icon name="external" size={12}/>
+        </a>
+      </div>
+    </article>
+  );
+}
+
+/* ─── Why strip ─── */
+function WhyStrip(){
+  return (
+    <div className="why-strip">
+      <div className="wrap">
+        <div className="why-inner">
+          <div className="why-cell">
+            <div className="num">01 — honest</div>
+            <div className="t">Only what I actually use</div>
+            <div className="d">I remove products from this list if I stop using them. No dead links, no outdated picks.</div>
+          </div>
+          <div className="why-cell">
+            <div className="num">02 — transparent</div>
+            <div className="t">Affiliate links, clearly stated</div>
+            <div className="d">I earn a commission on Shopee purchases. It costs you nothing and funds free content.</div>
+          </div>
+          <div className="why-cell">
+            <div className="num">03 — practical</div>
+            <div className="t">Use cases, not just product names</div>
+            <div className="d">Every card tells you exactly why I picked it and how it fits into my daily routine.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Newsletter ─── */
+function Newsletter(){
+  const [email,setEmail]=useState(""); const [ok,setOk]=useState(false);
+  const sub=(e)=>{e.preventDefault();if(/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){setOk(true);setEmail("");setTimeout(()=>setOk(false),4000);}};
+  return (
+    <section className="news">
+      <div className="wrap news-inner">
+        <div><h3>Join 20,000+ others</h3><p>Get simple, healthy recipes &amp; new product picks in your inbox.</p></div>
+        <form className="news-form" onSubmit={sub}>
+          {ok?<div style={{flex:1,textAlign:"center",alignSelf:"center",fontSize:14,fontWeight:500,color:"var(--accent-deep)"}}>✓ You're in. Check your inbox 🌿</div>
+            :<><input type="email" placeholder="Your email address" value={email} onChange={e=>setEmail(e.target.value)}/><button type="submit">Subscribe</button></>}
+        </form>
+      </div>
+    </section>
+  );
+}
+
+/* ─── Footer ─── */
+function Footer(){
+  return (
+    <footer>
+      <div className="wrap">
+        <div className="foot-top">
+          <div className="brand">
+            <a href="Myumminess.html" style={{lineHeight:0,display:"inline-block"}}>
+              <img src="assets/logo-black.png" alt="Myumminess" style={{height:22,width:"auto"}}/>
+            </a>
+            <p className="taglines">Eat better. Feel better. Live better.</p>
+          </div>
+          <div><h5>Explore</h5><ul><li><a href="Myumminess.html">Recipes</a></li><li><a href="#">Blog</a></li><li><a href="About Me.html">About Me</a></li><li><a href="Contact.html">Contact</a></li></ul></div>
+          <div><h5>Shop</h5><ul><li><a href="#">Kitchen Tools</a></li><li><a href="#">Supplements</a></li><li><a href="#">Healthy Snacks</a></li><li><a href="#">Daily Essentials</a></li></ul></div>
+          <div><h5>Resources</h5><ul><li><a href="#">Meal Prep Guide</a></li><li><a href="#">Healthy Habits</a></li><li><a href="#">Affiliate Disclosure</a></li><li><a href="#">Privacy Policy</a></li></ul></div>
+          <div><h5>Let's Connect</h5>
+            <div className="socials">
+              <a href="#" aria-label="TikTok"><Icon name="tt" size={16}/></a>
+              <a href="#" aria-label="Instagram"><Icon name="ig" size={16}/></a>
+              <a href="#" aria-label="Facebook"><Icon name="fb" size={16}/></a>
+              <a href="#" aria-label="YouTube"><Icon name="yt" size={16}/></a>
+              <a href="mailto:hellochi3@myumminess.com" aria-label="Email"><Icon name="mail" size={16}/></a>
+            </div>
+          </div>
+        </div>
+        <div className="foot-bot">
+          <div>© 2026 Myumminess. All rights reserved.</div>
+          <div className="legal"><a href="#">Terms</a><a href="#">Privacy</a><a href="#">Affiliate Disclosure</a></div>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+/* ─── App ─── */
+function App(){
+  const [activeCat, setActiveCat] = useState("all");
+  const [cartCount, setCartCount] = useState(0);
+
+  const visibleCats = activeCat==="all" ? CATEGORIES : CATEGORIES.filter(c=>c.id===activeCat);
+
+  const scrollToCat = (id) => {
+    setActiveCat(id);
+    if(id!=="all"){
+      setTimeout(()=>{ const el=document.getElementById("cat-"+id); el?.scrollIntoView({behavior:"smooth",block:"start"}); },50);
+    }
+  };
+
+  return (
+    <>
+      <Header cartCount={cartCount} onCart={()=>{}}/>
+      <CatNav active={activeCat} setActive={scrollToCat}/>
+      <Hero/>
+      <WhyStrip/>
+      <section className="products-section">
+        <div className="wrap">
+          {visibleCats.map(cat=>(
+            <div className="cat-block" key={cat.id} id={"cat-"+cat.id}>
+              <div className="cat-block-head">
+                <div>
+                  <div className="eyebrow"><span className="dot"/>{cat.label}</div>
+                  <h2>{cat.title.split(" ")[0]} <em>{cat.title.split(" ").slice(1).join(" ")}</em></h2>
+                  <p>{cat.desc}</p>
+                </div>
+              </div>
+              <div className="product-grid">
+                {cat.products.map((p,i)=>(
+                  <ProductCard key={i} p={p} onSave={()=>setCartCount(c=>c+1)} saved={false}/>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+      <Newsletter/>
+      <Footer/>
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
