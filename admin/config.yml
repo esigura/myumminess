@@ -1,0 +1,97 @@
+backend:
+  name: git-gateway
+  branch: main
+
+# ── Media library ──────────────────────────────────────────────────────────────
+# Upload images here → they land in /Website/ → use URL /Website/filename.jpg
+media_folder: "Website"
+public_folder: "/Website"
+
+# ── Collections ────────────────────────────────────────────────────────────────
+collections:
+
+  # Blog posts — each post is a markdown file in content/posts/
+  - name: "blog"
+    label: "Blog Posts"
+    label_singular: "Post"
+    folder: "content/posts"
+    create: true
+    delete: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Title",    name: "title",    widget: "string" }
+      - { label: "Category", name: "cat",      widget: "select",
+          options: [
+            { label: "Recipes",              value: "recipes"   },
+            { label: "Health & Wellness",    value: "wellness"  },
+            { label: "Nutrition",            value: "nutrition" },
+            { label: "Mindset & Lifestyle",  value: "lifestyle" }
+          ]
+        }
+      - { label: "Date",       name: "date",     widget: "date",   format: "MMM D, YYYY" }
+      - { label: "Read time (min)", name: "readTime", widget: "number", value_type: "int", min: 1, max: 60 }
+      - { label: "Featured",  name: "featured", widget: "boolean", default: false }
+      - { label: "Excerpt",   name: "excerpt",  widget: "text" }
+      - { label: "Cover image", name: "image",  widget: "image",  required: false }
+      - { label: "Internal link (optional)", name: "internalLink", widget: "string", required: false,
+          hint: "e.g. Recipes.html or Shop.html" }
+      - { label: "Internal link label", name: "internalLinkLabel", widget: "string", required: false }
+      - { label: "Body",      name: "body",     widget: "markdown" }
+
+  # Shop products — edit product details and swap Shopee links
+  - name: "shop"
+    label: "Shop Products"
+    label_singular: "Product"
+    folder: "content/products"
+    create: true
+    delete: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Name",        name: "name",       widget: "string" }
+      - { label: "Category",    name: "cat",        widget: "select",
+          options: [
+            { label: "Kitchen Tools",   value: "kitchen"     },
+            { label: "Supplements",     value: "supplements" },
+            { label: "Healthy Snacks",  value: "snacks"      },
+            { label: "Daily Essentials",value: "daily"       }
+          ]
+        }
+      - { label: "Product category tag", name: "catLabel", widget: "string",
+          hint: "Short tag shown on card, e.g. Pantry, Skincare, Hydration" }
+      - { label: "Note (short description)", name: "note", widget: "text" }
+      - { label: "Price / size", name: "price",    widget: "string" }
+      - { label: "Badge text",   name: "badge",    widget: "string", hint: "e.g. FAVORITE, DAILY, STAPLE" }
+      - { label: "Shopee affiliate link", name: "shopeeHref", widget: "string",
+          hint: "e.g. https://s.shopee.vn/XXXXXXX" }
+      - { label: "Product image", name: "image",   widget: "image", required: false }
+
+  # Recipes — manage recipe content and affiliate blocks
+  - name: "recipes"
+    label: "Recipes"
+    label_singular: "Recipe"
+    folder: "content/recipes"
+    create: true
+    delete: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Title",       name: "title",    widget: "string" }
+      - { label: "Category",    name: "cat",      widget: "select",
+          options: [
+            { label: "Quick Meals",        value: "quick"      },
+            { label: "Weight Management",  value: "weight"     },
+            { label: "Gut Health",         value: "gut"        },
+            { label: "Breakfast",          value: "breakfast"  },
+            { label: "Snacks",             value: "snacks"     }
+          ]
+        }
+      - { label: "Prep time",   name: "prep",     widget: "string", hint: "e.g. 5 min" }
+      - { label: "Calories",    name: "calories", widget: "string", hint: "e.g. 320 kcal" }
+      - { label: "Servings",    name: "servings", widget: "string", hint: "e.g. 1 serving" }
+      - { label: "Description", name: "desc",     widget: "text" }
+      - { label: "Recipe image", name: "image",   widget: "image", required: false }
+      - { label: "Ingredients", name: "ingredients", widget: "list",
+          field: { label: "Ingredient", name: "item", widget: "string" } }
+      - { label: "Steps",       name: "steps",    widget: "list",
+          field: { label: "Step", name: "item", widget: "text" } }
+      - { label: "Benefits",    name: "benefits", widget: "list",
+          field: { label: "Benefit", name: "item", widget: "string" } }
