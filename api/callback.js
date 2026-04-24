@@ -18,10 +18,13 @@ export default async function handler(req, res) {
     <script>
       const token = ${JSON.stringify(access_token)};
       const msg = JSON.stringify({ token, provider: 'github' });
-      if (window.opener) {
-        window.opener.postMessage('authorization:github:success:' + msg, '*');
+      function sendAndClose() {
+        if (window.opener) {
+          window.opener.postMessage('authorization:github:success:' + msg, '*');
+        }
+        setTimeout(() => window.close(), 500);
       }
-      window.close();
+      sendAndClose();
     </script>
   </body></html>`);
 }
