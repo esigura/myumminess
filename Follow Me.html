@@ -308,6 +308,7 @@ const FOLLOW_DEFAULTS = {
   headline:"Stay connected with",
   headlineEm:"Myumminess.",
   subtitle:"Daily recipes. Real routines. No extremes. Follow along wherever you scroll — I post every day.",
+  tiktokImage:"", igImage:"", phoneFloat1Image:"", phoneFloat2Image:"", credibilityImage:"",
   tiktokCTA:"Follow on TikTok",
   igCTA:"Follow on Instagram",
   stat1n:"1.2M+", stat1l:"TikTok",
@@ -351,7 +352,12 @@ function Hero({priority, page}){
               <div className="notch"/>
               <div className="screen">
                 <div className="tt-ui">
-                  <div className="ph matcha"><div className="ph-center">[ tiktok reel · 5-min matcha ]</div></div>
+                  <div className="ph matcha" style={{overflow:"hidden"}}>
+                    {page.tiktokImage
+                      ? <img src={page.tiktokImage} alt="" style={{width:"100%",height:"100%",objectFit:"cover",display:"block"}}/>
+                      : <div className="ph-center">[ tiktok reel · 5-min matcha ]</div>
+                    }
+                  </div>
                   <div className="grad"/>
                   <div className="tabs"><div className="a">Following</div><div className="b">For You</div></div>
                   <div className="side">
@@ -373,7 +379,12 @@ function Hero({priority, page}){
                 <div className="ig-ui">
                   <div className="topbar"><span>myumminess</span><Icon name="sparkle" size={16}/></div>
                   <div className="post">
-                    <div className="ph peach" style={{position:"absolute",inset:0}}><div className="ph-center">[ IG carousel · Buddha bowl ]</div></div>
+                    <div className="ph peach" style={{position:"absolute",inset:0,overflow:"hidden"}}>
+                      {page.igImage
+                        ? <img src={page.igImage} alt="" style={{width:"100%",height:"100%",objectFit:"cover",display:"block"}}/>
+                        : <div className="ph-center">[ IG carousel · Buddha bowl ]</div>
+                      }
+                    </div>
                   </div>
                   <div className="bottombar">
                     <Icon name="home" size={18}/>
@@ -387,11 +398,15 @@ function Hero({priority, page}){
             </div>
 
             <div className="phone-float a">
-              <div className="ph matcha sw"/>
+              <div className="ph matcha sw" style={{overflow:"hidden"}}>
+                {page.phoneFloat1Image && <img src={page.phoneFloat1Image} alt="" style={{width:"100%",height:"100%",objectFit:"cover",display:"block"}}/>}
+              </div>
               <div className="t"><b>@myumminess</b><span>Just posted a new reel</span></div>
             </div>
             <div className="phone-float b">
-              <div className="ph peach sw"/>
+              <div className="ph peach sw" style={{overflow:"hidden"}}>
+                {page.phoneFloat2Image && <img src={page.phoneFloat2Image} alt="" style={{width:"100%",height:"100%",objectFit:"cover",display:"block"}}/>}
+              </div>
               <div className="t"><b>1.9M views</b><span>This week's top video</span></div>
             </div>
           </div>
@@ -504,7 +519,12 @@ function Credibility(){
     <section className="section">
       <div className="wrap">
         <div className="trust">
-          <div className="ph trust-img"><div className="ph-center">[ portrait · certificate in hand · 900×1125 ]</div><div className="ph-label">credibility.jpg</div></div>
+          <div className="ph trust-img" style={{overflow:"hidden"}}>
+            {page.credibilityImage
+              ? <img src={page.credibilityImage} alt="" style={{width:"100%",height:"100%",objectFit:"cover",display:"block"}}/>
+              : <><div className="ph-center">[ portrait · certificate in hand · 900×1125 ]</div><div className="ph-label">credibility.jpg</div></>
+            }
+          </div>
           <div>
             <div className="eyebrow"><span className="dot"/>Why follow me?</div>
             <h2>Practical, not <em>preachy.</em></h2>

@@ -142,6 +142,11 @@ collections:
           - { label: "Hero headline",          name: "headline",     widget: "string" }
           - { label: "Hero headline (italic)", name: "headlineEm",   widget: "string" }
           - { label: "Hero subtitle",          name: "subtitle",     widget: "text" }
+          - { label: "TikTok phone screen image",   name: "tiktokImage",       widget: "image", required: false }
+          - { label: "Instagram phone screen image",name: "igImage",            widget: "image", required: false }
+          - { label: "Phone float A — thumbnail",   name: "phoneFloat1Image",  widget: "image", required: false }
+          - { label: "Phone float B — thumbnail",   name: "phoneFloat2Image",  widget: "image", required: false }
+          - { label: "Credibility section portrait",name: "credibilityImage",  widget: "image", required: false }
           - { label: "TikTok CTA label",       name: "tiktokCTA",    widget: "string" }
           - { label: "Instagram CTA label",    name: "igCTA",        widget: "string" }
           - { label: "Stat 1 — number",        name: "stat1n",       widget: "string" }
