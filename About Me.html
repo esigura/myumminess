@@ -380,6 +380,7 @@ const ABOUT_DEFAULTS = {
   headline2:'"health coach."',
   headline3:"I started because I was tired.",
   subtitle:"Tired of being confused about what \"healthy\" even meant. Tired of doing everything \"right\" and still feeling off. So I stopped chasing perfection — and started focusing on something simpler.",
+  heroImage:"", story1Image:"", story2Image:"", story3Image:"",
   chip1:"Certified Health Coach · INN",
   chip2:"Based in Ho Chi Minh City",
   chip3:"Since 2018",
@@ -416,8 +417,10 @@ function Hero({page}){
           </div>
           <div className="hero-portrait">
             <div className="ph p">
-              <div className="ph-center">[ editorial portrait · kitchen window light · 960×1280 ]</div>
-              <div className="ph-label">about-hero.jpg</div>
+              {page.heroImage
+                ? <img src={page.heroImage} alt="Portrait" style={{width:"100%",height:"100%",objectFit:"cover",display:"block",borderRadius:"inherit"}}/>
+                : <><div className="ph-center">[ editorial portrait · kitchen window light · 960×1280 ]</div><div className="ph-label">about-hero.jpg</div></>
+              }
             </div>
             <div className="hero-stamp">INN Certified · 2021</div>
             <div className="hero-sig">
@@ -451,9 +454,9 @@ function Story(){
             <p>Five years in, the mission hasn't changed — only the number of people I get to cook for.</p>
           </div>
           <div className="story-images">
-            <div className="ph a matcha"><div className="ph-center">[ kitchen counter · morning smoothie · 960×560 ]</div><div className="ph-label">story-01.jpg</div></div>
-            <div className="ph b peach"><div className="ph-center">[ hands · bowl ]</div><div className="ph-label">story-02.jpg</div></div>
-            <div className="ph c"><div className="ph-center">[ notebook · recipe ]</div><div className="ph-label">story-03.jpg</div></div>
+            <div className="ph a matcha">{page.story1Image ? <img src={page.story1Image} alt="" style={{width:"100%",height:"100%",objectFit:"cover",display:"block"}}/> : <><div className="ph-center">[ kitchen counter · morning smoothie ]</div><div className="ph-label">story-01.jpg</div></>}</div>
+            <div className="ph b peach">{page.story2Image ? <img src={page.story2Image} alt="" style={{width:"100%",height:"100%",objectFit:"cover",display:"block"}}/> : <><div className="ph-center">[ hands · bowl ]</div><div className="ph-label">story-02.jpg</div></>}</div>
+            <div className="ph c">{page.story3Image ? <img src={page.story3Image} alt="" style={{width:"100%",height:"100%",objectFit:"cover",display:"block"}}/> : <><div className="ph-center">[ notebook · recipe ]</div><div className="ph-label">story-03.jpg</div></>}</div>
           </div>
         </div>
       </div>

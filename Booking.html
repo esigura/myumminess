@@ -239,6 +239,7 @@ const BOOKING_DEFAULTS = {
   headline:"Book a session.",
   headlineEm:"Let's talk.",
   subtitle:"A 45-minute conversation about your habits, goals, and challenges — and a realistic, personalised plan to move forward. No scripts. Just real guidance.",
+  avatarImage:"",
   chip1:"45 min · Google Meet",
   chip2:"$120 per session",
   chip3:"INN Certified Coach",
@@ -275,7 +276,7 @@ function Hero({page}){
 }
 
 /* ── Booking card ── */
-function BookingCard(){
+function BookingCard({avatarImage}){
   const dates = useMemo(()=>{
     const arr=[], start=new Date(2026,3,22); let i=0;
     while(arr.length<10){ const d=new Date(start); d.setDate(start.getDate()+i); if(d.getDay()!==0&&d.getDay()!==6) arr.push(d); i++; }
@@ -303,7 +304,9 @@ function BookingCard(){
   return (
     <div className="booking">
       <div className="b-head">
-        <div className="av ph matcha" style={{position:"relative"}}/>
+        <div className="av ph matcha" style={{position:"relative"}}>
+          {avatarImage && <img src={avatarImage} alt="Coach" style={{width:"100%",height:"100%",objectFit:"cover",display:"block",borderRadius:"inherit",position:"absolute",inset:0}}/>}
+        </div>
         <div className="t">
           <b>1:1 Coaching with Myumminess</b>
           <span>Google Meet · Live · Personalised</span>
@@ -559,7 +562,7 @@ function App(){
         <div className="wrap">
           <div className="main-inner">
             <InfoPanels/>
-            <BookingCard/>
+            <BookingCard avatarImage={page.avatarImage}/>
           </div>
         </div>
       </section>

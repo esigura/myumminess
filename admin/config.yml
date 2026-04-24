@@ -20,6 +20,8 @@ collections:
           - { label: "Hero headline",          name: "headline",      widget: "string" }
           - { label: "Hero headline (accent)", name: "headlineAccent",widget: "string" }
           - { label: "Hero subtitle",          name: "subtitle",      widget: "text" }
+          - { label: "Hero image",             name: "heroImage",     widget: "image",  required: false }
+          - { label: "About section image",    name: "aboutImage",    widget: "image",  required: false }
           - { label: "CTA button 1",           name: "cta1",          widget: "string" }
           - { label: "CTA button 2",           name: "cta2",          widget: "string" }
           - { label: "Stat 1 — number",        name: "stat1n",        widget: "string" }
@@ -40,6 +42,10 @@ collections:
           - { label: "Hero headline line 1",   name: "headline1",    widget: "string" }
           - { label: "Hero headline line 2",   name: "headline2",    widget: "string" }
           - { label: "Hero subtitle",          name: "subtitle",     widget: "text" }
+          - { label: "Portrait photo",         name: "heroImage",    widget: "image",  required: false }
+          - { label: "Story image 1",          name: "story1Image",  widget: "image",  required: false }
+          - { label: "Story image 2",          name: "story2Image",  widget: "image",  required: false }
+          - { label: "Story image 3",          name: "story3Image",  widget: "image",  required: false }
           - { label: "Chip 1 (credential)",    name: "chip1",        widget: "string" }
           - { label: "Chip 2 (location)",      name: "chip2",        widget: "string" }
           - { label: "Chip 3 (since)",         name: "chip3",        widget: "string" }
@@ -155,6 +161,7 @@ collections:
           - { label: "Hero headline",          name: "headline",     widget: "string" }
           - { label: "Hero headline (italic)", name: "headlineEm",   widget: "string" }
           - { label: "Hero subtitle",          name: "subtitle",     widget: "text" }
+          - { label: "Coach photo (booking card)", name: "avatarImage", widget: "image", required: false }
           - { label: "Session chip 1",         name: "chip1",        widget: "string" }
           - { label: "Session chip 2",         name: "chip2",        widget: "string" }
           - { label: "Session chip 3",         name: "chip3",        widget: "string" }

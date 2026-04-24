@@ -444,6 +444,7 @@ const HOME_DEFAULTS = {
   headline:"Eat better. Feel better.",
   headlineAccent:"Live better.",
   subtitle:"Simple recipes, daily routines and practical tips from a certified health coach — for the kind of wellness that actually fits your life.",
+  heroImage:"", aboutImage:"",
   cta1:"Explore Recipes",
   cta2:"Shop My Essentials",
   stat1n:"128", stat1l:"recipes",
@@ -487,8 +488,10 @@ function Hero({layout, page}){
           {split && (
             <div className="hero-visual">
               <div className="ph main">
-                <div className="ph-center">[ hero lifestyle · kitchen, bowl &amp; smoothie · 1200×900 ]</div>
-                <div className="ph-label">hero.jpg</div>
+                {page.heroImage
+                  ? <img src={page.heroImage} alt="Hero" style={{width:"100%",height:"100%",objectFit:"cover",display:"block",borderRadius:"inherit"}}/>
+                  : <><div className="ph-center">[ hero lifestyle · kitchen, bowl &amp; smoothie · 1200×900 ]</div><div className="ph-label">hero.jpg</div></>
+                }
               </div>
               <div className="hero-float hero-float-1">
                 <div className="ph matcha sw"/>
@@ -667,14 +670,16 @@ function Philosophy(){
 }
 
 /* ---------------- About ---------------- */
-function About(){
+function About({aboutImage}){
   return (
     <section className="section" id="about">
       <div className="wrap">
         <div className="about">
           <div className="ph about-img">
-            <div className="ph-center">[ portrait · kitchen counter · 900×1125 ]</div>
-            <div className="ph-label">about-portrait.jpg</div>
+            {aboutImage
+              ? <img src={aboutImage} alt="About" style={{width:"100%",height:"100%",objectFit:"cover",display:"block",borderRadius:"inherit"}}/>
+              : <><div className="ph-center">[ portrait · kitchen counter · 900×1125 ]</div><div className="ph-label">about-portrait.jpg</div></>
+            }
           </div>
           <div className="about-copy">
             <span className="cred"><span className="d"/><Icon name="shield" size={13}/> Certified Health Coach · INN</span>
@@ -910,7 +915,7 @@ function App(){
       <Reels/>
       <Recipes favs={favs} toggleFav={toggleFav} chip={chip} setChip={setChip}/>
       <Shop addToCart={addToCart}/>
-      <About/>
+      <About aboutImage={page.aboutImage}/>
       <Newsletter headline={page.newsHeadline} sub={page.newsSub}/>
       <Footer/>
       <CartDrawer open={cartOpen} onClose={()=>setCartOpen(false)} items={cart} removeItem={removeItem}/>
