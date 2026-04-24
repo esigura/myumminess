@@ -1,0 +1,9 @@
+// Get the HTML elements for the introduction page
+const introTitle = document.querySelector('.intro-title');
+const introContent = document.querySelector('.intro-content');
+const introImage = document.querySelector('.intro-image');
+
+// Set the content for the introduction page
+introTitle.textContent = 'Welcome to our Website!';
+introContent.innerHTML = '<p>We are a content website that provides informative and entertaining articles on a variety of topics. Our mission is to help you learn and grow while having fun!</p><p>Explore our site to discover new and interesting content, and don\'t forget to subscribe to our newsletter to stay up-to-date on the latest articles.</p>';
+introImage.src = 'intro-image.jpg';
