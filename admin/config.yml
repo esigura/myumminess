@@ -2,7 +2,7 @@ backend:
   name: github
   repo: esigura/myumminess
   branch: main
-  base_url: https://myumminess.com
+  base_url: https://www.myumminess.com
   auth_endpoint: /api/auth
 
 media_folder: "Website"
