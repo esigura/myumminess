@@ -514,7 +514,7 @@ function Preview(){
   );
 }
 
-function Credibility(){
+function Credibility({page}){
   return (
     <section className="section">
       <div className="wrap">
@@ -692,7 +692,7 @@ function App(){
       <Hero priority={pushTo} page={page}/>
       <PlatformSplit priority={pushTo}/>
       <Preview/>
-      <Credibility/>
+      <Credibility page={page}/>
       <CtaStrip/>
       <Newsletter headline={page.newsHeadline} sub={page.newsSub}/>
       <Footer/>

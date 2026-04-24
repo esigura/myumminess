@@ -437,7 +437,7 @@ function Hero({page}){
   );
 }
 
-function Story(){
+function Story({page}){
   return (
     <section className="story" id="story">
       <div className="wrap">
@@ -810,7 +810,7 @@ function App(){
       <Header/>
       <Hero page={page}/>
       <SectionNav/>
-      <Story/>
+      <Story page={page}/>
       <Identity/>
       <Philosophy/>
       <WhoIHelp/>
