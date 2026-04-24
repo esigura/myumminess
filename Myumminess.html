@@ -437,29 +437,50 @@ function Header({cartCount, onCartOpen, active, setActive}){
   );
 }
 
+/* ---------------- usePage hook ---------------- */
+const HOME_DEFAULTS = {
+  eyebrow:"Healthy living made simple",
+  headline:"Eat better. Feel better.",
+  headlineAccent:"Live better.",
+  subtitle:"Simple recipes, daily routines and practical tips from a certified health coach — for the kind of wellness that actually fits your life.",
+  cta1:"Explore Recipes",
+  cta2:"Shop My Essentials",
+  stat1n:"128", stat1l:"recipes",
+  stat2n:"52", stat2l:"weekly routines",
+  stat3n:"INN", stat3l:"certified coach",
+  newsHeadline:"Join 20,000+ others",
+  newsSub:"Get simple, healthy recipes & new recipes in your inbox."
+};
+function usePage(path, defaults){
+  const [c, setC] = React.useState(defaults);
+  React.useEffect(()=>{
+    fetch(path).then(r=>r.ok?r.json():null).then(d=>{if(d) setC(s=>({...s,...d}));}).catch(()=>{});
+  },[]);
+  return c;
+}
+
 /* ---------------- Hero ---------------- */
-function Hero({layout}){
+function Hero({layout, page}){
   const split = layout === "split";
   return (
     <section className="hero">
       <div className="wrap">
         <div className="hero-inner" style={split ? {} : {gridTemplateColumns:"1fr"}}>
           <div className="hero-copy" style={split ? {} : {maxWidth:720, margin:"0 auto", padding:"80px 0 48px", textAlign:"left"}}>
-            <div className="eyebrow hero-eyebrow"><span className="dot"/>Healthy living made simple</div>
+            <div className="eyebrow hero-eyebrow"><span className="dot"/>{page.eyebrow}</div>
             <h1 className="hero-title">
-              Eat better.<br/>
-              Feel better.<br/>
-              <span className="accent">Live better.</span>
+              {page.headline.split('. ').map((s,i,a)=><React.Fragment key={i}>{s}{i<a.length-1?'.':''}<br/></React.Fragment>)}
+              <span className="accent">{page.headlineAccent}</span>
             </h1>
-            <p className="hero-sub">Simple recipes, daily routines and practical tips from a certified health coach — for the kind of wellness that actually fits your life.</p>
+            <p className="hero-sub">{page.subtitle}</p>
             <div className="hero-actions">
-              <a className="btn btn-primary" href="#recipes">Explore Recipes <Icon name="arrow" size={15}/></a>
-              <a className="btn btn-ghost" href="#shop">Shop My Essentials</a>
+              <a className="btn btn-primary" href="#recipes">{page.cta1} <Icon name="arrow" size={15}/></a>
+              <a className="btn btn-ghost" href="#shop">{page.cta2}</a>
             </div>
             <div className="hero-meta">
-              <span><b>128</b> recipes</span>
-              <span><b>52</b> weekly routines</span>
-              <span><b>INN</b> certified coach</span>
+              <span><b>{page.stat1n}</b> {page.stat1l}</span>
+              <span><b>{page.stat2n}</b> {page.stat2l}</span>
+              <span><b>{page.stat3n}</b> {page.stat3l}</span>
             </div>
           </div>
           {split && (
@@ -679,7 +700,7 @@ function About(){
 }
 
 /* ---------------- Newsletter ---------------- */
-function Newsletter(){
+function Newsletter({headline, sub}){
   const [email, setEmail] = useState("");
   const [ok, setOk] = useState(false);
   const [err, setErr] = useState("");
@@ -693,8 +714,8 @@ function Newsletter(){
     <section className="news">
       <div className="wrap news-inner">
         <div>
-          <h3>Join 20,000+ others</h3>
-          <p>Get simple, healthy recipes &amp; new recipes in your inbox.</p>
+          <h3>{headline}</h3>
+          <p>{sub}</p>
         </div>
         <form className="news-form" onSubmit={onSubmit}>
           {ok ? (
@@ -855,6 +876,7 @@ function Tweaks({state, setState, onEdit}){
 
 /* ---------------- App ---------------- */
 function App(){
+  const page = usePage('/content/pages/home.json', HOME_DEFAULTS);
   const [state, setState] = useState(TWEAK_DEFAULTS);
   const [favs, setFavs] = useState({});
   const [cartOpen, setCartOpen] = useState(false);
@@ -883,12 +905,12 @@ function App(){
   return (
     <>
       <Header cartCount={cart.length} onCartOpen={()=>setCartOpen(true)} active={active} setActive={setActive}/>
-      <Hero layout={state.heroLayout}/>
+      <Hero layout={state.heroLayout} page={page}/>
       <Reels/>
       <Recipes favs={favs} toggleFav={toggleFav} chip={chip} setChip={setChip}/>
       <Shop addToCart={addToCart}/>
       <About/>
-      <Newsletter/>
+      <Newsletter headline={page.newsHeadline} sub={page.newsSub}/>
       <Footer/>
       <CartDrawer open={cartOpen} onClose={()=>setCartOpen(false)} items={cart} removeItem={removeItem}/>
       <Tweaks state={state} setState={setState} onEdit={onEdit}/>

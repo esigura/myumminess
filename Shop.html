@@ -287,27 +287,49 @@ function CatNav({active,setActive}){
   );
 }
 
+/* ─── usePage hook ─── */
+const SHOP_DEFAULTS = {
+  eyebrow:"Shop my essentials",
+  headline:"Products I love &",
+  headlineEm:"use every day.",
+  subtitle:"Not sponsored recommendations — just what's actually in my kitchen, on my counter, or in my bag. Every link goes directly to Shopee Vietnam.",
+  stat1n:"4", stat1l:"Categories",
+  stat2n:"16", stat2l:"Products",
+  stat3n:"100%", stat3l:"Personal picks",
+  noteTitle:"Why I link to Shopee",
+  noteBody:"Every product links to Shopee Vietnam. I earn a small affiliate commission when you buy — at no extra cost to you. It helps keep my content free.",
+  newsHeadline:"Join 20,000+ others",
+  newsSub:"Get simple, healthy recipes & new product picks in your inbox."
+};
+function usePage(path, defaults){
+  const [c, setC] = React.useState(defaults);
+  React.useEffect(()=>{
+    fetch(path).then(r=>r.ok?r.json():null).then(d=>{if(d) setC(s=>({...s,...d}));}).catch(()=>{});
+  },[]);
+  return c;
+}
+
 /* ─── Hero ─── */
-function Hero(){
+function Hero({page}){
   return (
     <section className="hero">
       <div className="wrap">
         <div className="hero-inner">
           <div>
-            <div className="eyebrow"><span className="dot"/>Shop my essentials</div>
-            <h1>Products I love &amp;<br/><em>use every day.</em></h1>
-            <p className="sub">Not sponsored recommendations — just what's actually in my kitchen, on my counter, or in my bag. Every link goes directly to Shopee Vietnam.</p>
+            <div className="eyebrow"><span className="dot"/>{page.eyebrow}</div>
+            <h1>{page.headline}<br/><em>{page.headlineEm}</em></h1>
+            <p className="sub">{page.subtitle}</p>
             <div className="hero-stats">
-              <div className="hs"><div className="n">4</div><div className="l">Categories</div></div>
-              <div className="hs"><div className="n">16</div><div className="l">Products</div></div>
-              <div className="hs"><div className="n">100%</div><div className="l">Personal picks</div></div>
+              <div className="hs"><div className="n">{page.stat1n}</div><div className="l">{page.stat1l}</div></div>
+              <div className="hs"><div className="n">{page.stat2n}</div><div className="l">{page.stat2l}</div></div>
+              <div className="hs"><div className="n">{page.stat3n}</div><div className="l">{page.stat3l}</div></div>
             </div>
           </div>
           <div className="hero-note">
             <div className="i"><Icon name="shield" size={18}/></div>
             <div className="t">
-              <b>Why I link to Shopee</b>
-              Every product links to Shopee Vietnam. I earn a small affiliate commission when you buy — at no extra cost to you. It helps keep my content free.
+              <b>{page.noteTitle}</b>
+              {page.noteBody}
             </div>
           </div>
         </div>
@@ -373,13 +395,13 @@ function WhyStrip(){
 }
 
 /* ─── Newsletter ─── */
-function Newsletter(){
+function Newsletter({headline, sub: newsSub}){
   const [email,setEmail]=useState(""); const [ok,setOk]=useState(false);
   const sub=(e)=>{e.preventDefault();if(/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){setOk(true);setEmail("");setTimeout(()=>setOk(false),4000);}};
   return (
     <section className="news">
       <div className="wrap news-inner">
-        <div><h3>Join 20,000+ others</h3><p>Get simple, healthy recipes &amp; new product picks in your inbox.</p></div>
+        <div><h3>{headline}</h3><p>{newsSub}</p></div>
         <form className="news-form" onSubmit={sub}>
           {ok?<div style={{flex:1,textAlign:"center",alignSelf:"center",fontSize:14,fontWeight:500,color:"var(--accent-deep)"}}>✓ You're in. Check your inbox 🌿</div>
             :<><input type="email" placeholder="Your email address" value={email} onChange={e=>setEmail(e.target.value)}/><button type="submit">Subscribe</button></>}
@@ -425,6 +447,7 @@ function Footer(){
 
 /* ─── App ─── */
 function App(){
+  const page = usePage('/content/pages/shop.json', SHOP_DEFAULTS);
   const [activeCat, setActiveCat] = useState("all");
   const [cartCount, setCartCount] = useState(0);
 
@@ -441,7 +464,7 @@ function App(){
     <>
       <Header cartCount={cartCount} onCart={()=>{}}/>
       <CatNav active={activeCat} setActive={scrollToCat}/>
-      <Hero/>
+      <Hero page={page}/>
       <WhyStrip/>
       <section className="products-section">
         <div className="wrap">
@@ -463,7 +486,7 @@ function App(){
           ))}
         </div>
       </section>
-      <Newsletter/>
+      <Newsletter headline={page.newsHeadline} sub={page.newsSub}/>
       <Footer/>
     </>
   );

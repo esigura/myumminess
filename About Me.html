@@ -374,26 +374,44 @@ function Header(){
   );
 }
 
-function Hero(){
+const ABOUT_DEFAULTS = {
+  eyebrow:"About Me · Myumminess",
+  headline1:"I didn't start this to become a",
+  headline2:'"health coach."',
+  headline3:"I started because I was tired.",
+  subtitle:"Tired of being confused about what \"healthy\" even meant. Tired of doing everything \"right\" and still feeling off. So I stopped chasing perfection — and started focusing on something simpler.",
+  chip1:"Certified Health Coach · INN",
+  chip2:"Based in Ho Chi Minh City",
+  chip3:"Since 2018",
+  newsHeadline:"Want more of this?",
+  newsSub:"Get my weekly notes — recipes, routines and honest wellness takes, straight to your inbox."
+};
+function usePage(path, defaults){
+  const [c, setC] = React.useState(defaults);
+  React.useEffect(()=>{
+    fetch(path).then(r=>r.ok?r.json():null).then(d=>{if(d) setC(s=>({...s,...d}));}).catch(()=>{});
+  },[]);
+  return c;
+}
+
+function Hero({page}){
   return (
     <section className="hero">
       <div className="wrap">
         <div className="hero-inner">
           <div>
-            <div className="kicker"><span className="line"/>About Me · Myumminess</div>
+            <div className="kicker"><span className="line"/>{page.eyebrow}</div>
             <h1>
-              I didn't start this<br/>
-              to become a <span className="underline"><em>"health coach."</em></span><br/>
-              I started because<br/>
+              {page.headline1}<br/>
+              to become a <span className="underline"><em>{page.headline2}</em></span><br/>
+              {page.headline3.split(' I ').map((s,i,a)=><React.Fragment key={i}>{i>0?' I ':''}{s}</React.Fragment>)}<br/>
               I was <em>tired.</em>
             </h1>
-            <p className="lede">
-              Tired of being confused about what "healthy" even meant. Tired of doing everything "right" and still feeling off. So I stopped chasing perfection — and started focusing on something simpler.
-            </p>
+            <p className="lede">{page.subtitle}</p>
             <div className="meta-chips">
-              <span className="mc"><span className="d"/>Certified Health Coach · INN</span>
-              <span className="mc"><span className="d"/>Based in Ho Chi Minh City</span>
-              <span className="mc"><span className="d"/>Since 2018</span>
+              <span className="mc"><span className="d"/>{page.chip1}</span>
+              <span className="mc"><span className="d"/>{page.chip2}</span>
+              <span className="mc"><span className="d"/>{page.chip3}</span>
             </div>
           </div>
           <div className="hero-portrait">
@@ -668,7 +686,7 @@ function BookCTA(){
   );
 }
 
-function Newsletter(){
+function Newsletter({headline, sub}){
   const [email, setEmail] = useState("");
   const [ok, setOk] = useState(false);
   const onSubmit = (e) => { e.preventDefault(); if(/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ setOk(true); setEmail(""); setTimeout(()=>setOk(false),4000); } };
@@ -676,8 +694,8 @@ function Newsletter(){
     <section className="news">
       <div className="wrap news-inner">
         <div>
-          <h3>Join 20,000+ others</h3>
-          <p>Get simple, healthy recipes &amp; new recipes in your inbox.</p>
+          <h3>{headline}</h3>
+          <p>{sub}</p>
         </div>
         <form className="news-form" onSubmit={onSubmit}>
           {ok ? <div style={{flex:1,textAlign:"center",alignSelf:"center",fontSize:14,fontWeight:500,color:"var(--accent-deep)"}}>✓ You're in. Check your inbox 🌿</div> :
@@ -772,6 +790,7 @@ function Tweaks({state,setState,onEdit}){
 }
 
 function App(){
+  const page = usePage('/content/pages/about.json', ABOUT_DEFAULTS);
   const [state, setState] = useState(TWEAK_DEFAULTS);
   useEffect(()=>{
     if(state.tone === "warm"){
@@ -786,7 +805,7 @@ function App(){
   return (
     <>
       <Header/>
-      <Hero/>
+      <Hero page={page}/>
       <SectionNav/>
       <Story/>
       <Identity/>
@@ -796,7 +815,7 @@ function App(){
       <Proof/>
       <Transition/>
       <BookCTA/>
-      <Newsletter/>
+      <Newsletter headline={page.newsHeadline} sub={page.newsSub}/>
       <Footer/>
       <Tweaks state={state} setState={setState} onEdit={onEdit}/>
     </>

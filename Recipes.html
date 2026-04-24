@@ -511,19 +511,37 @@ function CatNav({active,setActive}){
   );
 }
 
+/* ─── usePage hook ─── */
+const RECIPES_DEFAULTS = {
+  eyebrow:"Tested in my own kitchen",
+  headline:"Simple recipes.",
+  headlineEm:"Real results.",
+  subtitle:"128 recipes — all tested, all quick, all designed for the kind of life that doesn't stop for meal prep.",
+  featuredLabel:"This week's top picks",
+  newsHeadline:"Get new recipes in your inbox",
+  newsSub:"Join 20,000+ people who cook Myumminess recipes every week."
+};
+function usePage(path, defaults){
+  const [c, setC] = React.useState(defaults);
+  React.useEffect(()=>{
+    fetch(path).then(r=>r.ok?r.json():null).then(d=>{if(d) setC(s=>({...s,...d}));}).catch(()=>{});
+  },[]);
+  return c;
+}
+
 /* ─── Hero ─── */
-function Hero({onOpen}){
+function Hero({onOpen, page}){
   return (
     <section className="hero">
       <div className="wrap">
         <div className="hero-inner">
           <div>
-            <div className="eyebrow"><span className="dot"/>Tested in my own kitchen</div>
-            <h1>Simple recipes.<br/><em>Real results.</em></h1>
-            <p className="sub">128 recipes — all tested, all quick, all designed for the kind of life that doesn't stop for meal prep.</p>
+            <div className="eyebrow"><span className="dot"/>{page.eyebrow}</div>
+            <h1>{page.headline}<br/><em>{page.headlineEm}</em></h1>
+            <p className="sub">{page.subtitle}</p>
           </div>
           <div className="featured">
-            <div className="feat-label">This week's top picks</div>
+            <div className="feat-label">{page.featuredLabel}</div>
             {FEATURED.map(r=>(
               <div className="feat-card" key={r.id} onClick={()=>onOpen(r)}>
                 <div className={"ph img " + r.kind}><div className="ph-center">[ {r.name} ]</div></div>
@@ -698,13 +716,13 @@ function DetailPanel({recipe, open, onClose}){
 }
 
 /* ─── Newsletter ─── */
-function Newsletter(){
+function Newsletter({headline, sub: newsSub}){
   const [email,setEmail]=useState(""); const [ok,setOk]=useState(false);
   const sub=(e)=>{e.preventDefault();if(/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){setOk(true);setEmail("");setTimeout(()=>setOk(false),4000);}};
   return (
     <section className="news">
       <div className="wrap news-inner">
-        <div><h3>Get new recipes in your inbox</h3><p>Join 20,000+ people who cook Myumminess recipes every week.</p></div>
+        <div><h3>{headline}</h3><p>{newsSub}</p></div>
         <form className="news-form" onSubmit={sub}>
           {ok?<div style={{flex:1,textAlign:"center",alignSelf:"center",fontSize:14,fontWeight:500,color:"var(--accent-deep)"}}>✓ You're in. Check your inbox 🌿</div>
             :<><input type="email" placeholder="Your email address" value={email} onChange={e=>setEmail(e.target.value)}/><button type="submit">Subscribe</button></>}
@@ -750,6 +768,7 @@ function Footer(){
 
 /* ─── App ─── */
 function App(){
+  const page = usePage('/content/pages/recipes.json', RECIPES_DEFAULTS);
   const [cat, setCat] = useState("all");
   const [activeRecipe, setActiveRecipe] = useState(null);
   const [favs, setFavs] = useState({});
@@ -769,7 +788,7 @@ function App(){
     <>
       <Header/>
       <CatNav active={cat} setActive={(c)=>{setCat(c);setActiveRecipe(null);}}/>
-      <Hero onOpen={openRecipe}/>
+      <Hero onOpen={openRecipe} page={page}/>
       <section className="grid-section">
         <div className="wrap">
           <div className="grid-head">
@@ -795,7 +814,7 @@ function App(){
           />
         </div>
       </section>
-      <Newsletter/>
+      <Newsletter headline={page.newsHeadline} sub={page.newsSub}/>
       <Footer/>
     </>
   );

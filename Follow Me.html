@@ -303,24 +303,46 @@ function Header(){
   );
 }
 
-function Hero({priority}){
+const FOLLOW_DEFAULTS = {
+  eyebrow:"Follow me anywhere",
+  headline:"Stay connected with",
+  headlineEm:"Myumminess.",
+  subtitle:"Daily recipes. Real routines. No extremes. Follow along wherever you scroll — I post every day.",
+  tiktokCTA:"Follow on TikTok",
+  igCTA:"Follow on Instagram",
+  stat1n:"1.2M+", stat1l:"TikTok",
+  stat2n:"600K+", stat2l:"Instagram",
+  stat3n:"128", stat3l:"Recipes",
+  stat4n:"5M+", stat4l:"Monthly views",
+  newsHeadline:"Want more than short videos?",
+  newsSub:"Get weekly tips and fresh recipes straight to your inbox. One email. No spam. Unsubscribe anytime."
+};
+function usePage(path, defaults){
+  const [c, setC] = React.useState(defaults);
+  React.useEffect(()=>{
+    fetch(path).then(r=>r.ok?r.json():null).then(d=>{if(d) setC(s=>({...s,...d}));}).catch(()=>{});
+  },[]);
+  return c;
+}
+
+function Hero({priority, page}){
   return (
     <section className="hero">
       <div className="wrap">
         <div className="hero-inner">
           <div>
-            <div className="eyebrow"><span className="dot"/>Follow me anywhere</div>
-            <h1>Stay connected with <em>Myumminess</em>.</h1>
-            <p className="sub">Daily recipes. Real routines. No extremes. Follow along wherever you scroll — I post every day.</p>
+            <div className="eyebrow"><span className="dot"/>{page.eyebrow}</div>
+            <h1>{page.headline} <em>{page.headlineEm}</em></h1>
+            <p className="sub">{page.subtitle}</p>
             <div className="ctas">
-              <a className="btn btn-ink btn-lg" href="#"><Icon name="tiktok" size={17}/> Follow on TikTok</a>
-              <a className="btn btn-ig btn-lg" href="#"><Icon name="ig" size={17}/> Follow on Instagram</a>
+              <a className="btn btn-ink btn-lg" href="#"><Icon name="tiktok" size={17}/> {page.tiktokCTA}</a>
+              <a className="btn btn-ig btn-lg" href="#"><Icon name="ig" size={17}/> {page.igCTA}</a>
             </div>
             <div className="social-proof">
-              <div className="sp"><div className="n">1.2M+</div><div className="l">TikTok</div></div>
-              <div className="sp"><div className="n">600K+</div><div className="l">Instagram</div></div>
-              <div className="sp"><div className="n">128</div><div className="l">Recipes</div></div>
-              <div className="sp"><div className="n">5M+</div><div className="l">Monthly views</div></div>
+              <div className="sp"><div className="n">{page.stat1n}</div><div className="l">{page.stat1l}</div></div>
+              <div className="sp"><div className="n">{page.stat2n}</div><div className="l">{page.stat2l}</div></div>
+              <div className="sp"><div className="n">{page.stat3n}</div><div className="l">{page.stat3l}</div></div>
+              <div className="sp"><div className="n">{page.stat4n}</div><div className="l">{page.stat4l}</div></div>
             </div>
           </div>
           <div className="phone-stack">
@@ -517,7 +539,7 @@ function CtaStrip(){
   );
 }
 
-function Newsletter(){
+function Newsletter({headline, sub}){
   const [email, setEmail] = useState("");
   const [ok, setOk] = useState(false);
   const [err, setErr] = useState("");
@@ -532,8 +554,8 @@ function Newsletter(){
       <div className="wrap">
         <div className="news-inner">
           <div className="eyebrow"><span className="dot"/>Own the audience</div>
-          <h3>Want more than <em>short videos?</em></h3>
-          <p>Get weekly tips and fresh recipes straight to your inbox. One email. No spam. Unsubscribe anytime.</p>
+          <h3>{headline}</h3>
+          <p>{sub}</p>
           {ok ? (
             <div className="news-ok"><Icon name="check" size={14}/> You're in. Check your inbox 🌿</div>
           ) : (
@@ -639,6 +661,7 @@ function Tweaks({state, setState, onEdit}){
 }
 
 function App(){
+  const page = usePage('/content/pages/follow.json', FOLLOW_DEFAULTS);
   const [state, setState] = useState(TWEAK_DEFAULTS);
   // Cross-platform priority: from TikTok → push Instagram, from IG → push TikTok
   const pushTo = state.priority === "tiktok" ? "instagram" : state.priority === "instagram" ? "tiktok" : "none";
@@ -646,12 +669,12 @@ function App(){
   return (
     <>
       <Header/>
-      <Hero priority={pushTo}/>
+      <Hero priority={pushTo} page={page}/>
       <PlatformSplit priority={pushTo}/>
       <Preview/>
       <Credibility/>
       <CtaStrip/>
-      <Newsletter/>
+      <Newsletter headline={page.newsHeadline} sub={page.newsSub}/>
       <Footer/>
       <Tweaks state={state} setState={setState} onEdit={onEdit}/>
     </>

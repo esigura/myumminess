@@ -2,15 +2,171 @@ backend:
   name: git-gateway
   branch: main
 
-# ── Media library ──────────────────────────────────────────────────────────────
-# Upload images here → they land in /Website/ → use URL /Website/filename.jpg
 media_folder: "Website"
 public_folder: "/Website"
 
-# ── Collections ────────────────────────────────────────────────────────────────
 collections:
 
-  # Blog posts — each post is a markdown file in content/posts/
+  # ── Pages ──────────────────────────────────────────────────────────────────
+  - name: "pages"
+    label: "Pages"
+    files:
+
+      - name: "home"
+        label: "Home Page"
+        file: "content/pages/home.json"
+        fields:
+          - { label: "Hero eyebrow",          name: "eyebrow",       widget: "string" }
+          - { label: "Hero headline",          name: "headline",      widget: "string" }
+          - { label: "Hero headline (accent)", name: "headlineAccent",widget: "string" }
+          - { label: "Hero subtitle",          name: "subtitle",      widget: "text" }
+          - { label: "CTA button 1",           name: "cta1",          widget: "string" }
+          - { label: "CTA button 2",           name: "cta2",          widget: "string" }
+          - { label: "Stat 1 — number",        name: "stat1n",        widget: "string" }
+          - { label: "Stat 1 — label",         name: "stat1l",        widget: "string" }
+          - { label: "Stat 2 — number",        name: "stat2n",        widget: "string" }
+          - { label: "Stat 2 — label",         name: "stat2l",        widget: "string" }
+          - { label: "Stat 3 — number",        name: "stat3n",        widget: "string" }
+          - { label: "Stat 3 — label",         name: "stat3l",        widget: "string" }
+          - { label: "Featured section label", name: "featuredLabel", widget: "string" }
+          - { label: "Newsletter headline",    name: "newsHeadline",  widget: "string" }
+          - { label: "Newsletter subtext",     name: "newsSub",       widget: "string" }
+
+      - name: "about"
+        label: "About Me Page"
+        file: "content/pages/about.json"
+        fields:
+          - { label: "Hero eyebrow",           name: "eyebrow",      widget: "string" }
+          - { label: "Hero headline line 1",   name: "headline1",    widget: "string" }
+          - { label: "Hero headline line 2",   name: "headline2",    widget: "string" }
+          - { label: "Hero subtitle",          name: "subtitle",     widget: "text" }
+          - { label: "Chip 1 (credential)",    name: "chip1",        widget: "string" }
+          - { label: "Chip 2 (location)",      name: "chip2",        widget: "string" }
+          - { label: "Chip 3 (since)",         name: "chip3",        widget: "string" }
+          - { label: "Story section title",    name: "storyTitle",   widget: "string" }
+          - { label: "Story body text",        name: "storyBody",    widget: "text" }
+          - { label: "Philosophy section title",name: "philTitle",   widget: "string" }
+          - { label: "Philosophy body text",   name: "philBody",     widget: "text" }
+          - { label: "Book CTA headline",      name: "bookHeadline", widget: "string" }
+          - { label: "Book CTA subtext",       name: "bookSub",      widget: "text" }
+          - { label: "Newsletter headline",    name: "newsHeadline", widget: "string" }
+          - { label: "Newsletter subtext",     name: "newsSub",      widget: "string" }
+
+      - name: "recipes"
+        label: "Recipes Page"
+        file: "content/pages/recipes.json"
+        fields:
+          - { label: "Hero eyebrow",           name: "eyebrow",      widget: "string" }
+          - { label: "Hero headline",          name: "headline",     widget: "string" }
+          - { label: "Hero headline (italic)", name: "headlineEm",   widget: "string" }
+          - { label: "Hero subtitle",          name: "subtitle",     widget: "text" }
+          - { label: "Featured strip label",   name: "featuredLabel",widget: "string" }
+          - { label: "Total recipe count",     name: "totalCount",   widget: "string" }
+          - { label: "Newsletter headline",    name: "newsHeadline", widget: "string" }
+          - { label: "Newsletter subtext",     name: "newsSub",      widget: "string" }
+
+      - name: "shop"
+        label: "Shop Page"
+        file: "content/pages/shop.json"
+        fields:
+          - { label: "Hero eyebrow",           name: "eyebrow",      widget: "string" }
+          - { label: "Hero headline",          name: "headline",     widget: "string" }
+          - { label: "Hero headline (italic)", name: "headlineEm",   widget: "string" }
+          - { label: "Hero subtitle",          name: "subtitle",     widget: "text" }
+          - { label: "Stat 1 — number",        name: "stat1n",       widget: "string" }
+          - { label: "Stat 1 — label",         name: "stat1l",       widget: "string" }
+          - { label: "Stat 2 — number",        name: "stat2n",       widget: "string" }
+          - { label: "Stat 2 — label",         name: "stat2l",       widget: "string" }
+          - { label: "Stat 3 — number",        name: "stat3n",       widget: "string" }
+          - { label: "Stat 3 — label",         name: "stat3l",       widget: "string" }
+          - { label: "Shopee note title",      name: "noteTitle",    widget: "string" }
+          - { label: "Shopee note body",       name: "noteBody",     widget: "text" }
+          - { label: "Why strip — cell 1 title",name: "why1t",       widget: "string" }
+          - { label: "Why strip — cell 1 desc", name: "why1d",       widget: "text" }
+          - { label: "Why strip — cell 2 title",name: "why2t",       widget: "string" }
+          - { label: "Why strip — cell 2 desc", name: "why2d",       widget: "text" }
+          - { label: "Why strip — cell 3 title",name: "why3t",       widget: "string" }
+          - { label: "Why strip — cell 3 desc", name: "why3d",       widget: "text" }
+          - { label: "Newsletter headline",    name: "newsHeadline", widget: "string" }
+          - { label: "Newsletter subtext",     name: "newsSub",      widget: "string" }
+
+      - name: "blog"
+        label: "Blog Page"
+        file: "content/pages/blog.json"
+        fields:
+          - { label: "Hero eyebrow",           name: "eyebrow",      widget: "string" }
+          - { label: "Hero headline",          name: "headline",     widget: "string" }
+          - { label: "Hero headline (italic)", name: "headlineEm",   widget: "string" }
+          - { label: "Hero subtitle",          name: "subtitle",     widget: "text" }
+          - { label: "Stat 1 — number",        name: "stat1n",       widget: "string" }
+          - { label: "Stat 1 — label",         name: "stat1l",       widget: "string" }
+          - { label: "Stat 2 — number",        name: "stat2n",       widget: "string" }
+          - { label: "Stat 2 — label",         name: "stat2l",       widget: "string" }
+          - { label: "Stat 3 — number",        name: "stat3n",       widget: "string" }
+          - { label: "Stat 3 — label",         name: "stat3l",       widget: "string" }
+          - { label: "Newsletter headline",    name: "newsHeadline", widget: "string" }
+          - { label: "Newsletter subtext",     name: "newsSub",      widget: "string" }
+
+      - name: "contact"
+        label: "Work With Me Page"
+        file: "content/pages/contact.json"
+        fields:
+          - { label: "Hero eyebrow",           name: "eyebrow",      widget: "string" }
+          - { label: "Hero headline",          name: "headline",     widget: "string" }
+          - { label: "Hero headline (italic)", name: "headlineEm",   widget: "string" }
+          - { label: "Hero subtitle",          name: "subtitle",     widget: "text" }
+          - { label: "Path 1 — title",         name: "path1title",   widget: "string" }
+          - { label: "Path 1 — description",   name: "path1desc",    widget: "text" }
+          - { label: "Path 1 — CTA label",     name: "path1cta",     widget: "string" }
+          - { label: "Path 2 — title",         name: "path2title",   widget: "string" }
+          - { label: "Path 2 — description",   name: "path2desc",    widget: "text" }
+          - { label: "Path 2 — CTA label",     name: "path2cta",     widget: "string" }
+          - { label: "Path 3 — title",         name: "path3title",   widget: "string" }
+          - { label: "Path 3 — description",   name: "path3desc",    widget: "text" }
+          - { label: "Path 3 — CTA label",     name: "path3cta",     widget: "string" }
+          - { label: "Response promise bar",   name: "promiseBar",   widget: "string" }
+
+      - name: "follow"
+        label: "Follow Me Page"
+        file: "content/pages/follow.json"
+        fields:
+          - { label: "Hero eyebrow",           name: "eyebrow",      widget: "string" }
+          - { label: "Hero headline",          name: "headline",     widget: "string" }
+          - { label: "Hero headline (italic)", name: "headlineEm",   widget: "string" }
+          - { label: "Hero subtitle",          name: "subtitle",     widget: "text" }
+          - { label: "TikTok CTA label",       name: "tiktokCTA",    widget: "string" }
+          - { label: "Instagram CTA label",    name: "igCTA",        widget: "string" }
+          - { label: "Stat 1 — number",        name: "stat1n",       widget: "string" }
+          - { label: "Stat 1 — label",         name: "stat1l",       widget: "string" }
+          - { label: "Stat 2 — number",        name: "stat2n",       widget: "string" }
+          - { label: "Stat 2 — label",         name: "stat2l",       widget: "string" }
+          - { label: "Stat 3 — number",        name: "stat3n",       widget: "string" }
+          - { label: "Stat 3 — label",         name: "stat3l",       widget: "string" }
+          - { label: "Stat 4 — number",        name: "stat4n",       widget: "string" }
+          - { label: "Stat 4 — label",         name: "stat4l",       widget: "string" }
+          - { label: "Newsletter headline",    name: "newsHeadline", widget: "string" }
+          - { label: "Newsletter subtext",     name: "newsSub",      widget: "string" }
+
+      - name: "booking"
+        label: "Booking Page"
+        file: "content/pages/booking.json"
+        fields:
+          - { label: "Hero eyebrow",           name: "eyebrow",      widget: "string" }
+          - { label: "Hero headline",          name: "headline",     widget: "string" }
+          - { label: "Hero headline (italic)", name: "headlineEm",   widget: "string" }
+          - { label: "Hero subtitle",          name: "subtitle",     widget: "text" }
+          - { label: "Session chip 1",         name: "chip1",        widget: "string" }
+          - { label: "Session chip 2",         name: "chip2",        widget: "string" }
+          - { label: "Session chip 3",         name: "chip3",        widget: "string" }
+          - { label: "Info panel 1 — title",   name: "info1title",   widget: "string" }
+          - { label: "Info panel 1 — body",    name: "info1body",    widget: "text" }
+          - { label: "Info panel 2 — title",   name: "info2title",   widget: "string" }
+          - { label: "Info panel 2 — body",    name: "info2body",    widget: "text" }
+          - { label: "Pricing note",           name: "pricingNote",  widget: "string" }
+          - { label: "Newsletter headline",    name: "newsHeadline", widget: "string" }
+          - { label: "Newsletter subtext",     name: "newsSub",      widget: "string" }
+
+  # ── Blog posts ──────────────────────────────────────────────────────────────
   - name: "blog"
     label: "Blog Posts"
     label_singular: "Post"
@@ -28,17 +184,16 @@ collections:
             { label: "Mindset & Lifestyle",  value: "lifestyle" }
           ]
         }
-      - { label: "Date",       name: "date",     widget: "date",   format: "MMM D, YYYY" }
-      - { label: "Read time (min)", name: "readTime", widget: "number", value_type: "int", min: 1, max: 60 }
-      - { label: "Featured",  name: "featured", widget: "boolean", default: false }
-      - { label: "Excerpt",   name: "excerpt",  widget: "text" }
-      - { label: "Cover image", name: "image",  widget: "image",  required: false }
-      - { label: "Internal link (optional)", name: "internalLink", widget: "string", required: false,
-          hint: "e.g. Recipes.html or Shop.html" }
+      - { label: "Date",          name: "date",     widget: "date", format: "MMM D, YYYY" }
+      - { label: "Read time (min)",name: "readTime", widget: "number", value_type: "int", min: 1, max: 60 }
+      - { label: "Featured",      name: "featured", widget: "boolean", default: false }
+      - { label: "Excerpt",       name: "excerpt",  widget: "text" }
+      - { label: "Cover image",   name: "image",    widget: "image",  required: false }
+      - { label: "Internal link", name: "internalLink",      widget: "string", required: false }
       - { label: "Internal link label", name: "internalLinkLabel", widget: "string", required: false }
-      - { label: "Body",      name: "body",     widget: "markdown" }
+      - { label: "Body",          name: "body",     widget: "markdown" }
 
-  # Shop products — edit product details and swap Shopee links
+  # ── Shop products ───────────────────────────────────────────────────────────
   - name: "shop"
     label: "Shop Products"
     label_singular: "Product"
@@ -47,25 +202,23 @@ collections:
     delete: true
     slug: "{{slug}}"
     fields:
-      - { label: "Name",        name: "name",       widget: "string" }
-      - { label: "Category",    name: "cat",        widget: "select",
+      - { label: "Name",        name: "name",      widget: "string" }
+      - { label: "Category",    name: "cat",       widget: "select",
           options: [
-            { label: "Kitchen Tools",   value: "kitchen"     },
-            { label: "Supplements",     value: "supplements" },
-            { label: "Healthy Snacks",  value: "snacks"      },
-            { label: "Daily Essentials",value: "daily"       }
+            { label: "Kitchen Tools",    value: "kitchen"     },
+            { label: "Supplements",      value: "supplements" },
+            { label: "Healthy Snacks",   value: "snacks"      },
+            { label: "Daily Essentials", value: "daily"       }
           ]
         }
-      - { label: "Product category tag", name: "catLabel", widget: "string",
-          hint: "Short tag shown on card, e.g. Pantry, Skincare, Hydration" }
-      - { label: "Note (short description)", name: "note", widget: "text" }
+      - { label: "Category tag", name: "catLabel", widget: "string" }
+      - { label: "Note",         name: "note",     widget: "text" }
       - { label: "Price / size", name: "price",    widget: "string" }
-      - { label: "Badge text",   name: "badge",    widget: "string", hint: "e.g. FAVORITE, DAILY, STAPLE" }
-      - { label: "Shopee affiliate link", name: "shopeeHref", widget: "string",
-          hint: "e.g. https://s.shopee.vn/XXXXXXX" }
-      - { label: "Product image", name: "image",   widget: "image", required: false }
+      - { label: "Badge text",   name: "badge",    widget: "string" }
+      - { label: "Shopee link",  name: "shopeeHref",widget: "string" }
+      - { label: "Product image",name: "image",    widget: "image", required: false }
 
-  # Recipes — manage recipe content and affiliate blocks
+  # ── Recipes ─────────────────────────────────────────────────────────────────
   - name: "recipes"
     label: "Recipes"
     label_singular: "Recipe"
@@ -74,24 +227,24 @@ collections:
     delete: true
     slug: "{{slug}}"
     fields:
-      - { label: "Title",       name: "title",    widget: "string" }
-      - { label: "Category",    name: "cat",      widget: "select",
+      - { label: "Title",      name: "title",      widget: "string" }
+      - { label: "Category",   name: "cat",        widget: "select",
           options: [
-            { label: "Quick Meals",        value: "quick"      },
-            { label: "Weight Management",  value: "weight"     },
-            { label: "Gut Health",         value: "gut"        },
-            { label: "Breakfast",          value: "breakfast"  },
-            { label: "Snacks",             value: "snacks"     }
+            { label: "Quick Meals",       value: "quick"     },
+            { label: "Weight Management", value: "weight"    },
+            { label: "Gut Health",        value: "gut"       },
+            { label: "Breakfast",         value: "breakfast" },
+            { label: "Snacks",            value: "snacks"    }
           ]
         }
-      - { label: "Prep time",   name: "prep",     widget: "string", hint: "e.g. 5 min" }
-      - { label: "Calories",    name: "calories", widget: "string", hint: "e.g. 320 kcal" }
-      - { label: "Servings",    name: "servings", widget: "string", hint: "e.g. 1 serving" }
-      - { label: "Description", name: "desc",     widget: "text" }
-      - { label: "Recipe image", name: "image",   widget: "image", required: false }
-      - { label: "Ingredients", name: "ingredients", widget: "list",
+      - { label: "Prep time",  name: "prep",       widget: "string" }
+      - { label: "Calories",   name: "calories",   widget: "string" }
+      - { label: "Servings",   name: "servings",   widget: "string" }
+      - { label: "Description",name: "desc",       widget: "text" }
+      - { label: "Recipe image",name: "image",     widget: "image", required: false }
+      - { label: "Ingredients",name: "ingredients",widget: "list",
           field: { label: "Ingredient", name: "item", widget: "string" } }
-      - { label: "Steps",       name: "steps",    widget: "list",
+      - { label: "Steps",      name: "steps",      widget: "list",
           field: { label: "Step", name: "item", widget: "text" } }
-      - { label: "Benefits",    name: "benefits", widget: "list",
+      - { label: "Benefits",   name: "benefits",   widget: "list",
           field: { label: "Benefit", name: "item", widget: "string" } }

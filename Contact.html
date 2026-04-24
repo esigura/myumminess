@@ -266,15 +266,32 @@ function Header(){
   );
 }
 
+/* ─────────── usePage hook ─────────── */
+const CONTACT_DEFAULTS = {
+  eyebrow:"Get in touch",
+  headline:"Let's work",
+  headlineEm:"together.",
+  subtitle:"Whether you're a brand, agency, or team, I'd love to explore how we can create something meaningful together.",
+  newsHeadline:"Join 20,000+ others",
+  newsSub:"Get simple, healthy recipes & new recipes in your inbox."
+};
+function usePage(path, defaults){
+  const [c, setC] = React.useState(defaults);
+  React.useEffect(()=>{
+    fetch(path).then(r=>r.ok?r.json():null).then(d=>{if(d) setC(s=>({...s,...d}));}).catch(()=>{});
+  },[]);
+  return c;
+}
+
 /* ─────────── Hero ─────────── */
-function Hero({onOpen}){
+function Hero({onOpen, page}){
   return (
     <section className="hero">
       <div className="wrap">
         <div className="hero-inner">
-          <div className="eyebrow"><span className="dot"/>Get in touch</div>
-          <h1>Let's work<br/><em>together.</em></h1>
-          <p className="sub">Whether you're a brand, agency, or team, I'd love to explore how we can create something meaningful together.</p>
+          <div className="eyebrow"><span className="dot"/>{page.eyebrow}</div>
+          <h1>{page.headline}<br/><em>{page.headlineEm}</em></h1>
+          <p className="sub">{page.subtitle}</p>
           <div className="hero-chips">
             <span className="hc"><span className="d"/>Media &amp; Partnerships</span>
             <span className="hc"><span className="d"/>Brand Workshops</span>
@@ -603,7 +620,7 @@ function DirectEmail({onOpen}){
 }
 
 /* ─────────── Newsletter ─────────── */
-function Newsletter(){
+function Newsletter({headline, sub}){
   const [email, setEmail] = useState("");
   const [ok, setOk] = useState(false);
   const onSubmit = (e) => {
@@ -614,8 +631,8 @@ function Newsletter(){
     <section className="news">
       <div className="wrap news-inner">
         <div>
-          <h3>Join 20,000+ others</h3>
-          <p>Get simple, healthy recipes &amp; new recipes in your inbox.</p>
+          <h3>{headline}</h3>
+          <p>{sub}</p>
         </div>
         <form className="news-form" onSubmit={onSubmit}>
           {ok
@@ -693,6 +710,7 @@ function Footer(){
 
 /* ─────────── App ─────────── */
 function App(){
+  const page = usePage('/content/pages/contact.json', CONTACT_DEFAULTS);
   const [modalOpen, setModalOpen] = useState(false);
   const [initialType, setInitialType] = useState("Media Kit");
 
@@ -704,11 +722,11 @@ function App(){
   return (
     <>
       <Header/>
-      <Hero onOpen={openModal}/>
+      <Hero onOpen={openModal} page={page}/>
       <Promise_/>
       <PathCards onOpen={openModal}/>
       <DirectEmail onOpen={openModal}/>
-      <Newsletter/>
+      <Newsletter headline={page.newsHeadline} sub={page.newsSub}/>
       <Footer/>
       <ContactModal open={modalOpen} initialType={initialType} onClose={()=>setModalOpen(false)}/>
     </>

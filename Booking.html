@@ -233,20 +233,40 @@ function Header(){
   );
 }
 
+/* ── usePage hook ── */
+const BOOKING_DEFAULTS = {
+  eyebrow:"1:1 Health Coaching",
+  headline:"Book a session.",
+  headlineEm:"Let's talk.",
+  subtitle:"A 45-minute conversation about your habits, goals, and challenges — and a realistic, personalised plan to move forward. No scripts. Just real guidance.",
+  chip1:"45 min · Google Meet",
+  chip2:"$120 per session",
+  chip3:"INN Certified Coach",
+  newsHeadline:"Not ready to book yet?",
+  newsSub:"Join the newsletter — weekly recipes and wellness content to get you started."
+};
+function usePage(path, defaults){
+  const [c, setC] = React.useState(defaults);
+  React.useEffect(()=>{
+    fetch(path).then(r=>r.ok?r.json():null).then(d=>{if(d) setC(s=>({...s,...d}));}).catch(()=>{});
+  },[]);
+  return c;
+}
+
 /* ── Hero ── */
-function Hero(){
+function Hero({page}){
   return (
     <section className="hero">
       <div className="wrap">
         <div className="hero-inner">
           <a className="back" href="About Me.html"><Icon name="arrowL" size={13}/> Back to About Me</a>
-          <div className="eyebrow"><span className="dot"/>1:1 Health Coaching</div>
-          <h1>Book a session.<br/><em>Let's talk.</em></h1>
-          <p className="sub">A 45-minute conversation about your habits, goals, and challenges — and a realistic, personalised plan to move forward. No scripts. Just real guidance.</p>
+          <div className="eyebrow"><span className="dot"/>{page.eyebrow}</div>
+          <h1>{page.headline}<br/><em>{page.headlineEm}</em></h1>
+          <p className="sub">{page.subtitle}</p>
           <div className="hero-chips">
-            <span className="hc"><span className="d"/>45 min · Google Meet</span>
-            <span className="hc"><span className="d"/>$120 per session</span>
-            <span className="hc"><span className="d"/>INN Certified Coach</span>
+            <span className="hc"><span className="d"/>{page.chip1}</span>
+            <span className="hc"><span className="d"/>{page.chip2}</span>
+            <span className="hc"><span className="d"/>{page.chip3}</span>
           </div>
         </div>
       </div>
@@ -479,13 +499,13 @@ function FAQ(){
 }
 
 /* ── Newsletter ── */
-function Newsletter(){
+function Newsletter({headline, sub: newsSub}){
   const [email,setEmail]=useState(""); const [ok,setOk]=useState(false);
   const sub=(e)=>{e.preventDefault();if(/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){setOk(true);setEmail("");setTimeout(()=>setOk(false),4000);}};
   return (
     <section className="news">
       <div className="wrap news-inner">
-        <div><h3>Join 20,000+ others</h3><p>Get simple, healthy recipes &amp; tips in your inbox.</p></div>
+        <div><h3>{headline}</h3><p>{newsSub}</p></div>
         <form className="news-form" onSubmit={sub}>
           {ok ? <div style={{flex:1,textAlign:"center",alignSelf:"center",fontSize:14,fontWeight:500,color:"var(--accent-deep)"}}>✓ You're in. Check your inbox 🌿</div>
             : <><input type="email" placeholder="Your email address" value={email} onChange={e=>setEmail(e.target.value)}/><button type="submit">Subscribe</button></>}
@@ -530,10 +550,11 @@ function Footer(){
 }
 
 function App(){
+  const page = usePage('/content/pages/booking.json', BOOKING_DEFAULTS);
   return (
     <>
       <Header/>
-      <Hero/>
+      <Hero page={page}/>
       <section className="main">
         <div className="wrap">
           <div className="main-inner">
@@ -543,7 +564,7 @@ function App(){
         </div>
       </section>
       <FAQ/>
-      <Newsletter/>
+      <Newsletter headline={page.newsHeadline} sub={page.newsSub}/>
       <Footer/>
     </>
   );

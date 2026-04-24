@@ -227,20 +227,40 @@ function CatNav({active, setActive}){
   );
 }
 
+/* ─── usePage hook ─── */
+const BLOG_DEFAULTS = {
+  eyebrow:"Notes from my kitchen & life",
+  headline:"Recipes, Wellness",
+  headlineEm:"Honest takes.",
+  subtitle:"Long-form content behind the recipes you see on TikTok — the how, the why, and everything that didn't fit in 60 seconds.",
+  stat1n:"12", stat1l:"Posts",
+  stat2n:"4", stat2l:"Topics",
+  stat3n:"Weekly", stat3l:"New content",
+  newsHeadline:"Get new posts in your inbox",
+  newsSub:"Recipes, wellness reads, and honest takes — delivered weekly. No spam, ever."
+};
+function usePage(path, defaults){
+  const [c, setC] = React.useState(defaults);
+  React.useEffect(()=>{
+    fetch(path).then(r=>r.ok?r.json():null).then(d=>{if(d) setC(s=>({...s,...d}));}).catch(()=>{});
+  },[]);
+  return c;
+}
+
 /* ─── Hero ─── */
-function Hero(){
+function Hero({page}){
   return(
     <section className="hero">
       <div className="wrap">
         <div className="hero-inner">
           <div>
-            <div className="hero-eyebrow"><span className="dot"/>Notes from my kitchen & life</div>
-            <h1>Recipes, Wellness<br/>& <em>Honest takes.</em></h1>
-            <p className="hero-sub">Long-form content behind the recipes you see on TikTok — the how, the why, and everything that didn't fit in 60 seconds.</p>
+            <div className="hero-eyebrow"><span className="dot"/>{page.eyebrow}</div>
+            <h1>{page.headline}<br/>& <em>{page.headlineEm}</em></h1>
+            <p className="hero-sub">{page.subtitle}</p>
             <div className="hero-stats">
-              <div className="hs"><div className="n">12</div><div className="l">Posts</div></div>
-              <div className="hs"><div className="n">4</div><div className="l">Topics</div></div>
-              <div className="hs"><div className="n">Weekly</div><div className="l">New content</div></div>
+              <div className="hs"><div className="n">{page.stat1n}</div><div className="l">{page.stat1l}</div></div>
+              <div className="hs"><div className="n">{page.stat2n}</div><div className="l">{page.stat2l}</div></div>
+              <div className="hs"><div className="n">{page.stat3n}</div><div className="l">{page.stat3l}</div></div>
             </div>
           </div>
           <div className="hero-art">
@@ -370,15 +390,15 @@ function TopicsBand({setActive}){
 }
 
 /* ─── Newsletter ─── */
-function Newsletter(){
+function Newsletter({headline, sub: newsSub}){
   const [email,setEmail]=useState(""); const [ok,setOk]=useState(false);
   const sub=(e)=>{e.preventDefault();if(/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){setOk(true);setEmail("");setTimeout(()=>setOk(false),4000);}};
   return(
     <section className="news">
       <div className="wrap news-inner">
         <div>
-          <h3>Get new posts in your inbox</h3>
-          <p>Recipes, wellness reads, and honest takes — delivered weekly. No spam, ever.</p>
+          <h3>{headline}</h3>
+          <p>{newsSub}</p>
         </div>
         <form className="news-form" onSubmit={sub}>
           {ok
@@ -433,6 +453,7 @@ function Footer(){
 
 /* ─── App ─── */
 function App(){
+  const page = usePage('/content/pages/blog.json', BLOG_DEFAULTS);
   const [cat, setCat] = useState("all");
   const featured = POSTS.find(p=>p.featured);
   const grid = POSTS.filter(p=>!p.featured && (cat==="all" || p.cat===cat));
@@ -442,7 +463,7 @@ function App(){
     <>
       <Header/>
       <CatNav active={cat} setActive={setCat}/>
-      <Hero/>
+      <Hero page={page}/>
       {filteredFeatured && <FeaturedPost post={filteredFeatured}/>}
       <div className="posts-section">
         <div className="wrap">
@@ -458,7 +479,7 @@ function App(){
         </div>
       </div>
       <TopicsBand setActive={cat=>setCat(cat)}/>
-      <Newsletter/>
+      <Newsletter headline={page.newsHeadline} sub={page.newsSub}/>
       <Footer/>
     </>
   );
