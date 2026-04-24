@@ -309,8 +309,24 @@ const FOLLOW_DEFAULTS = {
   headlineEm:"Myumminess.",
   subtitle:"Daily recipes. Real routines. No extremes. Follow along wherever you scroll — I post every day.",
   tiktokImage:"", igImage:"", phoneFloat1Image:"", phoneFloat2Image:"", credibilityImage:"",
+  tiktokHandle:"@MYUMMINESS",
+  tiktokFollowers:"1.2M",
+  tiktokHeadline:"Fast, fun & snackable.",
+  tiktokBullet1:"30–60 second recipes you can actually follow while cooking",
+  tiktokBullet2:"Tips + hacks I wish I'd known when I started",
+  tiktokBullet3:"Trends remixed for real healthy eating",
   tiktokCTA:"Follow on TikTok",
+  tiktokHref:"",
+  tiktokPreviewHref:"",
+  igHandle:"@MYUMMINESS",
+  igFollowers:"600K",
+  igHeadline:"Slow, beautiful & in-depth.",
+  igBullet1:"Aesthetic meals with the actual full recipe in captions",
+  igBullet2:"Longer-form stories about routines and mindset",
+  igBullet3:"Weekly Q&A stickers — I reply personally",
   igCTA:"Follow on Instagram",
+  igHref:"",
+  igPreviewHref:"",
   stat1n:"1.2M+", stat1l:"TikTok",
   stat2n:"600K+", stat2l:"Instagram",
   stat3n:"128", stat3l:"Recipes",
@@ -336,8 +352,8 @@ function Hero({priority, page}){
             <h1>{page.headline} <em>{page.headlineEm}</em></h1>
             <p className="sub">{page.subtitle}</p>
             <div className="ctas">
-              <a className="btn btn-ink btn-lg" href="#"><Icon name="tiktok" size={17}/> {page.tiktokCTA}</a>
-              <a className="btn btn-ig btn-lg" href="#"><Icon name="ig" size={17}/> {page.igCTA}</a>
+              <a className="btn btn-ink btn-lg" href={page.tiktokHref||"#"}><Icon name="tiktok" size={17}/> {page.tiktokCTA}</a>
+              <a className="btn btn-ig btn-lg" href={page.igHref||"#"}><Icon name="ig" size={17}/> {page.igCTA}</a>
             </div>
             <div className="social-proof">
               <div className="sp"><div className="n">{page.stat1n}</div><div className="l">{page.stat1l}</div></div>
@@ -416,7 +432,7 @@ function Hero({priority, page}){
   );
 }
 
-function PlatformSplit({priority, setPriority}){
+function PlatformSplit({priority, page}){
   return (
     <section className="section">
       <div className="wrap">
@@ -431,20 +447,20 @@ function PlatformSplit({priority, setPriority}){
             {priority==="tiktok" && <div className="prio-pill">Recommended</div>}
             <div className="plat-head">
               <div className="plat-logo"><Icon name="tiktok" size={24}/></div>
-              <div className="plat-count">1.2M<span className="l">Followers</span></div>
+              <div className="plat-count">{page.tiktokFollowers}<span className="l">Followers</span></div>
             </div>
             <div>
-              <div className="plat-tag">TikTok · @myumminess</div>
-              <h3 className="plat-title">Fast, fun &amp; snackable.</h3>
+              <div className="plat-tag">TikTok · {page.tiktokHandle}</div>
+              <h3 className="plat-title">{page.tiktokHeadline}</h3>
             </div>
             <ul className="plat-list">
-              <li><div className="i" style={{background:"rgba(37,244,238,.2)",color:"#25F4EE"}}><Icon name="bolt" size={15}/></div>30–60 second recipes you can actually follow while cooking</li>
-              <li><div className="i" style={{background:"rgba(254,44,85,.2)",color:"#FE2C55"}}><Icon name="clock" size={15}/></div>Tips + hacks I wish I'd known when I started</li>
-              <li><div className="i" style={{background:"rgba(255,255,255,.1)",color:"#fff"}}><Icon name="sparkle" size={15}/></div>Trends remixed for real healthy eating</li>
+              <li><div className="i" style={{background:"rgba(37,244,238,.2)",color:"#25F4EE"}}><Icon name="bolt" size={15}/></div>{page.tiktokBullet1}</li>
+              <li><div className="i" style={{background:"rgba(254,44,85,.2)",color:"#FE2C55"}}><Icon name="clock" size={15}/></div>{page.tiktokBullet2}</li>
+              <li><div className="i" style={{background:"rgba(255,255,255,.1)",color:"#fff"}}><Icon name="sparkle" size={15}/></div>{page.tiktokBullet3}</li>
             </ul>
             <div className="plat-foot">
-              <a className="btn btn-ink" href="#"><Icon name="tiktok" size={16}/> Follow on TikTok</a>
-              <a className="btn btn-ghost" href="#">Preview</a>
+              <a className="btn btn-ink" href={page.tiktokHref||"#"}><Icon name="tiktok" size={16}/> {page.tiktokCTA}</a>
+              {page.tiktokPreviewHref && <a className="btn btn-ghost" href={page.tiktokPreviewHref}>Preview</a>}
             </div>
           </div>
 
@@ -453,20 +469,20 @@ function PlatformSplit({priority, setPriority}){
             {priority==="instagram" && <div className="prio-pill" style={{background:"#E1306C"}}>Recommended</div>}
             <div className="plat-head">
               <div className="plat-logo"><Icon name="ig" size={24}/></div>
-              <div className="plat-count">600K<span className="l">Followers</span></div>
+              <div className="plat-count">{page.igFollowers}<span className="l">Followers</span></div>
             </div>
             <div>
-              <div className="plat-tag">Instagram · @myumminess</div>
-              <h3 className="plat-title">Slow, beautiful &amp; in-depth.</h3>
+              <div className="plat-tag">Instagram · {page.igHandle}</div>
+              <h3 className="plat-title">{page.igHeadline}</h3>
             </div>
             <ul className="plat-list">
-              <li><div className="i"><Icon name="leaf" size={15}/></div>Aesthetic meals with the actual full recipe in captions</li>
-              <li><div className="i"><Icon name="book" size={15}/></div>Longer-form stories about routines and mindset</li>
-              <li><div className="i"><Icon name="heart" size={15}/></div>Weekly Q&amp;A stickers — I reply personally</li>
+              <li><div className="i"><Icon name="leaf" size={15}/></div>{page.igBullet1}</li>
+              <li><div className="i"><Icon name="book" size={15}/></div>{page.igBullet2}</li>
+              <li><div className="i"><Icon name="heart" size={15}/></div>{page.igBullet3}</li>
             </ul>
             <div className="plat-foot">
-              <a className="btn btn-ig" href="#" style={{flex:1}}><Icon name="ig" size={16}/> Follow on Instagram</a>
-              <a className="btn btn-ghost" href="#">Preview</a>
+              <a className="btn btn-ig" href={page.igHref||"#"} style={{flex:1}}><Icon name="ig" size={16}/> {page.igCTA}</a>
+              {page.igPreviewHref && <a className="btn btn-ghost" href={page.igPreviewHref}>Preview</a>}
             </div>
           </div>
         </div>
@@ -544,15 +560,15 @@ function Credibility({page}){
   );
 }
 
-function CtaStrip(){
+function CtaStrip({page}){
   return (
     <section className="cta-strip">
       <div className="wrap">
         <div className="eyebrow"><span className="dot"/>Ready when you are</div>
         <h2>Start your <em>healthy routine</em> today.</h2>
         <div className="ctas">
-          <a className="btn btn-light btn-lg" href="#"><Icon name="tiktok" size={17}/> Follow on TikTok</a>
-          <a className="btn btn-ig btn-lg" href="#"><Icon name="ig" size={17}/> Follow on Instagram</a>
+          <a className="btn btn-light btn-lg" href={page.tiktokHref||"#"}><Icon name="tiktok" size={17}/> {page.tiktokCTA}</a>
+          <a className="btn btn-ig btn-lg" href={page.igHref||"#"}><Icon name="ig" size={17}/> {page.igCTA}</a>
         </div>
       </div>
     </section>
@@ -690,10 +706,10 @@ function App(){
     <>
       <Header/>
       <Hero priority={pushTo} page={page}/>
-      <PlatformSplit priority={pushTo}/>
+      <PlatformSplit priority={pushTo} page={page}/>
       <Preview/>
       <Credibility page={page}/>
-      <CtaStrip/>
+      <CtaStrip page={page}/>
       <Newsletter headline={page.newsHeadline} sub={page.newsSub}/>
       <Footer/>
       <Tweaks state={state} setState={setState} onEdit={onEdit}/>
