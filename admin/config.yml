@@ -153,7 +153,7 @@ collections:
           - { label: "Hero headline (italic)", name: "headlineEm",   widget: "string" }
           - { label: "Hero subtitle",          name: "subtitle",     widget: "text" }
           - { label: "TikTok phone screen image",   name: "tiktokImage",       widget: "image", required: false }
-          - { label: "Instagram phone screen image",name: "igImage",            widget: "image", required: false }
+          - { label: "Facebook page image",         name: "fbImage",             widget: "image", required: false }
           - { label: "Phone float A — thumbnail",   name: "phoneFloat1Image",  widget: "image", required: false }
           - { label: "Phone float B — thumbnail",   name: "phoneFloat2Image",  widget: "image", required: false }
           - { label: "Credibility section portrait",name: "credibilityImage",  widget: "image", required: false }
@@ -166,15 +166,15 @@ collections:
           - { label: "TikTok — Follow button label", name: "tiktokCTA",  widget: "string", required: false, default: "Follow on TikTok" }
           - { label: "TikTok — Follow button link",  name: "tiktokHref", widget: "string", required: false }
           - { label: "TikTok — Preview button link", name: "tiktokPreviewHref", widget: "string", required: false }
-          - { label: "Instagram — handle",      name: "igHandle",        widget: "string", required: false, default: "@MYUMMINESS" }
-          - { label: "Instagram — follower count", name: "igFollowers",  widget: "string", required: false, default: "600K" }
-          - { label: "Instagram — card headline", name: "igHeadline",    widget: "string", required: false, default: "Slow, beautiful & in-depth." }
-          - { label: "Instagram — bullet 1",    name: "igBullet1",       widget: "string", required: false, default: "Aesthetic meals with the actual full recipe in captions" }
-          - { label: "Instagram — bullet 2",    name: "igBullet2",       widget: "string", required: false, default: "Longer-form stories about routines and mindset" }
-          - { label: "Instagram — bullet 3",    name: "igBullet3",       widget: "string", required: false, default: "Weekly Q&A stickers — I reply personally" }
-          - { label: "Instagram — Follow button label", name: "igCTA",    widget: "string", required: false, default: "Follow on Instagram" }
-          - { label: "Instagram — Follow button link",  name: "igHref",   widget: "string", required: false }
-          - { label: "Instagram — Preview button link", name: "igPreviewHref", widget: "string", required: false }
+          - { label: "Facebook — handle",       name: "fbHandle",        widget: "string", required: false, default: "@myngonlanh" }
+          - { label: "Facebook — follower count", name: "fbFollowers",   widget: "string", required: false, default: "389K" }
+          - { label: "Facebook — card headline", name: "fbHeadline",     widget: "string", required: false, default: "Community, stories & real food." }
+          - { label: "Facebook — bullet 1",     name: "fbBullet1",       widget: "string", required: false, default: "Full recipes and step-by-step videos" }
+          - { label: "Facebook — bullet 2",     name: "fbBullet2",       widget: "string", required: false, default: "Behind-the-scenes stories and routines" }
+          - { label: "Facebook — bullet 3",     name: "fbBullet3",       widget: "string", required: false, default: "Q&A, community polls and live cooking" }
+          - { label: "Facebook — Follow button label", name: "fbCTA",    widget: "string", required: false, default: "Follow on Facebook" }
+          - { label: "Facebook — Follow button link",  name: "fbHref",   widget: "string", required: false }
+          - { label: "Facebook — Preview button link", name: "fbPreviewHref", widget: "string", required: false }
           - { label: "Stat 1 — number",        name: "stat1n",       widget: "string" }
           - { label: "Stat 1 — label",         name: "stat1l",       widget: "string" }
           - { label: "Stat 2 — number",        name: "stat2n",       widget: "string" }
