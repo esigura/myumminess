@@ -28,9 +28,9 @@ collections:
           - { label: "Float card 2 — image (Buddha bowl)", name: "float2Image",   widget: "image",  required: false }
           - { label: "About section image",    name: "aboutImage",    widget: "image",  required: false }
           - { label: "CTA button 1 — label",   name: "cta1",          widget: "string" }
-          - { label: "CTA button 1 — link",    name: "cta1Href",      widget: "string" }
+          - { label: "CTA button 1 — link",    name: "cta1Href",      widget: "string", required: false }
           - { label: "CTA button 2 — label",   name: "cta2",          widget: "string" }
-          - { label: "CTA button 2 — link",    name: "cta2Href",      widget: "string" }
+          - { label: "CTA button 2 — link",    name: "cta2Href",      widget: "string", required: false }
           - { label: "Stat 1 — number",        name: "stat1n",        widget: "string" }
           - { label: "Stat 1 — label",         name: "stat1l",        widget: "string" }
           - { label: "Stat 2 — number",        name: "stat2n",        widget: "string" }
@@ -62,8 +62,8 @@ collections:
           - { label: "Philosophy body text",   name: "philBody",     widget: "text" }
           - { label: "Book CTA headline",      name: "bookHeadline", widget: "string" }
           - { label: "Book CTA subtext",       name: "bookSub",      widget: "text" }
-          - { label: "Book CTA button label",  name: "bookCTA",      widget: "string" }
-          - { label: "Book CTA button link",   name: "bookHref",     widget: "string" }
+          - { label: "Book CTA button label",  name: "bookCTA",      widget: "string", required: false }
+          - { label: "Book CTA button link",   name: "bookHref",     widget: "string", required: false }
           - { label: "Newsletter headline",    name: "newsHeadline", widget: "string" }
           - { label: "Newsletter subtext",     name: "newsSub",      widget: "string" }
 
@@ -133,15 +133,15 @@ collections:
           - { label: "Path 1 — title",         name: "path1title",   widget: "string" }
           - { label: "Path 1 — description",   name: "path1desc",    widget: "text" }
           - { label: "Path 1 — CTA label",     name: "path1cta",     widget: "string" }
-          - { label: "Path 1 — CTA link",      name: "path1ctaHref", widget: "string" }
+          - { label: "Path 1 — CTA link",      name: "path1ctaHref", widget: "string", required: false }
           - { label: "Path 2 — title",         name: "path2title",   widget: "string" }
           - { label: "Path 2 — description",   name: "path2desc",    widget: "text" }
           - { label: "Path 2 — CTA label",     name: "path2cta",     widget: "string" }
-          - { label: "Path 2 — CTA link",      name: "path2ctaHref", widget: "string" }
+          - { label: "Path 2 — CTA link",      name: "path2ctaHref", widget: "string", required: false }
           - { label: "Path 3 — title",         name: "path3title",   widget: "string" }
           - { label: "Path 3 — description",   name: "path3desc",    widget: "text" }
           - { label: "Path 3 — CTA label",     name: "path3cta",     widget: "string" }
-          - { label: "Path 3 — CTA link",      name: "path3ctaHref", widget: "string" }
+          - { label: "Path 3 — CTA link",      name: "path3ctaHref", widget: "string", required: false }
           - { label: "Response promise bar",   name: "promiseBar",   widget: "string" }
 
       - name: "follow"
@@ -157,23 +157,23 @@ collections:
           - { label: "Phone float A — thumbnail",   name: "phoneFloat1Image",  widget: "image", required: false }
           - { label: "Phone float B — thumbnail",   name: "phoneFloat2Image",  widget: "image", required: false }
           - { label: "Credibility section portrait",name: "credibilityImage",  widget: "image", required: false }
-          - { label: "TikTok — handle (e.g. @MYUMMINESS)", name: "tiktokHandle",   widget: "string" }
-          - { label: "TikTok — follower count (e.g. 1.2M)", name: "tiktokFollowers", widget: "string" }
-          - { label: "TikTok — card headline",     name: "tiktokHeadline",  widget: "string" }
-          - { label: "TikTok — bullet 1",          name: "tiktokBullet1",   widget: "string" }
-          - { label: "TikTok — bullet 2",          name: "tiktokBullet2",   widget: "string" }
-          - { label: "TikTok — bullet 3",          name: "tiktokBullet3",   widget: "string" }
-          - { label: "TikTok — Follow button label", name: "tiktokCTA",     widget: "string" }
-          - { label: "TikTok — Follow button link",  name: "tiktokHref",    widget: "string" }
+          - { label: "TikTok — handle",        name: "tiktokHandle",    widget: "string", required: false, default: "@MYUMMINESS" }
+          - { label: "TikTok — follower count", name: "tiktokFollowers", widget: "string", required: false, default: "1.2M" }
+          - { label: "TikTok — card headline", name: "tiktokHeadline",  widget: "string", required: false, default: "Fast, fun & snackable." }
+          - { label: "TikTok — bullet 1",      name: "tiktokBullet1",   widget: "string", required: false, default: "30–60 second recipes you can actually follow while cooking" }
+          - { label: "TikTok — bullet 2",      name: "tiktokBullet2",   widget: "string", required: false, default: "Tips + hacks I wish I'd known when I started" }
+          - { label: "TikTok — bullet 3",      name: "tiktokBullet3",   widget: "string", required: false, default: "Trends remixed for real healthy eating" }
+          - { label: "TikTok — Follow button label", name: "tiktokCTA",  widget: "string", required: false, default: "Follow on TikTok" }
+          - { label: "TikTok — Follow button link",  name: "tiktokHref", widget: "string", required: false }
           - { label: "TikTok — Preview button link", name: "tiktokPreviewHref", widget: "string", required: false }
-          - { label: "Instagram — handle (e.g. @MYUMMINESS)", name: "igHandle",   widget: "string" }
-          - { label: "Instagram — follower count (e.g. 600K)", name: "igFollowers", widget: "string" }
-          - { label: "Instagram — card headline",  name: "igHeadline",      widget: "string" }
-          - { label: "Instagram — bullet 1",       name: "igBullet1",       widget: "string" }
-          - { label: "Instagram — bullet 2",       name: "igBullet2",       widget: "string" }
-          - { label: "Instagram — bullet 3",       name: "igBullet3",       widget: "string" }
-          - { label: "Instagram — Follow button label", name: "igCTA",       widget: "string" }
-          - { label: "Instagram — Follow button link",  name: "igHref",      widget: "string" }
+          - { label: "Instagram — handle",      name: "igHandle",        widget: "string", required: false, default: "@MYUMMINESS" }
+          - { label: "Instagram — follower count", name: "igFollowers",  widget: "string", required: false, default: "600K" }
+          - { label: "Instagram — card headline", name: "igHeadline",    widget: "string", required: false, default: "Slow, beautiful & in-depth." }
+          - { label: "Instagram — bullet 1",    name: "igBullet1",       widget: "string", required: false, default: "Aesthetic meals with the actual full recipe in captions" }
+          - { label: "Instagram — bullet 2",    name: "igBullet2",       widget: "string", required: false, default: "Longer-form stories about routines and mindset" }
+          - { label: "Instagram — bullet 3",    name: "igBullet3",       widget: "string", required: false, default: "Weekly Q&A stickers — I reply personally" }
+          - { label: "Instagram — Follow button label", name: "igCTA",    widget: "string", required: false, default: "Follow on Instagram" }
+          - { label: "Instagram — Follow button link",  name: "igHref",   widget: "string", required: false }
           - { label: "Instagram — Preview button link", name: "igPreviewHref", widget: "string", required: false }
           - { label: "Stat 1 — number",        name: "stat1n",       widget: "string" }
           - { label: "Stat 1 — label",         name: "stat1l",       widget: "string" }
