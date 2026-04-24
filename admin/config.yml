@@ -1,6 +1,9 @@
 backend:
-  name: git-gateway
+  name: github
+  repo: esigura/myumminess
   branch: main
+  base_url: https://myumminess.com
+  auth_endpoint: /api/auth
 
 media_folder: "Website"
 public_folder: "/Website"
