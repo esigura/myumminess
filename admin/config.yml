@@ -21,6 +21,8 @@ collections:
           - { label: "Hero headline (accent)", name: "headlineAccent",widget: "string" }
           - { label: "Hero subtitle",          name: "subtitle",      widget: "text" }
           - { label: "Hero image",             name: "heroImage",     widget: "image",  required: false }
+          - { label: "Float card 1 — image (Matcha)",      name: "float1Image",   widget: "image",  required: false }
+          - { label: "Float card 2 — image (Buddha bowl)", name: "float2Image",   widget: "image",  required: false }
           - { label: "About section image",    name: "aboutImage",    widget: "image",  required: false }
           - { label: "CTA button 1",           name: "cta1",          widget: "string" }
           - { label: "CTA button 2",           name: "cta2",          widget: "string" }
