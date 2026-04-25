@@ -356,12 +356,69 @@ async function loadCollectionFromGitHub(folder) {
       files.filter(f => f.name.endsWith('.json') || f.name.endsWith('.md')).map(async f => {
         try {
           const r = await ghRead(f.path);
-          return r ? { ...r.data, _sha: r.sha, _path: f.path, _name: f.name } : null;
+          if (!r) return null;
+          if (f.name.endsWith('.md')) {
+            const { front, body } = parseFrontmatter(r.data);
+            return { ...front, body, _raw: r.data, _sha: r.sha, _path: f.path, _name: f.name };
+          }
+          return { ...r.data, _sha: r.sha, _path: f.path, _name: f.name };
         } catch(e) { return null; }
       })
     );
     return items.filter(Boolean);
   } catch(e) { return []; }
+}
+
+async function ghDelete(path, sha, message = 'Delete via CMS') {
+  return ghFetch(path, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message, sha, branch: GH_BRANCH })
+  });
+}
+
+async function loadCommitsFromGitHub(n = 12) {
+  try {
+    const url = `${GH_API}/repos/${REPO}/commits?per_page=${n}&sha=${GH_BRANCH}`;
+    const r = await fetch(url, {
+      headers: { Authorization: `Bearer ${ghToken()}`, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' }
+    });
+    if (!r.ok) return [];
+    return r.json();
+  } catch(e) { return []; }
+}
+
+async function loadMediaFromGitHub(folder = 'Website') {
+  try {
+    const files = await ghList(folder);
+    return Array.isArray(files) ? files.filter(f => f.type === 'file').map(f => ({
+      name: f.name, path: f.path, sha: f.sha, size: f.size,
+      url: f.download_url,
+      kind: /\.(jpe?g|png|webp|gif|avif)$/i.test(f.name) ? 'image' : /\.(mp4|mov|webm)$/i.test(f.name) ? 'video' : 'file'
+    })) : [];
+  } catch(e) { return []; }
+}
+
+function parseFrontmatter(text) {
+  const m = text.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
+  if (!m) return { front: {}, body: text };
+  const front = {};
+  m[1].split('\n').forEach(line => {
+    const idx = line.indexOf(':');
+    if (idx < 0) return;
+    const k = line.slice(0, idx).trim();
+    const v = line.slice(idx + 1).trim().replace(/^["']|["']$/g, '');
+    front[k] = v;
+  });
+  return { front, body: m[2].trim() };
+}
+
+function stringifyFrontmatter(front, body) {
+  const lines = Object.entries(front).map(([k, v]) => {
+    const s = String(v);
+    return `${k}: ${s.includes(':') || s.includes('#') ? '"' + s + '"' : s}`;
+  });
+  return `---\n${lines.join('\n')}\n---\n\n${body}`;
 }
 /* ============ Seed data ============ */
 const SEED = {
@@ -440,20 +497,25 @@ const NAV = [
     { id:"pages", label:"Pages", icon:"pages", n:9 },
   ]},
   { group:"Content", items:[
-    { id:"recipes", label:"Recipes", icon:"recipe", n:128 },
-    { id:"products", label:"Shop products", icon:"shop", n:42 },
-    { id:"reels", label:"Reels & videos", icon:"reel", n:86 },
-    { id:"testimonials", label:"Testimonials", icon:"quote", n:23 },
+    { id:"recipes", label:"Recipes", icon:"recipe" },
+    { id:"products", label:"Shop products", icon:"shop" },
+    { id:"posts", label:"Blog posts", icon:"edit" },
+    { id:"reels", label:"Reels & videos", icon:"reel" },
+    { id:"testimonials", label:"Testimonials", icon:"quote" },
   ]},
   { group:"Assets", items:[
-    { id:"media", label:"Media library", icon:"media", n:312 },
+    { id:"media", label:"Media library", icon:"media" },
   ]},
   { group:"System", items:[
     { id:"settings", label:"Site settings", icon:"settings" },
   ]},
 ];
 
-function Sidebar({route, setRoute, onLogout}){
+function Sidebar({route, setRoute, onLogout, ghUser, counts}){
+  const c = counts || {};
+  const liveCount = {recipes:c.recipes,products:c.products,posts:c.posts,reels:c.reels,testimonials:c.testimonials,media:c.media};
+  const initials = ghUser ? ghUser.login.slice(0,2).toUpperCase() : 'GH';
+  const displayName = ghUser ? (ghUser.name || ghUser.login) : 'GitHub user';
   return (
     <aside className="sidebar">
       <div className="sb-head">
@@ -468,22 +530,19 @@ function Sidebar({route, setRoute, onLogout}){
               <div key={it.id} className={"sb-item " + (route===it.id?"on":"")} onClick={()=>setRoute(it.id)}>
                 <Icon name={it.icon} size={15}/>
                 <span>{it.label}</span>
-                {it.n!=null && <span className="n">{it.n}</span>}
+                {liveCount[it.id] > 0 && <span className="n">{liveCount[it.id]}</span>}
               </div>
             ))}
           </div>
         </div>
       ))}
       <div className="sb-foot">
-        <a href="content.html" target="_blank" className="sb-item" style={{color:"var(--muted)"}}>
-          <Icon name="edit" size={15}/> <span>Edit content</span>
-        </a>
         <a href="../Myumminess.html" target="_blank" className="sb-item" style={{color:"var(--muted)"}}>
           <Icon name="external" size={15}/> <span>View live site</span>
         </a>
         <div className="sb-user">
-          <div className="av">MT</div>
-          <div className="t">Marta Tarragona<span>Owner · Admin</span></div>
+          <div className="av">{initials}</div>
+          <div className="t">{displayName}<span>GitHub · Admin</span></div>
           <button className="icon-btn" onClick={onLogout} title="Sign out"><Icon name="logout" size={15}/></button>
         </div>
       </div>
@@ -515,85 +574,66 @@ function Topbar({crumb, onNew, loading}){
 const Spark = ({color="#6DBE7B"}) => (
   <svg className="spark" viewBox="0 0 52 26"><polyline points="0,18 8,14 16,16 24,8 32,12 40,4 52,6" fill="none" stroke={color} strokeWidth="1.6" strokeLinecap="round"/></svg>
 );
-function Dashboard({setRoute, data, toast}){
-  const top = [
-    { k:"reel", t:"5-min green smoothie", s:"Reel · TikTok", ty:"Reel", v:"1.2M", e:"11.8%", kind:"matcha" },
-    { k:"reel", t:"What I eat in a day", s:"Reel · Instagram", ty:"Reel", v:"890K", e:"9.3%", kind:"peach" },
-    { k:"recipe", t:"Matcha oat latte", s:"Recipe · Drinks", ty:"Recipe", v:"42.1K", e:"14.2%", kind:"" },
-    { k:"recipe", t:"Strawberry protein smoothie", s:"Recipe · Drinks", ty:"Recipe", v:"38.9K", e:"12.7%", kind:"dark" },
-  ];
+function Dashboard({setRoute, data, ghRec, ghProds, ghPosts, ghCommits, toast}){
+  const recipes = ghRec && ghRec.length > 0 ? ghRec : data.recipes;
+  const products = ghProds && ghProds.length > 0 ? ghProds : data.products;
+  const recentCommits = ghCommits && ghCommits.length > 0 ? ghCommits : [];
+  const fmtDate = (iso) => { try { return new Date(iso).toLocaleString('en-GB',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}); } catch(e){ return iso; }};
+  const today = new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
   return (
     <>
       <div className="ph-head">
         <div>
-          <div className="ek">Wednesday · April 24, 2026</div>
-          <h1>Good morning, Marta.</h1>
-          <p>5 drafts waiting on review · 1 post scheduled for tomorrow · 312 images in the library.</p>
+          <div className="ek">{today}</div>
+          <h1>{greeting}.</h1>
+          <p>{recipes.length} recipes · {products.length} products · {ghPosts && ghPosts.length} blog posts{recentCommits.length > 0 ? ' · ' + recentCommits.length + ' recent commits' : ''}</p>
         </div>
         <div className="actions">
-          <button className="btn btn-ghost" onClick={()=>toast("Import dialog opened")}><Icon name="upload" size={14}/> Import</button>
           <button className="btn btn-accent" onClick={()=>setRoute("recipes")}><Icon name="plus" size={14}/> New recipe</button>
         </div>
       </div>
 
       <div className="stats">
-        <div className="stat" style={{cursor:"pointer"}} onClick={()=>toast("Opening analytics · Pageviews")}><Spark/><span className="l">Pageviews · 7d</span><span className="v">148K</span><span className="d"><Icon name="up" size={12}/> +12.4% vs last week</span></div>
-        <div className="stat" style={{cursor:"pointer"}} onClick={()=>toast("Opening analytics · Followers")}><Spark color="#E87A56"/><span className="l">New followers</span><span className="v">2,841</span><span className="d"><Icon name="up" size={12}/> +8.1% TikTok leading</span></div>
-        <div className="stat" style={{cursor:"pointer"}} onClick={()=>toast("Opening analytics · Affiliate")}><Spark/><span className="l">Affiliate clicks</span><span className="v">1,204</span><span className="d"><Icon name="up" size={12}/> +3.2% conv. 4.7%</span></div>
-        <div className="stat" style={{cursor:"pointer"}} onClick={()=>toast("Opening analytics · Newsletter")}><Spark color="#E87A56"/><span className="l">Newsletter opt-ins</span><span className="v">412</span><span className="d"><Icon name="up" size={12}/> +18% weekly</span></div>
+        <div className="stat" style={{cursor:"pointer"}} onClick={()=>setRoute("recipes")}><Spark/><span className="l">Recipes</span><span className="v">{recipes.length}</span><span className="d">{ghRec && ghRec.length > 0 ? 'from GitHub' : 'preview data'}</span></div>
+        <div className="stat" style={{cursor:"pointer"}} onClick={()=>setRoute("products")}><Spark color="#E87A56"/><span className="l">Products</span><span className="v">{products.length}</span><span className="d">{ghProds && ghProds.length > 0 ? 'from GitHub' : 'preview data'}</span></div>
+        <div className="stat" style={{cursor:"pointer"}} onClick={()=>setRoute("posts")}><Spark/><span className="l">Blog posts</span><span className="v">{ghPosts ? ghPosts.length : 0}</span><span className="d">from GitHub</span></div>
+        <div className="stat" style={{cursor:"pointer"}} onClick={()=>setRoute("pages")}><Spark color="#E87A56"/><span className="l">Pages</span><span className="v">8</span><span className="d">home · about · follow…</span></div>
       </div>
 
       <div className="split-main">
         <div>
           <div className="card">
-            <div className="card-head">
-              <h3>Top performing content · last 7 days</h3>
-              <button className="btn btn-ghost btn-sm" onClick={()=>toast("Analytics dashboard · coming soon")}>Open analytics <Icon name="arrow" size={12}/></button>
-            </div>
-            <table className="tbl">
-              <thead><tr><th>Title</th><th>Type</th><th>Views</th><th>Engagement</th><th>Status</th></tr></thead>
-              <tbody>
-                {top.map((r,i) => (
-                  <tr key={i} style={{cursor:"pointer"}} onClick={()=>{ setRoute(r.k==="reel"?"reels":"recipes"); }}>
-                    <td><div className="row-thumb"><div className={"ph " + r.kind}/><div><div className="title">{r.t}</div><div className="sub">{r.s}</div></div></div></td>
-                    <td>{r.ty}</td><td className="num">{r.v}</td><td className="num">{r.e}</td>
-                    <td><span className="chip live"><span className="badge-dot"><span className="d"/></span> Live</span></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <div className="card">
             <div className="card-head"><h3>Quick actions</h3></div>
             <div className="grid-3">
-              <div className="drop" onClick={()=>setRoute("recipes")}><div className="ic"><Icon name="recipe" size={18}/></div><div className="t"><b>New recipe</b><span>Add ingredients, steps, photos</span></div></div>
-              <div className="drop" onClick={()=>setRoute("media")}><div className="ic"><Icon name="upload" size={18}/></div><div className="t"><b>Upload media</b><span>JPG / PNG / MP4 up to 80 MB</span></div></div>
-              <div className="drop" onClick={()=>setRoute("pages")}><div className="ic"><Icon name="edit" size={18}/></div><div className="t"><b>Edit homepage</b><span>Hero, reels, shop strip</span></div></div>
+              <div className="drop" style={{cursor:"pointer"}} onClick={()=>setRoute("recipes")}><div className="ic"><Icon name="recipe" size={18}/></div><div className="t"><b>New recipe</b><span>Add ingredients, steps, photos</span></div></div>
+              <div className="drop" style={{cursor:"pointer"}} onClick={()=>setRoute("posts")}><div className="ic"><Icon name="edit" size={18}/></div><div className="t"><b>New blog post</b><span>Write &amp; publish markdown</span></div></div>
+              <div className="drop" style={{cursor:"pointer"}} onClick={()=>setRoute("media")}><div className="ic"><Icon name="upload" size={18}/></div><div className="t"><b>Upload media</b><span>Images &amp; videos to Website/</span></div></div>
+              <div className="drop" style={{cursor:"pointer"}} onClick={()=>setRoute("pages")}><div className="ic"><Icon name="pages" size={18}/></div><div className="t"><b>Edit a page</b><span>Home, Follow Me, About…</span></div></div>
+              <div className="drop" style={{cursor:"pointer"}} onClick={()=>setRoute("products")}><div className="ic"><Icon name="shop" size={18}/></div><div className="t"><b>Add product</b><span>Affiliate links &amp; details</span></div></div>
+              <div className="drop" style={{cursor:"pointer"}} onClick={()=>setRoute("settings")}><div className="ic"><Icon name="settings" size={18}/></div><div className="t"><b>Site settings</b><span>Brand, domain, integrations</span></div></div>
             </div>
           </div>
         </div>
 
         <div>
           <div className="card">
-            <div className="card-head"><h3>Recent activity</h3></div>
+            <div className="card-head"><h3>Recent commits</h3><a href={'https://github.com/' + REPO + '/commits'} target="_blank" className="btn btn-ghost btn-sm">View all <Icon name="external" size={11}/></a></div>
+            {recentCommits.length === 0 && <div style={{color:'var(--muted)',fontSize:13,padding:'8px 0'}}>No commits loaded yet — sign in to see activity.</div>}
             <div className="activity">
-              {data.activity.map((a,i) => (
-                <div className="act-item" key={i}>
-                  <div className={"av " + (a.m?"m":"")}>{a.who}</div>
-                  <div className="t"><b>{a.name}</b> {a.act} <b>{a.obj}</b><span>{a.time}</span></div>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="card">
-            <div className="card-head"><h3>Scheduled</h3></div>
-            <div style={{display:"flex",gap:12,alignItems:"center"}}>
-              <div className="ph matcha" style={{width:56,height:56,borderRadius:10}}/>
-              <div>
-                <div style={{fontWeight:500,fontSize:14}}>Sunday meal-prep guide</div>
-                <div style={{fontSize:12,color:"var(--muted)",marginTop:2,fontFamily:"var(--mono)"}}>Apr 25, 2026 · 08:00 CET</div>
-              </div>
+              {recentCommits.slice(0,8).map((c,i) => {
+                const msg = c.commit.message.split('\n')[0].slice(0,60);
+                const author = c.commit.author.name || c.author?.login || '?';
+                const initials = author.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+                const time = fmtDate(c.commit.author.date);
+                return (
+                  <div className="act-item" key={i}>
+                    <div className="av">{initials}</div>
+                    <div className="t"><b>{msg}</b><span>{author} · {time}</span></div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -832,12 +872,12 @@ function HomePageEditor({data, setData, back, toast, ghPage, onSave}){
 }
 
 /* ============ Recipes list + editor ============ */
-function RecipesView({data, setData, toast, ghItems, onSave}){
+function RecipesView({data, setData, toast, ghItems, onSave, onDelete}){
   const [editing, setEditing] = useState(null); // full recipe object
   const [filter, setFilter] = useState("all");
   const items = (ghItems && ghItems.length > 0) ? ghItems : data.recipes;
   if(editing != null){
-    return <RecipeEditor recipe={editing} back={()=>setEditing(null)} toast={toast} onSave={onSave}/>;
+    return <RecipeEditor recipe={editing} back={()=>setEditing(null)} toast={toast} onSave={onSave} onDelete={onDelete}/>;
   }
   const filtered = filter==="all" ? items : items.filter(r => r.status===filter);
   return (
@@ -846,7 +886,7 @@ function RecipesView({data, setData, toast, ghItems, onSave}){
         <div><div className="ek">Recipes · {items.length} total{ghItems && ghItems.length > 0 ? ' · from GitHub' : ' · preview data'}</div><h1>Recipes</h1><p>Your library of tested recipes. Drafts don't appear on the site.</p></div>
         <div className="actions">
           <button className="btn btn-ghost"><Icon name="upload" size={14}/> Import from CSV</button>
-          <button className="btn btn-accent" onClick={()=>setEditing(1)}><Icon name="plus" size={14}/> New recipe</button>
+          <button className="btn btn-accent" onClick={()=>setEditing({title:'',slug:'',category:'Drinks',time:'',servings:'2',blurb:'',status:'draft',ingredients:[],steps:[]})}><Icon name="plus" size={14}/> New recipe</button>
         </div>
       </div>
       <div className="fbar">
@@ -882,20 +922,27 @@ function RecipesView({data, setData, toast, ghItems, onSave}){
   );
 }
 
-function RecipeEditor({recipe, back, toast, onSave}){
+function RecipeEditor({recipe, back, toast, onSave, onDelete}){
   const [local, setLocal] = useState({
     title: recipe.title || '',
-    slug: (recipe.slug) || (recipe.title||'').toLowerCase().replace(/[^a-z0-9]+/g,"-"),
-    category: recipe.cat || recipe.category || '',
+    slug: recipe.slug || (recipe.title||'').toLowerCase().replace(/[^a-z0-9]+/g,'-'),
+    category: recipe.cat || recipe.category || 'Drinks',
     time: recipe.time || '',
-    servings: recipe.servings || "2",
-    blurb: recipe.blurb || recipe.description || "A 5-minute matcha oat latte that tastes like a café but costs pennies to make. Whisked ceremonial-grade matcha over warm oat milk.",
+    servings: recipe.servings || '2',
+    blurb: recipe.blurb || recipe.description || '',
     status: recipe.status || 'draft',
   });
   const save = async () => {
-    const fullData = { ...recipe, ...local, ingredients, steps };
-    if (onSave && recipe._sha) { await onSave(recipe, fullData); }
-    else { toast("Recipe saved"); }
+    if (!local.title) { toast('Title is required'); return; }
+    const slug = local.slug || local.title.toLowerCase().replace(/[^a-z0-9]+/g,'-');
+    const itemRef = recipe._path ? recipe : { _path: 'content/recipes/' + slug + '.json', _name: slug + '.json' };
+    const fullData = { title: local.title, slug, category: local.category, time: local.time, servings: local.servings, blurb: local.blurb, status: local.status, ingredients, steps };
+    if (onSave) { await onSave(itemRef, fullData); if (!recipe._path) back(); }
+    else { toast('Recipe saved'); }
+  };
+  const handleDelete = async () => {
+    if (!recipe._path || !window.confirm('Delete "' + (local.title||'this recipe') + '"?')) return;
+    if (onDelete) { await onDelete(recipe); back(); }
   };
   const [ingredients, setIngredients] = useState(
     Array.isArray(recipe.ingredients) ? recipe.ingredients : [
@@ -922,9 +969,8 @@ function RecipeEditor({recipe, back, toast, onSave}){
           <p>{recipe._name ? recipe._name.replace('.json','') : 'rec_' + String(recipe.id||0).padStart(4,"0")} · Last updated {recipe.updated || '—'}</p>
         </div>
         <div className="actions">
-          <button className="btn btn-ghost" onClick={()=>toast("Preview opened in new tab")}><Icon name="eye" size={14}/> Preview</button>
-          <button className="btn btn-danger" onClick={()=>toast("Recipe moved to trash")}><Icon name="trash" size={14}/> Delete</button>
-          <button className="btn btn-accent" onClick={save}><Icon name="save" size={14}/> Save</button>
+          {recipe._path && <button className="btn btn-danger" onClick={handleDelete}><Icon name="trash" size={14}/> Delete</button>}
+          <button className="btn btn-accent" onClick={save}><Icon name="save" size={14}/> {recipe._path ? 'Save' : 'Create recipe'}</button>
         </div>
       </div>
 
@@ -1030,15 +1076,17 @@ function RecipeEditor({recipe, back, toast, onSave}){
 }
 
 /* ============ Products ============ */
-function ProductsView({data, toast, ghItems, onSave}){
+function ProductsView({data, toast, ghItems, onSave, onDelete}){
+  const [editing, setEditing] = useState(null);
   const items = (ghItems && ghItems.length > 0) ? ghItems : data.products;
+  if (editing != null) return <ProductEditor product={editing} back={()=>setEditing(null)} toast={toast} onSave={onSave} onDelete={onDelete}/>;
+
   return (
     <>
       <div className="ph-head">
         <div><div className="ek">Shop · {items.length} products{ghItems && ghItems.length > 0 ? ' · from GitHub' : ' · preview data'}</div><h1>Shop products</h1><p>Affiliate products displayed across recipes, shop page, and homepage strip.</p></div>
         <div className="actions">
-          <button className="btn btn-ghost"><Icon name="upload" size={14}/> Import</button>
-          <button className="btn btn-accent"><Icon name="plus" size={14}/> New product</button>
+          <button className="btn btn-accent" onClick={()=>setEditing({title:'',slug:'',category:'Kitchen',price:'',affiliateUrl:'',description:'',status:'draft'})}><Icon name="plus" size={14}/> New product</button>
         </div>
       </div>
       <div className="fbar">
@@ -1058,7 +1106,7 @@ function ProductsView({data, toast, ghItems, onSave}){
               <td className="num">{p.sales || '—'}</td>
               <td className="num">{p.updated || '—'}</td>
               <td><span className={"chip " + (p.status||'draft')}>{p.status==="live"?"Live":"Draft"}</span></td>
-              <td className="act"><button className="icon-btn"><Icon name="edit" size={14}/></button></td>
+              <td className="act"><button className="icon-btn" onClick={e=>{e.stopPropagation();setEditing(p)}}><Icon name="edit" size={14}/></button></td>
             </tr>
           ))}
         </tbody>
@@ -1067,33 +1115,123 @@ function ProductsView({data, toast, ghItems, onSave}){
   );
 }
 
-/* ============ Reels ============ */
-function ReelsView({data, toast}){
+function ProductEditor({product, back, toast, onSave, onDelete}){
+  const [local, setLocal] = useState({
+    title: product.title || '',
+    slug: product.slug || (product.title||'').toLowerCase().replace(/[^a-z0-9]+/g,'-'),
+    category: product.category || product.cat || 'Kitchen',
+    price: product.price || '',
+    affiliateUrl: product.affiliateUrl || product.url || '',
+    description: product.description || product.blurb || '',
+    commission: product.commission || '',
+    status: product.status || 'draft',
+  });
+  const save = async () => {
+    if (!local.title) { toast('Title is required'); return; }
+    const slug = local.slug || local.title.toLowerCase().replace(/[^a-z0-9]+/g,'-');
+    const itemRef = product._path ? product : { _path: 'content/products/' + slug + '.json', _name: slug + '.json' };
+    const fullData = { title: local.title, slug, category: local.category, price: local.price, affiliateUrl: local.affiliateUrl, description: local.description, commission: local.commission, status: local.status };
+    if (onSave) { await onSave(itemRef, fullData); if (!product._path) back(); }
+    else { toast('Product saved'); }
+  };
+  const handleDelete = async () => {
+    if (!product._path || !window.confirm('Delete "' + (local.title||'this product') + '"?')) return;
+    if (onDelete) { await onDelete(product); back(); }
+  };
   return (
     <>
       <div className="ph-head">
-        <div><div className="ek">Reels · {data.reels.length} visible</div><h1>Reels &amp; videos</h1><p>Embed TikTok and Instagram posts. Used on the Follow Me page and homepage strip.</p></div>
+        <div>
+          <div className="ek" style={{display:"flex",gap:8,alignItems:"center"}}><button onClick={back} className="btn btn-ghost btn-sm" style={{height:22,padding:"0 8px",fontSize:11}}><Icon name="chevR" size={10}/> Products</button> {product._path ? 'Edit product' : 'New product'}</div>
+          <h1>{local.title || 'Untitled product'}</h1>
+        </div>
         <div className="actions">
-          <button className="btn btn-ghost"><Icon name="external" size={14}/> Sync from TikTok</button>
-          <button className="btn btn-accent"><Icon name="plus" size={14}/> Embed URL</button>
+          {product._path && <button className="btn btn-danger" onClick={handleDelete}><Icon name="trash" size={14}/> Delete</button>}
+          <button className="btn btn-accent" onClick={save}><Icon name="save" size={14}/> {product._path ? 'Save' : 'Create product'}</button>
         </div>
       </div>
+      <div className="editor">
+        <div>
+          <div className="card">
+            <div className="card-head"><h3>Product details</h3></div>
+            <div className="field-grid">
+              <div className="fld full"><label>Title</label><input value={local.title} onChange={e=>setLocal({...local,title:e.target.value,slug:e.target.value.toLowerCase().replace(/[^a-z0-9]+/g,'-')})}/></div>
+              <div className="fld full"><label>Slug</label><input value={local.slug} onChange={e=>setLocal({...local,slug:e.target.value})}/><span className="hint">/shop/{local.slug}</span></div>
+              <div className="fld full"><label>Description</label><textarea value={local.description} onChange={e=>setLocal({...local,description:e.target.value})}/></div>
+              <div className="fld"><label>Category</label>
+                <select value={local.category} onChange={e=>setLocal({...local,category:e.target.value})}>
+                  <option>Kitchen</option><option>Pantry</option><option>Supplement</option><option>Tools</option><option>Books</option>
+                </select>
+              </div>
+              <div className="fld"><label>Price (display)</label><input value={local.price} onChange={e=>setLocal({...local,price:e.target.value})} placeholder="$34"/></div>
+              <div className="fld"><label>Commission %</label><input value={local.commission} onChange={e=>setLocal({...local,commission:e.target.value})} placeholder="4.0%"/></div>
+              <div className="fld full"><label>Affiliate URL</label><input value={local.affiliateUrl} onChange={e=>setLocal({...local,affiliateUrl:e.target.value})} placeholder="https://amzn.to/..."/></div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div className="card">
+            <div className="card-head"><h3>Status</h3></div>
+            <div className="fld">
+              <select value={local.status} onChange={e=>setLocal({...local,status:e.target.value})}>
+                <option value="live">Published · Live</option>
+                <option value="draft">Draft</option>
+              </select>
+            </div>
+            {product._path && <div className="kv"><div className="k">File</div><div style={{fontFamily:"var(--mono)",fontSize:11}}>{product._name}</div></div>}
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+/* ============ Reels ============ */
+function ReelsView({data, toast, ghItems, onSave, onDelete}){
+  const [adding, setAdding] = useState(false);
+  const [newReel, setNewReel] = useState({title:'',platform:'TikTok',embedUrl:'',views:'',likes:''});
+  const items = (ghItems && ghItems.length > 0) ? ghItems : data.reels;
+  const saveReel = async () => {
+    if (!newReel.title || !newReel.embedUrl) { toast('Title and URL are required'); return; }
+    const slug = newReel.title.toLowerCase().replace(/[^a-z0-9]+/g,'-');
+    const itemRef = { _path: 'content/reels/' + slug + '.json', _name: slug + '.json' };
+    if (onSave) { await onSave(itemRef, {...newReel, status:'live'}); setAdding(false); setNewReel({title:'',platform:'TikTok',embedUrl:'',views:'',likes:''}); }
+  };
+  return (
+    <>
+      <div className="ph-head">
+        <div><div className="ek">Reels · {items.length}{ghItems && ghItems.length > 0 ? ' · from GitHub' : ' · preview data'}</div><h1>Reels &amp; videos</h1><p>Embed TikTok and Facebook posts. Used on the Follow Me page and homepage strip.</p></div>
+        <div className="actions">
+          <button className="btn btn-accent" onClick={()=>setAdding(true)}><Icon name="plus" size={14}/> Embed URL</button>
+        </div>
+      </div>
+      {adding && (
+        <div className="card" style={{marginBottom:16}}>
+          <div className="card-head"><h3>Add new reel</h3><button className="btn btn-ghost btn-sm" onClick={()=>setAdding(false)}>Cancel</button></div>
+          <div className="field-grid">
+            <div className="fld"><label>Platform</label><select value={newReel.platform} onChange={e=>setNewReel({...newReel,platform:e.target.value})}><option>TikTok</option><option>Facebook</option><option>Instagram</option><option>YouTube</option></select></div>
+            <div className="fld"><label>Title</label><input value={newReel.title} onChange={e=>setNewReel({...newReel,title:e.target.value})}/></div>
+            <div className="fld full"><label>Embed / video URL</label><input value={newReel.embedUrl} onChange={e=>setNewReel({...newReel,embedUrl:e.target.value})} placeholder="https://www.tiktok.com/@myumminess/video/..."/></div>
+          </div>
+          <button className="btn btn-accent btn-sm" onClick={saveReel}><Icon name="save" size={12}/> Save reel</button>
+        </div>
+      )}
       <div className="grid-3">
-        {data.reels.map(r => (
-          <div key={r.id} className="card" style={{padding:0,overflow:"hidden"}}>
-            <div className={"ph " + (r.id%2?"matcha":"peach")} style={{aspectRatio:"9/14",borderRadius:0}}>
-              <span className="lbl">{r.plat} · {r.title}</span>
+        {items.map((r,i) => (
+          <div key={r._path||r.id||i} className="card" style={{padding:0,overflow:"hidden"}}>
+            <div className={"ph " + (i%2?"matcha":"peach")} style={{aspectRatio:"9/14",borderRadius:0}}>
+              <span className="lbl">{r.platform||r.plat} · {r.title}</span>
             </div>
             <div style={{padding:14}}>
               <div style={{display:"flex",alignItems:"center",gap:8}}>
-                <span className="chip" style={{background:r.plat==="TikTok"?"#1A1A1A":"linear-gradient(135deg,#F56040,#E1306C)",color:"#fff"}}><Icon name={r.plat==="TikTok"?"tt":"ig"} size={11}/> {r.plat}</span>
-                <span style={{marginLeft:"auto",fontSize:11.5,color:"var(--muted)",fontFamily:"var(--mono)"}}>{r.updated}</span>
+                <span className="chip" style={{background:(r.platform||r.plat)==="TikTok"?"#1A1A1A":(r.platform||r.plat)==="Facebook"?"#1877F2":"#E1306C",color:"#fff"}}>{r.platform||r.plat}</span>
+                <span style={{marginLeft:"auto",fontSize:11.5,color:"var(--muted)",fontFamily:"var(--mono)"}}>{r.updated||''}</span>
               </div>
               <div style={{fontWeight:500,marginTop:8,fontSize:14}}>{r.title}</div>
-              <div style={{fontFamily:"var(--mono)",fontSize:11,color:"var(--muted)",marginTop:4,letterSpacing:".06em"}}>{r.views} views · {r.likes} likes</div>
+              <div style={{fontFamily:"var(--mono)",fontSize:11,color:"var(--muted)",marginTop:4}}>{r.views||'—'} views · {r.likes||'—'} likes</div>
               <div style={{display:"flex",gap:6,marginTop:12}}>
-                <button className="btn btn-ghost btn-sm" style={{flex:1}}><Icon name="edit" size={12}/> Edit</button>
-                <button className="btn btn-ghost btn-sm"><Icon name="external" size={12}/></button>
+                {r.embedUrl && <a href={r.embedUrl} target="_blank" className="btn btn-ghost btn-sm"><Icon name="external" size={12}/></a>}
+                {r._path && onDelete && <button className="btn btn-danger btn-sm" style={{marginLeft:'auto'}} onClick={()=>window.confirm('Delete?') && onDelete(r)}><Icon name="trash" size={12}/></button>}
               </div>
             </div>
           </div>
@@ -1103,28 +1241,169 @@ function ReelsView({data, toast}){
   );
 }
 
-/* ============ Testimonials ============ */
-function TestimonialsView({data}){
+/* ============ Blog posts ============ */
+function BlogView({toast, ghItems, onSave, onDelete}){
+  const [editing, setEditing] = useState(null);
+  if (editing != null) return <BlogEditor post={editing} back={()=>setEditing(null)} toast={toast} onSave={onSave} onDelete={onDelete}/>;
   return (
     <>
       <div className="ph-head">
-        <div><div className="ek">Testimonials</div><h1>Testimonials</h1><p>Social proof shown on About Me and product pages.</p></div>
-        <div className="actions"><button className="btn btn-accent"><Icon name="plus" size={14}/> New testimonial</button></div>
+        <div><div className="ek">Blog · {ghItems ? ghItems.length : 0} posts · from GitHub</div><h1>Blog posts</h1><p>Markdown files in content/posts/. Each save commits directly to the repo.</p></div>
+        <div className="actions">
+          <button className="btn btn-accent" onClick={()=>setEditing({title:'',slug:'',date:new Date().toISOString().slice(0,10),category:'',excerpt:'',body:'',status:'draft'})}><Icon name="plus" size={14}/> New post</button>
+        </div>
       </div>
+      {(!ghItems || ghItems.length === 0) && (
+        <div style={{padding:'32px 0',textAlign:'center',color:'var(--muted)',fontSize:13}}>No blog posts yet. Create your first post with the button above.</div>
+      )}
+      {ghItems && ghItems.length > 0 && (
+        <table className="tbl">
+          <thead><tr><th style={{width:"40%"}}>Title</th><th>Category</th><th>Date</th><th>Status</th><th></th></tr></thead>
+          <tbody>
+            {ghItems.map((p,i) => (
+              <tr key={p._path||i} onClick={()=>setEditing(p)} style={{cursor:'pointer'}}>
+                <td><div className="row-thumb"><div className="ph peach"/><div><div className="title">{p.title || p.front?.title || p._name}</div><div className="sub">{p._name}</div></div></div></td>
+                <td><span className="chip" style={{background:"var(--surface-2)",color:"#6b6658"}}>{p.category || p.front?.category || '—'}</span></td>
+                <td className="num">{p.date || p.front?.date || '—'}</td>
+                <td><span className={"chip " + (p.status||'draft')}>{p.status==="live"?"Live":"Draft"}</span></td>
+                <td className="act"><button className="icon-btn" onClick={e=>{e.stopPropagation();setEditing(p)}}><Icon name="edit" size={14}/></button></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </>
+  );
+}
+
+function BlogEditor({post, back, toast, onSave, onDelete}){
+  const existingFront = post.front || {};
+  const [local, setLocal] = useState({
+    title: post.title || existingFront.title || '',
+    slug: post.slug || existingFront.slug || (post._name||'').replace(/\.md$/,''),
+    date: post.date || existingFront.date || new Date().toISOString().slice(0,10),
+    category: post.category || existingFront.category || '',
+    excerpt: post.excerpt || existingFront.excerpt || '',
+    status: post.status || existingFront.status || 'draft',
+  });
+  const [body, setBody] = useState(post.body || (typeof post._raw === 'string' ? post._raw : '') || '');
+  const save = async () => {
+    if (!local.title) { toast('Title is required'); return; }
+    const slug = local.slug || local.title.toLowerCase().replace(/[^a-z0-9]+/g,'-');
+    const mdText = stringifyFrontmatter({ title: local.title, slug, date: local.date, category: local.category, excerpt: local.excerpt, status: local.status }, body);
+    const itemRef = post._path ? post : { _path: 'content/posts/' + slug + '.md', _name: slug + '.md' };
+    if (onSave) { await onSave(itemRef, mdText); if (!post._path) back(); }
+    else { toast('Post saved'); }
+  };
+  const handleDelete = async () => {
+    if (!post._path || !window.confirm('Delete "' + (local.title||'this post') + '"?')) return;
+    if (onDelete) { await onDelete(post); back(); }
+  };
+  return (
+    <>
+      <div className="ph-head">
+        <div>
+          <div className="ek" style={{display:"flex",gap:8,alignItems:"center"}}><button onClick={back} className="btn btn-ghost btn-sm" style={{height:22,padding:"0 8px",fontSize:11}}><Icon name="chevR" size={10}/> Blog posts</button> {post._path ? 'Edit post' : 'New post'}</div>
+          <h1>{local.title || 'Untitled post'}</h1>
+        </div>
+        <div className="actions">
+          {post._path && <button className="btn btn-danger" onClick={handleDelete}><Icon name="trash" size={14}/> Delete</button>}
+          <button className="btn btn-accent" onClick={save}><Icon name="save" size={14}/> {post._path ? 'Save' : 'Publish post'}</button>
+        </div>
+      </div>
+      <div className="editor">
+        <div>
+          <div className="card">
+            <div className="card-head"><h3>Content</h3></div>
+            <div className="field-grid">
+              <div className="fld full"><label>Title</label><input value={local.title} onChange={e=>setLocal({...local,title:e.target.value,slug:e.target.value.toLowerCase().replace(/[^a-z0-9]+/g,'-')})}/></div>
+              <div className="fld full"><label>Excerpt</label><textarea value={local.excerpt} onChange={e=>setLocal({...local,excerpt:e.target.value})} style={{minHeight:60}}/></div>
+              <div className="fld full"><label>Body (Markdown)</label>
+                <textarea value={body} onChange={e=>setBody(e.target.value)} style={{minHeight:340,fontFamily:'var(--mono)',fontSize:12.5,lineHeight:1.6}}/>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div className="card">
+            <div className="card-head"><h3>Details</h3></div>
+            <div className="fld"><label>Date</label><input type="date" value={local.date} onChange={e=>setLocal({...local,date:e.target.value})}/></div>
+            <div className="fld"><label>Category</label><input value={local.category} onChange={e=>setLocal({...local,category:e.target.value})}/></div>
+            <div className="fld"><label>Slug</label><input value={local.slug} onChange={e=>setLocal({...local,slug:e.target.value})}/><span className="hint">/blog/{local.slug}</span></div>
+            <div className="fld"><label>Status</label>
+              <select value={local.status} onChange={e=>setLocal({...local,status:e.target.value})}>
+                <option value="live">Published · Live</option>
+                <option value="draft">Draft</option>
+              </select>
+            </div>
+            {post._path && <div className="kv"><div className="k">File</div><div style={{fontFamily:'var(--mono)',fontSize:11}}>{post._name}</div></div>}
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+/* ============ Testimonials ============ */
+function TestimonialsView({data, toast, ghItems, onSave, onDelete}){
+  const items = (ghItems && ghItems.length > 0) ? ghItems : data.testimonials;
+  const blank = {quote:'',name:'',handle:'',status:'live'};
+  const [editing, setEditing] = useState(null); // null | 'new' | item object
+  const [form, setForm] = useState(blank);
+
+  const openNew = () => { setForm(blank); setEditing('new'); };
+  const openEdit = (t) => { setForm({quote:t.quote||'',name:t.name||'',handle:t.handle||'',status:t.status||'live'}); setEditing(t); };
+
+  const save = async () => {
+    if (!form.quote || !form.name) { toast('Quote and name are required'); return; }
+    const slug = form.name.toLowerCase().replace(/[^a-z0-9]+/g,'-') + '-' + Date.now().toString(36);
+    const isNew = editing === 'new';
+    const itemRef = isNew
+      ? { _path: 'content/testimonials/' + slug + '.json', _name: slug + '.json' }
+      : editing;
+    if (onSave) { await onSave(itemRef, form); setEditing(null); }
+    else { toast('Saved'); setEditing(null); }
+  };
+
+  const del = async (t) => {
+    if (!t._path || !window.confirm('Delete this testimonial?')) return;
+    if (onDelete) await onDelete(t);
+  };
+
+  return (
+    <>
+      <div className="ph-head">
+        <div><div className="ek">Testimonials · {items.length}{ghItems && ghItems.length > 0 ? ' · from GitHub' : ' · preview data'}</div><h1>Testimonials</h1><p>Social proof shown on About Me and product pages.</p></div>
+        <div className="actions"><button className="btn btn-accent" onClick={openNew}><Icon name="plus" size={14}/> New testimonial</button></div>
+      </div>
+
+      {editing && (
+        <div className="card" style={{marginBottom:16}}>
+          <div className="card-head"><h3>{editing==='new' ? 'New testimonial' : 'Edit testimonial'}</h3><button className="btn btn-ghost btn-sm" onClick={()=>setEditing(null)}>Cancel</button></div>
+          <div className="field-grid">
+            <div className="fld full"><label>Quote</label><textarea value={form.quote} onChange={e=>setForm({...form,quote:e.target.value})} style={{minHeight:80}}/></div>
+            <div className="fld"><label>Name</label><input value={form.name} onChange={e=>setForm({...form,name:e.target.value})}/></div>
+            <div className="fld"><label>Handle / Source</label><input value={form.handle} onChange={e=>setForm({...form,handle:e.target.value})} placeholder="@handle or 'via email'"/></div>
+            <div className="fld"><label>Status</label><select value={form.status} onChange={e=>setForm({...form,status:e.target.value})}><option value="live">Live</option><option value="draft">Draft</option></select></div>
+          </div>
+          <button className="btn btn-accent btn-sm" onClick={save}><Icon name="save" size={12}/> {editing==='new' ? 'Add testimonial' : 'Save changes'}</button>
+        </div>
+      )}
+
       <div className="grid-2">
-        {data.testimonials.map(t => (
-          <div key={t.id} className="card" style={{position:"relative"}}>
-            <span className={"chip " + t.status} style={{position:"absolute",top:16,right:16}}>{t.status==="live"?"Live":"Draft"}</span>
+        {items.map((t,i) => (
+          <div key={t._path||t.id||i} className="card" style={{position:"relative"}}>
+            <span className={"chip " + (t.status||'draft')} style={{position:"absolute",top:16,right:16}}>{t.status==="live"?"Live":"Draft"}</span>
             <div style={{fontFamily:"var(--serif)",fontStyle:"italic",fontSize:18,lineHeight:1.4,letterSpacing:"-.005em",paddingRight:48}}>"{t.quote}"</div>
             <div style={{display:"flex",alignItems:"center",gap:10,marginTop:16}}>
-              <div style={{width:36,height:36,borderRadius:999,background:"var(--surface-2)",display:"grid",placeItems:"center",fontSize:12,fontWeight:600}}>{t.name.split(" ").map(x=>x[0]).join("")}</div>
+              <div style={{width:36,height:36,borderRadius:999,background:"var(--surface-2)",display:"grid",placeItems:"center",fontSize:12,fontWeight:600}}>{(t.name||'?').split(" ").map(x=>x[0]).join("")}</div>
               <div>
                 <div style={{fontSize:13.5,fontWeight:500}}>{t.name}</div>
                 <div style={{fontSize:11.5,color:"var(--muted)",fontFamily:"var(--mono)"}}>{t.handle}</div>
               </div>
               <div style={{marginLeft:"auto",display:"flex",gap:6}}>
-                <button className="btn btn-ghost btn-sm"><Icon name="edit" size={12}/></button>
-                <button className="icon-btn"><Icon name="trash" size={14}/></button>
+                <button className="btn btn-ghost btn-sm" onClick={()=>openEdit(t)}><Icon name="edit" size={12}/> Edit</button>
+                {t._path && onDelete && <button className="icon-btn" onClick={()=>del(t)}><Icon name="trash" size={14}/></button>}
               </div>
             </div>
           </div>
@@ -1135,26 +1414,75 @@ function TestimonialsView({data}){
 }
 
 /* ============ Media library ============ */
-function MediaView({data}){
+function MediaView({ghMedia, setGhMedia, toast}){
+  const [uploading, setUploading] = useState(false);
+  const [filter, setFilter] = useState('all');
+  const fileRef = React.useRef();
+
+  const handleUpload = async (files) => {
+    if (!files || !files.length) return;
+    setUploading(true);
+    let uploaded = 0;
+    for (const file of Array.from(files)) {
+      try {
+        const arrayBuf = await file.arrayBuffer();
+        const bytes = new Uint8Array(arrayBuf);
+        let binary = '';
+        bytes.forEach(b => binary += String.fromCharCode(b));
+        const content = btoa(binary);
+        const path = 'Website/' + file.name;
+        const result = await ghFetch(path, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: 'Upload ' + file.name + ' via CMS', content, branch: GH_BRANCH })
+        });
+        const kind = /\.(jpe?g|png|webp|gif|avif)$/i.test(file.name) ? 'image' : /\.(mp4|mov|webm)$/i.test(file.name) ? 'video' : 'file';
+        const newItem = { name: file.name, path, sha: result.content?.sha, size: file.size, url: result.content?.download_url, kind };
+        setGhMedia(prev => [newItem, ...prev.filter(m => m.path !== path)]);
+        uploaded++;
+      } catch(e) { toast('Failed to upload ' + file.name + ': ' + e.message); }
+    }
+    setUploading(false);
+    if (uploaded) toast(uploaded + ' file' + (uploaded>1?'s':'') + ' uploaded ✓');
+  };
+
+  const handleDrop = (e) => { e.preventDefault(); handleUpload(e.dataTransfer.files); };
+  const fmtSize = (b) => b > 1048576 ? (b/1048576).toFixed(1)+' MB' : b > 1024 ? (b/1024).toFixed(0)+' KB' : b+' B';
+  const displayed = filter==='all' ? ghMedia : ghMedia.filter(m => m.kind===filter);
+
   return (
     <>
       <div className="ph-head">
-        <div><div className="ek">Media · 312 assets · 1.8 GB / 10 GB used</div><h1>Media library</h1><p>All images, videos and documents used on the site.</p></div>
+        <div><div className="ek">Media · {ghMedia.length} files · Website/ folder</div><h1>Media library</h1><p>Files in your Website/ folder on GitHub. Upload to add new images or videos.</p></div>
         <div className="actions">
-          <button className="btn btn-ghost"><Icon name="filter" size={14}/> Filter</button>
-          <button className="btn btn-accent"><Icon name="upload" size={14}/> Upload</button>
+          <input ref={fileRef} type="file" multiple accept="image/*,video/*" style={{display:'none'}} onChange={e=>handleUpload(e.target.files)}/>
+          <button className="btn btn-accent" onClick={()=>fileRef.current.click()} disabled={uploading}><Icon name="upload" size={14}/> {uploading ? 'Uploading…' : 'Upload files'}</button>
         </div>
       </div>
-      <div className="drop" style={{marginBottom:16}}>
+      <div className="drop" style={{marginBottom:16,cursor:'pointer'}} onDrop={handleDrop} onDragOver={e=>e.preventDefault()} onClick={()=>fileRef.current.click()}>
         <div className="ic"><Icon name="upload" size={18}/></div>
-        <div className="t"><b>Drag &amp; drop files anywhere</b><span>JPG, PNG, WEBP, MP4 · up to 80 MB each · 312/2000 slots used</span></div>
-        <div style={{marginLeft:"auto"}}><button className="btn btn-ghost btn-sm">Browse</button></div>
+        <div className="t"><b>Drag &amp; drop or click to upload</b><span>JPG, PNG, WEBP, MP4 · uploaded directly to Website/ in the repo</span></div>
       </div>
+      <div className="fbar" style={{marginBottom:16}}>
+        <div className="seg">
+          {[['all','All'],['image','Images'],['video','Videos'],['file','Other']].map(([k,l])=>(
+            <button key={k} className={filter===k?'on':''} onClick={()=>setFilter(k)}>{l}</button>
+          ))}
+        </div>
+      </div>
+      {ghMedia.length === 0 && <div style={{padding:'40px 0',textAlign:'center',color:'var(--muted)',fontSize:13}}>No files found in Website/ folder. Upload your first file above.</div>}
       <div className="media">
-        {data.media.map((m,i) => (
-          <div key={i} className="tile">
-            <div className={"thumb ph " + (m.kind||"")}><span className="lbl">{m.name}</span></div>
-            <div className="meta"><div className="n">{m.name}</div><div className="s">{m.size}</div></div>
+        {displayed.map((m,i) => (
+          <div key={m.path||i} className="tile" title={m.name}>
+            {m.kind==='image' && m.url
+              ? <div className="thumb" style={{backgroundImage:`url(${m.url})`,backgroundSize:'cover',backgroundPosition:'center',borderRadius:8}}/>
+              : <div className={"thumb ph " + (m.kind==='video'?'dark':'')}><span className="lbl">{m.kind}</span></div>
+            }
+            <div className="meta">
+              <div className="n" style={{fontSize:11,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{m.name}</div>
+              <div className="s">{fmtSize(m.size||0)}</div>
+              {m.url && <button className="btn btn-ghost btn-sm" style={{marginTop:4,width:'100%',fontSize:10}} onClick={()=>{navigator.clipboard.writeText('/'+m.path);toast('Path copied: /'+m.path);}}>Copy path</button>}
+            </div>
           </div>
         ))}
       </div>
@@ -1300,33 +1628,45 @@ function SettingsView({data, setData, toast}){
 
 /* ============ Root ============ */
 function App(){
-  const [authed, setAuthed]   = useState(false);
-  const [route, setRoute]     = useState("dashboard");
-  const [sub, setSub]         = useState(null);
-  const [data, setData]       = useState(SEED);
-  const [ghPages, setGhPages] = useState({});
-  const [ghRec, setGhRec]     = useState([]);
-  const [ghProds, setGhProds] = useState([]);
-  const [ghPosts, setGhPosts] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [toast, setToast]     = useState(null);
+  const [authed, setAuthed]       = useState(false);
+  const [ghUser, setGhUser]       = useState(null);
+  const [route, setRoute]         = useState("dashboard");
+  const [sub, setSub]             = useState(null);
+  const [data, setData]           = useState(SEED);
+  const [ghPages, setGhPages]     = useState({});
+  const [ghRec, setGhRec]         = useState([]);
+  const [ghProds, setGhProds]     = useState([]);
+  const [ghPosts, setGhPosts]     = useState([]);
+  const [ghReels, setGhReels]     = useState([]);
+  const [ghTestim, setGhTestim]   = useState([]);
+  const [ghMedia, setGhMedia]     = useState([]);
+  const [ghCommits, setGhCommits] = useState([]);
+  const [loading, setLoading]     = useState(false);
+  const [toast, setToast]         = useState(null);
 
-  const showToast = (msg) => { setToast(msg); setTimeout(()=>setToast(null), 3000); };
+  const showToast = (msg) => { setToast(msg); setTimeout(()=>setToast(null), 3500); };
 
   const doLoadGitHub = async () => {
     setLoading(true);
     try {
-      const [pages, recs, prods, posts] = await Promise.all([
+      const [pages, recs, prods, posts, reels, testim, media, commits] = await Promise.all([
         loadPagesFromGitHub(),
         loadCollectionFromGitHub('content/recipes'),
         loadCollectionFromGitHub('content/products'),
         loadCollectionFromGitHub('content/posts'),
+        loadCollectionFromGitHub('content/reels'),
+        loadCollectionFromGitHub('content/testimonials'),
+        loadMediaFromGitHub('Website'),
+        loadCommitsFromGitHub(12),
       ]);
-      setGhPages(pages);
-      setGhRec(recs);
-      setGhProds(prods);
-      setGhPosts(posts);
+      setGhPages(pages); setGhRec(recs); setGhProds(prods); setGhPosts(posts);
+      setGhReels(reels); setGhTestim(testim); setGhMedia(media); setGhCommits(commits);
     } catch(e) { console.error('GitHub load error:', e); showToast('Could not load content from GitHub'); }
+    // load GitHub user info
+    try {
+      const u = await fetch('https://api.github.com/user', { headers: { Authorization: `Bearer ${ghToken()}`, Accept: 'application/vnd.github+json' }});
+      if (u.ok) { const d = await u.json(); setGhUser(d); }
+    } catch(e) {}
     setLoading(false);
   };
 
@@ -1345,49 +1685,72 @@ function App(){
     } catch(e) {}
   }, []);
 
-  const handleLogout = () => { setAuthed(false); ghClearToken(); };
+  const handleLogout = () => { setAuthed(false); ghUser && setGhUser(null); ghClearToken(); };
 
   const savePage = async (pageKey, filename, localData) => {
     const info = ghPages[pageKey];
-    if (!info) { showToast('No GitHub data loaded yet'); return; }
+    if (!info) { showToast('No GitHub data loaded yet — reload and try again'); return; }
     showToast('Saving to GitHub…');
     try {
       const result = await ghWrite('content/pages/' + filename + '.json', localData, info.sha, 'Update ' + pageKey + ' page via CMS');
       setGhPages(prev => ({...prev, [pageKey]: {...prev[pageKey], data: localData, sha: result.content.sha}}));
-      showToast(pageKey + ' page saved ✓ — deploying now');
+      showToast(pageKey + ' saved ✓ — deploying now');
     } catch(e) { showToast('Save failed: ' + e.message); }
   };
 
   const saveEntry = async (item, newData) => {
-    if (!item._sha || !item._path) { showToast('Cannot save: missing file info'); return; }
-    showToast('Saving to GitHub…');
+    if (!item._path) { showToast('Cannot save: missing path'); return; }
+    const isNew = !item._sha;
+    showToast(isNew ? 'Creating…' : 'Saving to GitHub…');
     try {
-      await ghWrite(item._path, newData, item._sha, 'Update ' + item._name + ' via CMS');
-      showToast('Saved ✓ — deploying now');
+      const result = await ghWrite(item._path, newData, item._sha, (isNew ? 'Create ' : 'Update ') + item._name + ' via CMS');
+      const newSha = result.content.sha;
+      const saved = { ...newData, _sha: newSha, _path: item._path, _name: item._name };
+      if (item._path.startsWith('content/recipes'))     setGhRec(prev => isNew ? [...prev, saved] : prev.map(r => r._path===item._path ? saved : r));
+      else if (item._path.startsWith('content/products')) setGhProds(prev => isNew ? [...prev, saved] : prev.map(p => p._path===item._path ? saved : p));
+      else if (item._path.startsWith('content/posts'))    setGhPosts(prev => isNew ? [...prev, saved] : prev.map(p => p._path===item._path ? saved : p));
+      else if (item._path.startsWith('content/reels'))    setGhReels(prev => isNew ? [...prev, saved] : prev.map(r => r._path===item._path ? saved : r));
+      else if (item._path.startsWith('content/testimonials')) setGhTestim(prev => isNew ? [...prev, saved] : prev.map(t => t._path===item._path ? saved : t));
+      showToast((isNew ? 'Created' : 'Saved') + ' ✓ — deploying now');
     } catch(e) { showToast('Save failed: ' + e.message); }
+  };
+
+  const deleteEntry = async (item) => {
+    if (!item._sha || !item._path) { showToast('Cannot delete: missing file info'); return; }
+    showToast('Deleting…');
+    try {
+      await ghDelete(item._path, item._sha, 'Delete ' + item._name + ' via CMS');
+      if (item._path.startsWith('content/recipes'))     setGhRec(prev => prev.filter(r => r._path!==item._path));
+      else if (item._path.startsWith('content/products')) setGhProds(prev => prev.filter(p => p._path!==item._path));
+      else if (item._path.startsWith('content/posts'))    setGhPosts(prev => prev.filter(p => p._path!==item._path));
+      else if (item._path.startsWith('content/reels'))    setGhReels(prev => prev.filter(r => r._path!==item._path));
+      else if (item._path.startsWith('content/testimonials')) setGhTestim(prev => prev.filter(t => t._path!==item._path));
+      showToast('Deleted ✓');
+    } catch(e) { showToast('Delete failed: ' + e.message); }
   };
 
   if (!authed) return <Login />;
 
-  const crumbs = {dashboard:'Dashboard',pages:'Pages',recipes:'Recipes',products:'Products',reels:'Reels',testimonials:'Testimonials',media:'Media library',settings:'Settings'};
+  const crumbs = {dashboard:'Dashboard',pages:'Pages',recipes:'Recipes',products:'Products',posts:'Blog posts',reels:'Reels',testimonials:'Testimonials',media:'Media library',settings:'Settings'};
   const crumb = sub ? (crumbs[route] + ' / ' + (sub==='home'?'Home':sub)) : crumbs[route];
 
   return (
     <div className="app">
-      <Sidebar route={route} setRoute={r=>{setRoute(r);setSub(null)}} onLogout={handleLogout}/>
+      <Sidebar route={route} setRoute={r=>{setRoute(r);setSub(null)}} onLogout={handleLogout} ghUser={ghUser} counts={{recipes:ghRec.length,products:ghProds.length,posts:ghPosts.length,reels:ghReels.length,testimonials:ghTestim.length,media:ghMedia.length}}/>
       <div className="main">
         <Topbar crumb={crumb} loading={loading}/>
         <div className="pageview">
-          {route==="dashboard" && <Dashboard setRoute={setRoute} data={data} toast={showToast}/>}
-          {route==="pages" && !sub && <PagesList data={data} setData={setData} openPage={id=>setSub(id)} toast={showToast}/>}
-          {route==="pages" && sub==="home" && <HomePageEditor data={data} setData={setData} back={()=>setSub(null)} toast={showToast} ghPage={ghPages.home} onSave={local=>savePage('home','home',local)}/>}
-          {route==="pages" && sub && sub!=="home" && <GenericPageEditor pageId={sub} data={data} back={()=>setSub(null)} toast={showToast} ghPage={ghPages[sub]} onSave={local=>savePage(sub,sub,local)}/>}
-          {route==="recipes" && <RecipesView data={data} setData={setData} toast={showToast} ghItems={ghRec} onSave={saveEntry}/>}
-          {route==="products" && <ProductsView data={data} toast={showToast} ghItems={ghProds} onSave={saveEntry}/>}
-          {route==="reels" && <ReelsView data={data} toast={showToast}/>}
-          {route==="testimonials" && <TestimonialsView data={data}/>}
-          {route==="media" && <MediaView data={data}/>}
-          {route==="settings" && <SettingsView data={data} setData={setData} toast={showToast}/>}
+          {route==="dashboard"    && <Dashboard setRoute={setRoute} data={data} ghRec={ghRec} ghProds={ghProds} ghPosts={ghPosts} ghCommits={ghCommits} toast={showToast}/>}
+          {route==="pages"  && !sub  && <PagesList data={data} setData={setData} openPage={id=>setSub(id)} toast={showToast}/>}
+          {route==="pages"  && sub==="home"  && <HomePageEditor data={data} setData={setData} back={()=>setSub(null)} toast={showToast} ghPage={ghPages.home} onSave={local=>savePage('home','home',local)}/>}
+          {route==="pages"  && sub && sub!=="home" && <GenericPageEditor pageId={sub} data={data} back={()=>setSub(null)} toast={showToast} ghPage={ghPages[sub]} onSave={local=>savePage(sub,sub,local)}/>}
+          {route==="recipes"      && <RecipesView data={data} setData={setData} toast={showToast} ghItems={ghRec} onSave={saveEntry} onDelete={deleteEntry}/>}
+          {route==="products"     && <ProductsView data={data} toast={showToast} ghItems={ghProds} onSave={saveEntry} onDelete={deleteEntry}/>}
+          {route==="posts"        && <BlogView toast={showToast} ghItems={ghPosts} onSave={saveEntry} onDelete={deleteEntry}/>}
+          {route==="reels"        && <ReelsView data={data} toast={showToast} ghItems={ghReels} onSave={saveEntry} onDelete={deleteEntry}/>}
+          {route==="testimonials" && <TestimonialsView data={data} toast={showToast} ghItems={ghTestim} onSave={saveEntry} onDelete={deleteEntry}/>}
+          {route==="media"        && <MediaView ghMedia={ghMedia} setGhMedia={setGhMedia} toast={showToast}/>}
+          {route==="settings"     && <SettingsView data={data} setData={setData} toast={showToast}/>}
         </div>
       </div>
       {toast && <div className="toast"><span className="d"/>{toast}</div>}
