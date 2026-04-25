@@ -154,17 +154,24 @@
     "slug": "berry-overnight-oats",
     "title": "Berry Overnight Oats",
     "cat": "breakfast",
-    "tags": "No Cook · Meal Prep · Gut Health",
+    "tags": [
+      "No Cook · Meal Prep · Gut Health"
+    ],
     "time": "8 min",
     "stars": 4.9,
     "reviews": 518,
     "kind": "",
     "status": "live",
-    "heroImage": "",
+    "heroImage": "/Website/EnjoyingBreakfastsetup.png",
     "blurb": "Sunday night, 8 minutes. Monday morning, breakfast is done. This is one of the highest-traffic recipes on my TikTok for good reason.",
     "servings": "1",
     "difficulty": "Easy",
-    "nutrition": {},
+    "nutrition": {
+      "calories": "",
+      "protein": "",
+      "carbs": "",
+      "fat": ""
+    },
     "benefits": [
       "Beta-glucan fibre from oats feeds beneficial gut bacteria",
       "Berries add antioxidants with no added sugar",
