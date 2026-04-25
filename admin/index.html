@@ -881,7 +881,7 @@ function RecipesView({data, setData, toast, ghItems, onSave, onDelete, ghMedia, 
         <tbody>
           {filtered.map((r,i) => (
             <tr key={r._path || r.id || i} onClick={()=>setEditing(r)} style={{cursor:"pointer"}}>
-              <td><div className="row-thumb"><div className={"ph " + (r.kind||"")}><span className="lbl">{r.cat || r.category}</span></div><div><div className="title">{r.title}</div><div className="sub">{r._name ? r._name.replace('.json','') : 'rec_' + String(r.id).padStart(4,"0")}</div></div></div></td>
+              <td><div className="row-thumb">{(r.heroImage||r.image) ? <img src={r.heroImage||r.image} style={{width:44,height:44,borderRadius:8,objectFit:"cover",flexShrink:0}}/> : <div className={"ph " + (r.kind||"")}><span className="lbl">{r.cat || r.category}</span></div>}<div><div className="title">{r.title}</div><div className="sub">{r._name ? r._name.replace('.json','') : 'rec_' + String(r.id).padStart(4,"0")}</div></div></div></td>
               <td><span className="chip" style={{background:"var(--surface-2)",color:"#6b6658"}}>{r.cat || r.category || '—'}</span></td>
               <td className="num">{r.time || '—'}</td>
               <td className="num">{r.stars>0 ? (<span style={{display:"inline-flex",alignItems:"center",gap:4}}><Icon name="star" size={11} stroke={2}/> {r.stars}</span>) : "—"}</td>
@@ -898,55 +898,83 @@ function RecipesView({data, setData, toast, ghItems, onSave, onDelete, ghMedia, 
 }
 
 function RecipeEditor({recipe, back, toast, onSave, onDelete, ghMedia, setGhMedia}){
+  const isNew = !recipe._path;
   const [local, setLocal] = useState({
-    title: recipe.title || '',
-    slug: recipe.slug || (recipe.title||'').toLowerCase().replace(/[^a-z0-9]+/g,'-'),
-    category: recipe.cat || recipe.category || 'Drinks',
-    time: recipe.time || '',
-    servings: recipe.servings || '2',
-    blurb: recipe.blurb || recipe.description || '',
-    status: recipe.status || 'draft',
+    title:      recipe.title || '',
+    slug:       recipe.slug  || (recipe.title||'').toLowerCase().replace(/[^a-z0-9]+/g,'-'),
+    category:   recipe.cat  || recipe.category  || 'Drinks',
+    time:       recipe.time      || '',
+    servings:   recipe.servings  || '2',
+    difficulty: recipe.difficulty|| 'Easy',
+    blurb:      recipe.blurb || recipe.description || '',
+    status:     recipe.status    || 'draft',
+    calories:   recipe.calories  || recipe.nutrition?.calories || '',
+    protein:    recipe.protein   || recipe.nutrition?.protein  || '',
+    carbs:      recipe.carbs     || recipe.nutrition?.carbs    || '',
+    fat:        recipe.fat       || recipe.nutrition?.fat      || '',
   });
   const [heroImage, setHeroImage] = useState(recipe.heroImage || recipe.image || '');
+  const [tags, setTags] = useState(
+    Array.isArray(recipe.tags) ? recipe.tags.join(', ') : (recipe.tags || '')
+  );
+  const [newTag, setNewTag] = useState('');
+  const [ingredients, setIngredients] = useState(
+    Array.isArray(recipe.ingredients) ? recipe.ingredients : ['']
+  );
+  const [steps, setSteps] = useState(
+    Array.isArray(recipe.steps) ? recipe.steps : ['']
+  );
+
   const save = async () => {
     if (!local.title) { toast('Title is required'); return; }
     const slug = local.slug || local.title.toLowerCase().replace(/[^a-z0-9]+/g,'-');
-    const itemRef = recipe._path ? recipe : { _path: 'content/recipes/' + slug + '.json', _name: slug + '.json' };
-    const fullData = { title: local.title, slug, category: local.category, time: local.time, servings: local.servings, blurb: local.blurb, status: local.status, heroImage, ingredients, steps };
-    if (onSave) { await onSave(itemRef, fullData); if (!recipe._path) back(); }
+    const tagArr = tags.split(',').map(t=>t.trim()).filter(Boolean);
+    const itemRef = isNew
+      ? { _path: 'content/recipes/'+slug+'.json', _name: slug+'.json' }
+      : recipe;
+    const fullData = {
+      title: local.title, slug, category: local.category,
+      time: local.time, servings: local.servings, difficulty: local.difficulty,
+      blurb: local.blurb, status: local.status, heroImage,
+      tags: tagArr,
+      nutrition: { calories: local.calories, protein: local.protein, carbs: local.carbs, fat: local.fat },
+      ingredients: ingredients.filter(Boolean),
+      steps: steps.filter(Boolean),
+    };
+    if (onSave) { await onSave(itemRef, fullData); if (isNew) back(); }
     else { toast('Recipe saved'); }
   };
+
   const handleDelete = async () => {
     if (!recipe._path || !window.confirm('Delete "' + (local.title||'this recipe') + '"?')) return;
     if (onDelete) { await onDelete(recipe); back(); }
   };
-  const [ingredients, setIngredients] = useState(
-    Array.isArray(recipe.ingredients) ? recipe.ingredients : [
-      "1 tsp ceremonial-grade matcha",
-      "60 ml hot water (80°C)",
-      "200 ml oat milk, warmed",
-      "1 tsp maple syrup (optional)",
-    ]
-  );
-  const [steps, setSteps] = useState(
-    Array.isArray(recipe.steps) ? recipe.steps : [
-      "Sift matcha into a bowl or mug to break up clumps.",
-      "Add hot water and whisk vigorously in an M-shape until frothy.",
-      "Warm the oat milk and pour slowly over the matcha.",
-      "Sweeten to taste and enjoy immediately.",
-    ]
-  );
+
+  const addTag = () => {
+    const t = newTag.trim();
+    if (!t) return;
+    const cur = tags ? tags.split(',').map(x=>x.trim()).filter(Boolean) : [];
+    if (!cur.includes(t)) setTags([...cur, t].join(', '));
+    setNewTag('');
+  };
+  const removeTag = (t) => setTags(tags.split(',').map(x=>x.trim()).filter(x=>x&&x!==t).join(', '));
+
+  const tagArr = tags ? tags.split(',').map(t=>t.trim()).filter(Boolean) : [];
+
   return (
     <>
       <div className="ph-head">
         <div>
-          <div className="ek" style={{display:"flex",gap:8,alignItems:"center"}}><button onClick={back} className="btn btn-ghost btn-sm" style={{height:22,padding:"0 8px",fontSize:11}}><Icon name="chevR" size={10}/> Recipes</button> Edit recipe</div>
-          <h1>{local.title}</h1>
-          <p>{recipe._name ? recipe._name.replace('.json','') : 'rec_' + String(recipe.id||0).padStart(4,"0")} · Last updated {recipe.updated || '—'}</p>
+          <div className="ek" style={{display:"flex",gap:8,alignItems:"center"}}>
+            <button onClick={back} className="btn btn-ghost btn-sm" style={{height:22,padding:"0 8px",fontSize:11}}><Icon name="chevR" size={10}/> Recipes</button>
+            {isNew ? 'New recipe' : 'Edit recipe'}
+          </div>
+          <h1>{local.title || 'Untitled recipe'}</h1>
+          <p>{isNew ? 'Not saved yet' : (recipe._name ? recipe._name.replace('.json','') : '') + ' · updated ' + (recipe.updated||'—')}</p>
         </div>
         <div className="actions">
-          {recipe._path && <button className="btn btn-danger" onClick={handleDelete}><Icon name="trash" size={14}/> Delete</button>}
-          <button className="btn btn-accent" onClick={save}><Icon name="save" size={14}/> {recipe._path ? 'Save' : 'Create recipe'}</button>
+          {!isNew && <button className="btn btn-danger" onClick={handleDelete}><Icon name="trash" size={14}/> Delete</button>}
+          <button className="btn btn-accent" onClick={save}><Icon name="save" size={14}/> {isNew ? 'Create recipe' : 'Save changes'}</button>
         </div>
       </div>
 
@@ -955,22 +983,30 @@ function RecipeEditor({recipe, back, toast, onSave, onDelete, ghMedia, setGhMedi
           <div className="card">
             <div className="card-head"><h3>Content</h3></div>
             <div className="field-grid">
-              <div className="fld full"><label>Title</label><input value={local.title} onChange={e=>setLocal({...local,title:e.target.value, slug:e.target.value.toLowerCase().replace(/[^a-z0-9]+/g,"-")})}/></div>
+              <div className="fld full"><label>Title</label><input value={local.title} onChange={e=>setLocal({...local,title:e.target.value,slug:e.target.value.toLowerCase().replace(/[^a-z0-9]+/g,'-')})}/></div>
               <div className="fld full"><label>Slug</label><input value={local.slug} onChange={e=>setLocal({...local,slug:e.target.value})}/><span className="hint">/recipes/{local.slug}</span></div>
               <div className="fld full"><label>Short description</label><textarea value={local.blurb} onChange={e=>setLocal({...local,blurb:e.target.value})}/></div>
-              <div className="fld"><label>Category</label><select value={local.category} onChange={e=>setLocal({...local,category:e.target.value})}><option>Drinks</option><option>Breakfast</option><option>Lunch</option><option>Dinner</option><option>Snacks</option><option>Guides</option></select></div>
-              <div className="fld"><label>Total time</label><input value={local.time} onChange={e=>setLocal({...local,time:e.target.value})}/></div>
+              <div className="fld"><label>Category</label>
+                <select value={local.category} onChange={e=>setLocal({...local,category:e.target.value})}>
+                  {['Drinks','Breakfast','Lunch','Dinner','Snacks','Guides'].map(c=><option key={c}>{c}</option>)}
+                </select>
+              </div>
+              <div className="fld"><label>Total time</label><input value={local.time} onChange={e=>setLocal({...local,time:e.target.value})} placeholder="e.g. 15 min"/></div>
               <div className="fld"><label>Servings</label><input value={local.servings} onChange={e=>setLocal({...local,servings:e.target.value})}/></div>
-              <div className="fld"><label>Difficulty</label><select><option>Easy</option><option>Medium</option><option>Hard</option></select></div>
+              <div className="fld"><label>Difficulty</label>
+                <select value={local.difficulty} onChange={e=>setLocal({...local,difficulty:e.target.value})}>
+                  {['Easy','Medium','Hard'].map(d=><option key={d}>{d}</option>)}
+                </select>
+              </div>
             </div>
           </div>
 
           <div className="card">
-            <div className="card-head"><h3>Ingredients · {ingredients.length}</h3><span className="hint">Drag to reorder</span></div>
+            <div className="card-head"><h3>Ingredients · {ingredients.filter(Boolean).length}</h3><span className="hint">One per line</span></div>
             {ingredients.map((it, i) => (
               <div key={i} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 0",borderBottom:"1px solid var(--line-2)"}}>
                 <Icon name="drag" size={14}/>
-                <input value={it} onChange={e=>{const n=[...ingredients];n[i]=e.target.value;setIngredients(n)}} style={{flex:1,background:"transparent",border:0,outline:0,fontSize:13.5}}/>
+                <input value={it} onChange={e=>{const n=[...ingredients];n[i]=e.target.value;setIngredients(n)}} style={{flex:1,background:"transparent",border:0,outline:0,fontSize:13.5}} placeholder={i===0?'e.g. 1 tsp matcha powder':''}/>
                 <button className="icon-btn" onClick={()=>setIngredients(ingredients.filter((_,x)=>x!==i))}><Icon name="trash" size={13}/></button>
               </div>
             ))}
@@ -978,11 +1014,11 @@ function RecipeEditor({recipe, back, toast, onSave, onDelete, ghMedia, setGhMedi
           </div>
 
           <div className="card">
-            <div className="card-head"><h3>Method · {steps.length} steps</h3></div>
+            <div className="card-head"><h3>Method · {steps.filter(Boolean).length} steps</h3></div>
             {steps.map((s, i) => (
               <div key={i} style={{display:"flex",alignItems:"flex-start",gap:10,padding:"10px 0",borderBottom:"1px solid var(--line-2)"}}>
                 <div style={{width:22,height:22,borderRadius:999,background:"var(--matcha-soft)",color:"var(--matcha-deep)",display:"grid",placeItems:"center",fontSize:11,fontWeight:600,fontFamily:"var(--mono)",flexShrink:0,marginTop:2}}>{i+1}</div>
-                <textarea value={s} onChange={e=>{const n=[...steps];n[i]=e.target.value;setSteps(n)}} style={{flex:1,background:"transparent",border:0,outline:0,fontSize:13.5,minHeight:40,resize:"vertical",lineHeight:1.45}}/>
+                <textarea value={s} onChange={e=>{const n=[...steps];n[i]=e.target.value;setSteps(n)}} style={{flex:1,background:"transparent",border:0,outline:0,fontSize:13.5,minHeight:40,resize:"vertical",lineHeight:1.45}} placeholder={i===0?'Describe this step…':''}/>
                 <button className="icon-btn" onClick={()=>setSteps(steps.filter((_,x)=>x!==i))}><Icon name="trash" size={13}/></button>
               </div>
             ))}
@@ -990,12 +1026,12 @@ function RecipeEditor({recipe, back, toast, onSave, onDelete, ghMedia, setGhMedi
           </div>
 
           <div className="card">
-            <div className="card-head"><h3>Nutrition · per serving</h3><span className="hint">Optional</span></div>
+            <div className="card-head"><h3>Nutrition · per serving</h3><span className="hint">Optional — saved to GitHub</span></div>
             <div className="field-grid">
-              <div className="fld"><label>Calories</label><input defaultValue="184"/></div>
-              <div className="fld"><label>Protein (g)</label><input defaultValue="5.2"/></div>
-              <div className="fld"><label>Carbs (g)</label><input defaultValue="22.4"/></div>
-              <div className="fld"><label>Fat (g)</label><input defaultValue="6.1"/></div>
+              <div className="fld"><label>Calories</label><input value={local.calories} onChange={e=>setLocal({...local,calories:e.target.value})} placeholder="e.g. 184"/></div>
+              <div className="fld"><label>Protein (g)</label><input value={local.protein} onChange={e=>setLocal({...local,protein:e.target.value})} placeholder="e.g. 5.2"/></div>
+              <div className="fld"><label>Carbs (g)</label><input value={local.carbs} onChange={e=>setLocal({...local,carbs:e.target.value})} placeholder="e.g. 22.4"/></div>
+              <div className="fld"><label>Fat (g)</label><input value={local.fat} onChange={e=>setLocal({...local,fat:e.target.value})} placeholder="e.g. 6.1"/></div>
             </div>
           </div>
         </div>
@@ -1010,10 +1046,8 @@ function RecipeEditor({recipe, back, toast, onSave, onDelete, ghMedia, setGhMedi
                 <option value="sched">Scheduled</option>
               </select>
             </div>
-            <div className="kv"><div className="k">Visibility</div><div>Public</div></div>
-            <div className="kv"><div className="k">Author</div><div>Marta Tarragona</div></div>
-            <div className="kv"><div className="k">Published</div><div>Apr 22, 2026 · 07:40</div></div>
-            <div className="kv"><div className="k">URL</div><div style={{fontFamily:"var(--mono)",fontSize:11.5,color:"var(--info)",wordBreak:"break-all"}}>/recipes/{local.slug}</div></div>
+            <div className="kv"><div className="k">URL</div><div style={{fontFamily:"var(--mono)",fontSize:11.5,color:"var(--info)",wordBreak:"break-all"}}>/recipes/{local.slug||'—'}</div></div>
+            {!isNew && <div className="kv"><div className="k">File</div><div style={{fontFamily:"var(--mono)",fontSize:11}}>{recipe._name}</div></div>}
           </div>
 
           <div className="card">
@@ -1023,23 +1057,19 @@ function RecipeEditor({recipe, back, toast, onSave, onDelete, ghMedia, setGhMedi
 
           <div className="card">
             <div className="card-head"><h3>Tags</h3></div>
-            <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
-              {["healthy","5-minute","matcha","plant-based","breakfast"].map(t => (
-                <span key={t} style={{background:"var(--surface-2)",padding:"5px 10px",borderRadius:999,fontSize:12,display:"inline-flex",alignItems:"center",gap:4}}>
+            <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:10}}>
+              {tagArr.map(t => (
+                <span key={t} style={{background:"var(--surface-2)",padding:"5px 10px",borderRadius:999,fontSize:12,display:"inline-flex",alignItems:"center",gap:6}}>
                   <Icon name="tag" size={10} stroke={2}/> {t}
+                  <button onClick={()=>removeTag(t)} style={{background:"none",border:0,cursor:"pointer",color:"var(--muted)",fontSize:14,lineHeight:1,padding:0}}>×</button>
                 </span>
               ))}
-              <button className="btn btn-ghost btn-sm"><Icon name="plus" size={11}/> Add</button>
             </div>
-          </div>
-
-          <div className="card">
-            <div className="card-head"><h3>Related products</h3><span className="hint">Shown below recipe</span></div>
-            <div style={{display:"flex",flexDirection:"column",gap:8}}>
-              <div className="drop" style={{padding:10}}><div className="ph matcha" style={{width:36,height:36,borderRadius:8}}/><div className="t"><b>Ceremonial-grade matcha</b><span>$34 · 3.2% commission</span></div></div>
-              <div className="drop" style={{padding:10}}><div className="ph" style={{width:36,height:36,borderRadius:8}}/><div className="t"><b>Bamboo whisk</b><span>$22 · 4.0% commission</span></div></div>
-              <button className="btn btn-ghost btn-sm"><Icon name="plus" size={12}/> Link product</button>
+            <div style={{display:"flex",gap:6}}>
+              <input value={newTag} onChange={e=>setNewTag(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault();addTag();}}} placeholder="Add tag…" style={{flex:1,background:"var(--input)",border:"1px solid transparent",borderRadius:8,padding:"8px 10px",fontSize:13,outline:0}}/>
+              <button className="btn btn-ghost btn-sm" onClick={addTag}><Icon name="plus" size={12}/> Add</button>
             </div>
+            <span className="hint" style={{marginTop:6,display:'block'}}>Press Enter or click Add. Saved to GitHub with the recipe.</span>
           </div>
         </div>
       </div>
