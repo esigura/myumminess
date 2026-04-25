@@ -4,17 +4,24 @@
     "slug": "green-protein-smoothie",
     "title": "Green Protein Smoothie",
     "cat": "quick",
-    "tags": "Quick · High Protein · Filling",
+    "tags": [
+      "Quick · High Protein · Filling"
+    ],
     "time": "5 min",
     "stars": 4.9,
     "reviews": 231,
     "kind": "matcha",
     "status": "live",
-    "heroImage": "",
+    "heroImage": "/Website/Green Smoothie_.png",
     "blurb": "The smoothie I make every single morning. Takes 5 minutes, keeps me full until lunch, and tastes better than anything I've bought.",
     "servings": "2",
     "difficulty": "Easy",
-    "nutrition": {},
+    "nutrition": {
+      "calories": "",
+      "protein": "",
+      "carbs": "",
+      "fat": ""
+    },
     "benefits": [
       "High in plant protein — keeps you full for hours",
       "Spinach adds iron without any detectable taste",
