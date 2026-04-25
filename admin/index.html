@@ -827,8 +827,9 @@ function PageFieldEditor({pageId, data, back, toast, ghPage, onSave, ghMedia, se
               const type = fieldType(key, value);
               const full = type==='image'||type==='textarea'||String(value||'').length>60;
               return (
+                <React.Fragment key={key}>
                 {type==='array' && key==='categories' && (
-                  <div className="fld full" key={key}>
+                  <div className="fld full">
                     <label>Category tabs <span className="hint" style={{fontWeight:400}}>— shown as filter tabs on the Recipes page</span></label>
                     {(value||[]).map((cat,ci)=>(
                       <div key={ci} style={{display:'flex',gap:8,alignItems:'center',marginBottom:6}}>
@@ -842,7 +843,7 @@ function PageFieldEditor({pageId, data, back, toast, ghPage, onSave, ghMedia, se
                   </div>
                 )}
                 {type==='array' && key==='featured' && (
-                  <div className="fld full" key={key}>
+                  <div className="fld full">
                     <label>This week's top picks <span className="hint" style={{fontWeight:400}}>— shown in the hero section</span></label>
                     {[0,1,2].map(pi=>{
                       const recipes = ghRecList&&ghRecList.items.length>0?ghRecList.items:[];
@@ -859,18 +860,19 @@ function PageFieldEditor({pageId, data, back, toast, ghPage, onSave, ghMedia, se
                   </div>
                 )}
                 {type!=='array' && (
-                <div className={'fld '+(full?'full':'')} key={key}>
-                  <label>{fmtLabel(key)}</label>
-                  {type==='image'
-                    ? <ImagePicker value={String(value||'')} onChange={v=>set(key,v)} ghMedia={ghMedia} setGhMedia={setGhMedia} toast={toast}/>
-                    : type==='textarea'
-                    ? <textarea value={String(value||'')} onChange={e=>set(key,e.target.value)}/>
-                    : type==='url'
-                    ? <input type="url" value={String(value||'')} onChange={e=>set(key,e.target.value)} placeholder="https://…"/>
-                    : <input value={String(value||'')} onChange={e=>set(key,e.target.value)}/>
-                  }
-                </div>
+                  <div className={'fld '+(full?'full':'')}>
+                    <label>{fmtLabel(key)}</label>
+                    {type==='image'
+                      ? <ImagePicker value={String(value||'')} onChange={v=>set(key,v)} ghMedia={ghMedia} setGhMedia={setGhMedia} toast={toast}/>
+                      : type==='textarea'
+                      ? <textarea value={String(value||'')} onChange={e=>set(key,e.target.value)}/>
+                      : type==='url'
+                      ? <input type="url" value={String(value||'')} onChange={e=>set(key,e.target.value)} placeholder="https://…"/>
+                      : <input value={String(value||'')} onChange={e=>set(key,e.target.value)}/>
+                    }
+                  </div>
                 )}
+                </React.Fragment>
               );
             })}
           </div>
