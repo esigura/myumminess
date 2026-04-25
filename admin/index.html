@@ -1795,10 +1795,9 @@ function App(){
       const result = await ghWrite(item._path, newData, item._sha, (isNew ? 'Create ' : 'Update ') + item._name + ' via CMS');
       const newSha = result.content.sha;
       const saved = { ...newData, _sha: newSha, _path: item._path, _name: item._name };
-      // recipes handled via saveRecipeList — not individual files
-      else if (item._path.startsWith('content/products')) setGhProds(prev => isNew ? [...prev, saved] : prev.map(p => p._path===item._path ? saved : p));
-      else if (item._path.startsWith('content/posts'))    setGhPosts(prev => isNew ? [...prev, saved] : prev.map(p => p._path===item._path ? saved : p));
-      else if (item._path.startsWith('content/reels'))    setGhReels(prev => isNew ? [...prev, saved] : prev.map(r => r._path===item._path ? saved : r));
+      if      (item._path.startsWith('content/products'))     setGhProds(prev => isNew ? [...prev, saved] : prev.map(p => p._path===item._path ? saved : p));
+      else if (item._path.startsWith('content/posts'))        setGhPosts(prev => isNew ? [...prev, saved] : prev.map(p => p._path===item._path ? saved : p));
+      else if (item._path.startsWith('content/reels'))        setGhReels(prev => isNew ? [...prev, saved] : prev.map(r => r._path===item._path ? saved : r));
       else if (item._path.startsWith('content/testimonials')) setGhTestim(prev => isNew ? [...prev, saved] : prev.map(t => t._path===item._path ? saved : t));
       showToast((isNew ? 'Created' : 'Saved') + ' ✓ — deploying now');
     } catch(e) { showToast('Save failed: ' + e.message); }
@@ -1809,10 +1808,9 @@ function App(){
     showToast('Deleting…');
     try {
       await ghDelete(item._path, item._sha, 'Delete ' + item._name + ' via CMS');
-      // recipes handled via saveRecipeList — not individual files
-      else if (item._path.startsWith('content/products')) setGhProds(prev => prev.filter(p => p._path!==item._path));
-      else if (item._path.startsWith('content/posts'))    setGhPosts(prev => prev.filter(p => p._path!==item._path));
-      else if (item._path.startsWith('content/reels'))    setGhReels(prev => prev.filter(r => r._path!==item._path));
+      if      (item._path.startsWith('content/products'))     setGhProds(prev => prev.filter(p => p._path!==item._path));
+      else if (item._path.startsWith('content/posts'))        setGhPosts(prev => prev.filter(p => p._path!==item._path));
+      else if (item._path.startsWith('content/reels'))        setGhReels(prev => prev.filter(r => r._path!==item._path));
       else if (item._path.startsWith('content/testimonials')) setGhTestim(prev => prev.filter(t => t._path!==item._path));
       showToast('Deleted ✓');
     } catch(e) { showToast('Delete failed: ' + e.message); }
