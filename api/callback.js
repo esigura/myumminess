@@ -20,9 +20,13 @@ export default async function handler(req, res) {
       const msg = JSON.stringify({ token, provider: 'github' });
       function sendAndClose() {
         if (window.opener) {
+          // Sveltia CMS popup flow
           window.opener.postMessage('authorization:github:success:' + msg, '*');
+          setTimeout(() => window.close(), 500);
+        } else {
+          // Dashboard same-window flow — redirect back with token in hash
+          window.location.href = '/admin/#gh_token=' + encodeURIComponent(token);
         }
-        setTimeout(() => window.close(), 500);
       }
       sendAndClose();
     </script>

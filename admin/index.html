@@ -284,6 +284,85 @@ const Icon = ({name, size=16, stroke=1.8}) => {
   return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round">{p[name]}</svg>;
 };
 
+
+/* ============ GitHub API ============ */
+const REPO = 'esigura/myumminess';
+const GH_BRANCH = 'main';
+const GH_API = 'https://api.github.com';
+
+function ghToken()      { return localStorage.getItem('myumm.gh.token') || ''; }
+function ghSetToken(t)  { localStorage.setItem('myumm.gh.token', t); }
+function ghClearToken() { localStorage.removeItem('myumm.gh.token'); localStorage.removeItem('myumm.cms.auth'); }
+
+async function ghFetch(path, opts = {}) {
+  const url = path.startsWith('http') ? path
+    : `${GH_API}/repos/${REPO}/contents/${path}${path.includes('?')?'&':'?'}ref=${GH_BRANCH}`;
+  const r = await fetch(url, {
+    ...opts,
+    headers: {
+      Authorization: `Bearer ${ghToken()}`,
+      Accept: 'application/vnd.github+json',
+      'X-GitHub-Api-Version': '2022-11-28',
+      ...(opts.headers || {})
+    }
+  });
+  if (r.status === 401) { ghClearToken(); window.location.reload(); return null; }
+  if (!r.ok) throw new Error(`GitHub ${r.status}: ${path}`);
+  return r.json();
+}
+
+async function ghRead(path) {
+  const res = await ghFetch(path);
+  if (!res) return null;
+  const binary = atob(res.content.replace(/\s/g, ''));
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  const text = new TextDecoder().decode(bytes);
+  return { data: path.endsWith('.json') ? JSON.parse(text) : text, sha: res.sha, path: res.path };
+}
+
+async function ghWrite(path, data, sha, message = 'Update via CMS') {
+  const text = typeof data === 'string' ? data : JSON.stringify(data, null, 2);
+  const bytes = new TextEncoder().encode(text);
+  let binary = '';
+  bytes.forEach(b => binary += String.fromCharCode(b));
+  const content = btoa(binary);
+  return ghFetch(path, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message, content, sha, branch: GH_BRANCH })
+  });
+}
+
+async function ghList(dir) {
+  const items = await ghFetch(dir);
+  return Array.isArray(items) ? items : [];
+}
+
+async function loadPagesFromGitHub() {
+  const names = ['home','about','recipes','shop','blog','contact','follow','booking'];
+  const results = {};
+  await Promise.all(names.map(async n => {
+    try { const r = await ghRead(`content/pages/${n}.json`); if (r) results[n] = r; }
+    catch(e) { console.warn('Page load failed:', n, e); }
+  }));
+  return results;
+}
+
+async function loadCollectionFromGitHub(folder) {
+  try {
+    const files = await ghList(folder);
+    const items = await Promise.all(
+      files.filter(f => f.name.endsWith('.json') || f.name.endsWith('.md')).map(async f => {
+        try {
+          const r = await ghRead(f.path);
+          return r ? { ...r.data, _sha: r.sha, _path: f.path, _name: f.name } : null;
+        } catch(e) { return null; }
+      })
+    );
+    return items.filter(Boolean);
+  } catch(e) { return []; }
+}
 /* ============ Seed data ============ */
 const SEED = {
   pages: [
@@ -413,12 +492,13 @@ function Sidebar({route, setRoute, onLogout}){
 }
 
 /* ============ Topbar ============ */
-function Topbar({crumb, onNew}){
+function Topbar({crumb, onNew, loading}){
   return (
     <div className="topbar">
       <div className="breadcrumb">
         <span>Myumminess</span> <Icon name="chevR" size={12}/>
         <b>{crumb}</b>
+        {loading && <span style={{marginLeft:10,fontSize:11,color:'var(--muted)',fontFamily:'var(--mono)',letterSpacing:'.08em'}}>syncing…</span>}
       </div>
       <div className="search">
         <Icon name="search" size={14}/>
@@ -564,11 +644,15 @@ function PagesList({data, setData, openPage, toast}){
 }
 
 /* ============ Page editor (Home) ============ */
-function HomePageEditor({data, setData, back, toast}){
-  const s = data.site;
+function HomePageEditor({data, setData, back, toast, ghPage, onSave}){
+  const s = (ghPage && ghPage.data) ? ghPage.data : data.site;
   const [tab, setTab] = useState("hero");
   const [local, setLocal] = useState(s);
-  const save = () => { setData({...data, site:local}); toast("Home page saved · pushed live in 2s"); };
+  const save = async () => {
+    setData({...data, site:local});
+    if (onSave) { await onSave(local); }
+    else { toast("Home page saved"); }
+  };
   return (
     <>
       <div className="ph-head">
@@ -1206,42 +1290,90 @@ function SettingsView({data, setData, toast}){
 
 /* ============ Root ============ */
 function App(){
-  const [authed, setAuthed] = useState(false);
-  const [route, setRoute] = useState("dashboard");
-  const [sub, setSub] = useState(null); // sub-view (e.g. specific page)
-  const [data, setData] = useState(SEED);
-  const [toast, setToast] = useState(null);
+  const [authed, setAuthed]   = useState(false);
+  const [route, setRoute]     = useState("dashboard");
+  const [sub, setSub]         = useState(null);
+  const [data, setData]       = useState(SEED);
+  const [ghPages, setGhPages] = useState({});
+  const [ghRec, setGhRec]     = useState([]);
+  const [ghProds, setGhProds] = useState([]);
+  const [ghPosts, setGhPosts] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [toast, setToast]     = useState(null);
+
+  const showToast = (msg) => { setToast(msg); setTimeout(()=>setToast(null), 3000); };
+
+  const doLoadGitHub = async () => {
+    setLoading(true);
+    try {
+      const [pages, recs, prods, posts] = await Promise.all([
+        loadPagesFromGitHub(),
+        loadCollectionFromGitHub('content/recipes'),
+        loadCollectionFromGitHub('content/products'),
+        loadCollectionFromGitHub('content/posts'),
+      ]);
+      setGhPages(pages);
+      setGhRec(recs);
+      setGhProds(prods);
+      setGhPosts(posts);
+    } catch(e) { console.error('GitHub load error:', e); showToast('Could not load content from GitHub'); }
+    setLoading(false);
+  };
 
   useEffect(() => {
     try {
-      const ver = localStorage.getItem("myumm.cms.ver");
-      if(ver !== "2") { localStorage.removeItem("myumm.cms.data"); localStorage.setItem("myumm.cms.ver","2"); }
-      const saved = localStorage.getItem("myumm.cms.data");
-      if(saved) setData(JSON.parse(saved));
-      if(localStorage.getItem("myumm.cms.auth") === "yes") setAuthed(true);
-    } catch(e){}
+      const m = window.location.hash.match(/[#&]gh_token=([^&]+)/);
+      if (m) {
+        ghSetToken(decodeURIComponent(m[1]));
+        localStorage.setItem('myumm.cms.auth','yes');
+        history.replaceState(null,'', window.location.pathname);
+      }
+      if (localStorage.getItem('myumm.cms.auth') === 'yes' && ghToken()) {
+        setAuthed(true);
+        doLoadGitHub();
+      }
+    } catch(e) {}
   }, []);
-  useEffect(() => { try { localStorage.setItem("myumm.cms.data", JSON.stringify(data)); } catch(e){} }, [data]);
 
-  const showToast = (msg) => { setToast(msg); setTimeout(()=>setToast(null), 2600); };
+  const handleLogout = () => { setAuthed(false); ghClearToken(); };
 
-  if(!authed) return <Login onIn={()=>{setAuthed(true);try{localStorage.setItem("myumm.cms.auth","yes")}catch(e){}}}/>;
+  const savePage = async (pageKey, filename, localData) => {
+    const info = ghPages[pageKey];
+    if (!info) { showToast('No GitHub data loaded yet'); return; }
+    showToast('Saving to GitHub…');
+    try {
+      const result = await ghWrite('content/pages/' + filename + '.json', localData, info.sha, 'Update ' + pageKey + ' page via CMS');
+      setGhPages(prev => ({...prev, [pageKey]: {...prev[pageKey], data: localData, sha: result.content.sha}}));
+      showToast(pageKey + ' page saved ✓ — deploying now');
+    } catch(e) { showToast('Save failed: ' + e.message); }
+  };
 
-  const crumbs = {dashboard:"Dashboard",pages:"Pages",recipes:"Recipes",products:"Products",reels:"Reels",testimonials:"Testimonials",media:"Media library",settings:"Settings"};
-  const crumb = sub ? `${crumbs[route]} / ${sub==="home"?"Home":sub}` : crumbs[route];
+  const saveEntry = async (item, newData) => {
+    if (!item._sha || !item._path) { showToast('Cannot save: missing file info'); return; }
+    showToast('Saving to GitHub…');
+    try {
+      await ghWrite(item._path, newData, item._sha, 'Update ' + item._name + ' via CMS');
+      showToast('Saved ✓ — deploying now');
+    } catch(e) { showToast('Save failed: ' + e.message); }
+  };
+
+  if (!authed) return <Login />;
+
+  const crumbs = {dashboard:'Dashboard',pages:'Pages',recipes:'Recipes',products:'Products',reels:'Reels',testimonials:'Testimonials',media:'Media library',settings:'Settings'};
+  const crumb = sub ? (crumbs[route] + ' / ' + (sub==='home'?'Home':sub)) : crumbs[route];
 
   return (
     <div className="app">
-      <Sidebar route={route} setRoute={r=>{setRoute(r);setSub(null)}} onLogout={()=>{setAuthed(false);try{localStorage.removeItem("myumm.cms.auth")}catch(e){}}}/>
+      <Sidebar route={route} setRoute={r=>{setRoute(r);setSub(null)}} onLogout={handleLogout}/>
       <div className="main">
-        <Topbar crumb={crumb}/>
+        <Topbar crumb={crumb} loading={loading}/>
         <div className="pageview">
           {route==="dashboard" && <Dashboard setRoute={setRoute} data={data} toast={showToast}/>}
-          {route==="pages" && !sub && <PagesList data={data} setData={setData} openPage={(id)=>setSub(id)} toast={showToast}/>}
-          {route==="pages" && sub==="home" && <HomePageEditor data={data} setData={setData} back={()=>setSub(null)} toast={showToast}/>}
-          {route==="pages" && sub && sub!=="home" && <GenericPageEditor pageId={sub} data={data} back={()=>setSub(null)} toast={showToast}/>}
-          {route==="recipes" && <RecipesView data={data} setData={setData} toast={showToast}/>}
-          {route==="products" && <ProductsView data={data} toast={showToast}/>}
+          {route==="pages" && !sub && <PagesList data={data} setData={setData} openPage={id=>setSub(id)} toast={showToast}/>}
+          {route==="pages" && sub==="home" && <HomePageEditor data={data} setData={setData} back={()=>setSub(null)} toast={showToast} ghPage={ghPages.home} onSave={local=>savePage('home','home',local)}/>}
+          {route==="pages" && sub && sub!=="home" && <GenericPageEditor pageId={sub} data={data} back={()=>setSub(null)} toast={showToast} ghPage={ghPages[sub]} onSave={local=>savePage(sub,sub,local)}/>}
+          {route==="recipes" && <RecipesView data={data} setData={setData} toast={showToast} ghItems={ghRec} onSave={saveEntry}/>}
+          {route==="products" && <ProductsView data={data} toast={showToast} ghItems={ghProds} onSave={saveEntry}/>}
           {route==="reels" && <ReelsView data={data} toast={showToast}/>}
           {route==="testimonials" && <TestimonialsView data={data}/>}
           {route==="media" && <MediaView data={data}/>}
@@ -1253,7 +1385,7 @@ function App(){
   );
 }
 
-function GenericPageEditor({pageId, data, back, toast}){
+function GenericPageEditor({pageId, data, back, toast, ghPage, onSave}){
   const p = data.pages.find(x => x.id === pageId);
   const BLOCKS = {
     "follow": ["Hero","Platform split","Reel preview","Creator credibility","CTA strip","Newsletter","Footer"],
@@ -1276,7 +1408,7 @@ function GenericPageEditor({pageId, data, back, toast}){
         </div>
         <div className="actions">
           {p.file && <a href={p.file} target="_blank" className="btn btn-ghost"><Icon name="eye" size={14}/> Preview live</a>}
-          <button className="btn btn-accent" onClick={()=>toast(p.title + " saved")}><Icon name="save" size={14}/> Save</button>
+          <button className="btn btn-accent" onClick={()=>onSave ? onSave(ghPage && ghPage.data ? ghPage.data : {}) : toast(p.title + " saved")}><Icon name="save" size={14}/> Save</button>
         </div>
       </div>
       <div className="editor">
@@ -1401,10 +1533,10 @@ function GenericPageEditor({pageId, data, back, toast}){
   );
 }
 
-function Login({onIn}){
-  const [email, setEmail] = useState("marta@myumminess.com");
-  const [pass, setPass] = useState("demo-password");
-  const submit = (e) => { e.preventDefault(); onIn(); };
+function Login(){
+  const handleGitHub = () => {
+    window.location.href = '/api/auth?provider=github';
+  };
   return (
     <div className="login">
       <div className="login-side">
@@ -1416,22 +1548,20 @@ function Login({onIn}){
           <h1>Run the site the way you <em>run the kitchen</em>.</h1>
           <p>Everything on myumminess.com — recipes, reels, products, pages — edited in one calm, focused place. No code. No FTP.</p>
         </div>
-        <div className="bot">Certified · secure · GDPR compliant</div>
+        <div className="bot">Powered by GitHub · secure · private</div>
       </div>
-      <form className="login-form" onSubmit={submit}>
+      <div className="login-form" style={{justifyContent:'center'}}>
         <div className="kicker">Sign in</div>
-        <h2>Welcome back, Marta.</h2>
-        <div className="fld"><label>Email</label><input type="email" value={email} onChange={e=>setEmail(e.target.value)} required/></div>
-        <div className="fld"><label>Password</label><input type="password" value={pass} onChange={e=>setPass(e.target.value)} placeholder="••••••••"/></div>
-        <button type="submit" className="btn btn-primary btn-lg">Sign in to CMS <Icon name="arrow" size={14}/></button>
-        <div className="foot">
-          <a href="#" style={{color:"var(--ink)"}}>Forgot password?</a>
-          <span>SSO with Google</span>
+        <h2>Welcome back.</h2>
+        <p style={{color:'var(--muted)',fontSize:14,marginBottom:28,lineHeight:1.55}}>Your CMS is connected to GitHub. Sign in with your GitHub account to start editing.</p>
+        <button className="btn btn-primary btn-lg" style={{width:'100%',gap:12}} onClick={handleGitHub}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+          Continue with GitHub
+        </button>
+        <div className="hint-box" style={{marginTop:24}}>
+          You will be redirected to GitHub to authorise access, then brought back here automatically.
         </div>
-        <div className="hint-box">
-          <b>Prototype</b> — credentials are pre-filled. Just click <b>Sign in to CMS</b> to access the Dashboard, Pages, Recipes, Products, Reels, Testimonials, Media library and Settings.
-        </div>
-      </form>
+      </div>
     </div>
   );
 }
