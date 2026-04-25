@@ -1,12 +1,1442 @@
-<!doctype html>
-<html>
+﻿<!doctype html>
+<html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="robots" content="noindex"/>
-  <title>Myumminess CMS</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1440">
+<title>Myumminess · CMS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<style>
+  :root{
+    --ink:#1A1A1A;--ink-2:#2a2a2a;--muted:#7A7A7A;--muted-2:#A9A294;
+    --line:#E6E4DE;--line-2:#EFECE4;--paper:#FFFFFF;
+    --surface:#FAF8F4;--surface-2:#F3EFE7;--input:#F5F3EE;
+    --matcha:#6DBE7B;--matcha-deep:#4E9A5E;--matcha-soft:#E6F2E3;
+    --peach:#FF9B7A;--peach-deep:#E87A56;
+    --danger:#E05252;--warn:#D49A2E;--info:#3A7BFF;
+    --accent:var(--matcha);--accent-deep:var(--matcha-deep);
+    --serif:'Playfair Display',Georgia,serif;
+    --sans:'Inter','Helvetica Neue',Helvetica,Arial,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--surface);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;font-size:14px}
+  body{min-width:1440px;min-height:100vh}
+  a{color:inherit;text-decoration:none}
+  button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit;padding:0}
+  input,textarea,select{font-family:inherit;font-size:14px;color:var(--ink)}
+  img{display:block;max-width:100%}
+  ::selection{background:var(--accent);color:#fff}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:1px;border-radius:6px}
+
+  .ph{position:relative;overflow:hidden;background:var(--surface-2);
+    background-image:repeating-linear-gradient(135deg,rgba(26,26,26,0.04) 0 2px,transparent 2px 14px),linear-gradient(180deg,#EFECE4,#E6E1D5);color:#6b6658}
+  .ph.matcha{background-image:repeating-linear-gradient(135deg,rgba(26,26,26,0.05) 0 2px,transparent 2px 14px),linear-gradient(180deg,#cfe3c8,#a9cfa9);color:#2f4a30}
+  .ph.peach{background-image:repeating-linear-gradient(135deg,rgba(26,26,26,0.05) 0 2px,transparent 2px 14px),linear-gradient(180deg,#ffd6c2,#ffb79a);color:#7a3b25}
+  .ph.dark{background-image:repeating-linear-gradient(135deg,rgba(255,255,255,0.04) 0 2px,transparent 2px 14px),linear-gradient(180deg,#2a2a2a,#1a1a1a);color:#b7b3a8}
+  .ph .lbl{position:absolute;left:6px;bottom:4px;font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;opacity:.8}
+
+  /* Login */
+  .login{min-height:100vh;display:grid;grid-template-columns:1fr 1fr;background:var(--paper)}
+  .login-side{position:relative;background:var(--ink);color:#fff;padding:56px;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden}
+  .login-side::before{content:"";position:absolute;inset:0;background:radial-gradient(600px 400px at 80% 20%,rgba(109,190,123,.3),transparent 60%),radial-gradient(500px 360px at 20% 90%,rgba(255,155,122,.2),transparent 60%);pointer-events:none}
+  .login-side .top{position:relative;z-index:1;display:flex;align-items:center;gap:12px}
+  .login-side .top .logo{height:22px}
+  .login-side .top .tag{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;background:rgba(255,255,255,.1);padding:4px 10px;border-radius:999px;color:#efeadf}
+  .login-side .mid{position:relative;z-index:1}
+  .login-side .mid h1{font-family:var(--serif);font-weight:500;font-size:56px;line-height:1.02;letter-spacing:-.02em;margin:0 0 18px}
+  .login-side .mid h1 em{font-style:italic;color:var(--matcha)}
+  .login-side .mid p{font-size:16px;line-height:1.55;color:#d9d4c7;max-width:440px}
+  .login-side .bot{position:relative;z-index:1;font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#a9a294}
+  .login-form{display:flex;flex-direction:column;justify-content:center;padding:56px 80px}
+  .login-form .kicker{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+  .login-form h2{font-family:var(--serif);font-weight:500;font-size:40px;letter-spacing:-.015em;margin:10px 0 28px}
+  .fld{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+  .fld label{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+  .fld input, .fld select, .fld textarea{background:var(--input);border:1px solid transparent;border-radius:10px;padding:12px 14px;outline:0;transition:border-color .2s ease,background .2s ease}
+  .fld input:focus, .fld select:focus, .fld textarea:focus{border-color:var(--accent);background:#fff}
+  .fld textarea{min-height:90px;resize:vertical;line-height:1.5;font-family:inherit}
+  .fld .hint{font-size:11.5px;color:var(--muted);margin-top:2px}
+  .login-form .btn{margin-top:8px}
+  .login-form .foot{margin-top:28px;font-size:12.5px;color:var(--muted);display:flex;justify-content:space-between}
+  .login-form .hint-box{margin-top:20px;background:var(--matcha-soft);border-left:3px solid var(--matcha);padding:12px 14px;border-radius:8px;font-size:12.5px;color:#2f4a30;line-height:1.5}
+
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:42px;padding:0 18px;border-radius:10px;font-weight:500;font-size:13.5px;letter-spacing:.01em;transition:transform .15s ease, background .15s ease, color .15s ease, border-color .15s ease}
+  .btn-primary{background:var(--ink);color:#fff}
+  .btn-primary:hover{background:#000}
+  .btn-accent{background:var(--accent);color:#fff}
+  .btn-accent:hover{background:var(--accent-deep)}
+  .btn-ghost{background:#fff;color:var(--ink);border:1px solid var(--line)}
+  .btn-ghost:hover{border-color:var(--ink)}
+  .btn-danger{background:#fff;color:var(--danger);border:1px solid var(--line)}
+  .btn-danger:hover{border-color:var(--danger);background:#FDF3F3}
+  .btn-sm{height:34px;padding:0 12px;font-size:12.5px;border-radius:8px}
+  .btn-lg{height:48px;padding:0 22px;font-size:14.5px;border-radius:12px}
+
+  /* App shell */
+  .app{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+  .sidebar{background:var(--paper);border-right:1px solid var(--line);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow-y:auto}
+  .sb-head{padding:20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--line-2)}
+  .sb-head img{height:20px}
+  .sb-head .sub{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-left:auto;background:var(--surface);padding:4px 8px;border-radius:6px}
+  .sb-section{padding:16px 12px 4px;font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted-2)}
+  .sb-nav{padding:0 10px}
+  .sb-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;font-size:13.5px;color:#3d3d3d;cursor:pointer;transition:background .15s ease,color .15s ease;margin-bottom:2px;position:relative}
+  .sb-item:hover{background:var(--surface)}
+  .sb-item.on{background:var(--ink);color:#fff}
+  .sb-item.on .n{background:rgba(255,255,255,.18)}
+  .sb-item .n{margin-left:auto;font-family:var(--mono);font-size:10.5px;background:var(--surface-2);padding:2px 7px;border-radius:999px;color:var(--muted)}
+  .sb-foot{margin-top:auto;padding:14px;border-top:1px solid var(--line-2)}
+  .sb-user{display:flex;align-items:center;gap:10px;padding:8px;border-radius:10px}
+  .sb-user .av{width:34px;height:34px;border-radius:999px;background:var(--matcha-soft);color:var(--matcha-deep);display:grid;place-items:center;font-weight:600;font-size:13px}
+  .sb-user .t{font-size:13px;font-weight:500;line-height:1.2}
+  .sb-user .t span{display:block;color:var(--muted);font-size:11.5px;font-weight:400;margin-top:1px}
+
+  /* Main */
+  .main{display:flex;flex-direction:column;min-width:0}
+  .topbar{display:flex;align-items:center;gap:16px;padding:14px 28px;background:var(--paper);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10}
+  .breadcrumb{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:8px}
+  .breadcrumb b{color:var(--ink);font-weight:500}
+  .topbar .search{margin-left:auto;display:flex;align-items:center;gap:8px;background:var(--input);border-radius:10px;height:36px;padding:0 12px;width:300px}
+  .topbar .search input{border:0;outline:0;background:transparent;flex:1;font-size:13px}
+  .topbar kbd{font-family:var(--mono);font-size:10px;color:var(--muted);background:#fff;border:1px solid var(--line);padding:2px 6px;border-radius:6px}
+  .icon-btn{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:transparent;transition:background .15s ease}
+  .icon-btn:hover{background:var(--surface)}
+  .icon-btn.pill{background:var(--surface);}
+  .pageview{padding:24px 28px;max-width:1200px;width:100%}
+
+  /* Page heads */
+  .ph-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:20px;gap:20px}
+  .ph-head h1{font-family:var(--serif);font-weight:500;font-size:34px;letter-spacing:-.015em;margin:0;line-height:1.1}
+  .ph-head .ek{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  .ph-head p{color:var(--muted);font-size:13.5px;margin:6px 0 0;max-width:520px}
+  .ph-head .actions{display:flex;gap:8px;flex-shrink:0}
+
+  /* Cards */
+  .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:20px}
+  .card + .card{margin-top:16px}
+  .card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:10px}
+  .card-head h3{font-family:var(--serif);font-weight:500;font-size:18px;margin:0;letter-spacing:-.005em}
+  .card-head .hint{font-size:12px;color:var(--muted)}
+
+  /* Stat tiles */
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+  .stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;display:flex;flex-direction:column;gap:8px;position:relative;overflow:hidden}
+  .stat .l{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+  .stat .v{font-family:var(--serif);font-size:34px;letter-spacing:-.01em;line-height:1;font-weight:500}
+  .stat .d{font-size:11.5px;color:var(--matcha-deep);font-weight:500;display:inline-flex;align-items:center;gap:4px}
+  .stat .d.down{color:var(--danger)}
+  .stat .spark{position:absolute;right:14px;top:14px;width:52px;height:26px;opacity:.7}
+
+  /* Grid helpers */
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .split-main{display:grid;grid-template-columns:2fr 1fr;gap:16px;align-items:flex-start}
+
+  /* Tables */
+  .tbl{width:100%;border-collapse:separate;border-spacing:0;background:#fff;border-radius:14px;overflow:hidden;border:1px solid var(--line);font-size:13.5px}
+  .tbl th{text-align:left;font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:500;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--surface)}
+  .tbl td{padding:14px 16px;border-bottom:1px solid var(--line-2);vertical-align:middle}
+  .tbl tr:last-child td{border-bottom:0}
+  .tbl tr:hover td{background:var(--surface)}
+  .tbl .title{font-weight:500;color:var(--ink)}
+  .tbl .sub{color:var(--muted);font-size:12px;margin-top:2px}
+  .tbl .row-thumb{display:flex;align-items:center;gap:12px}
+  .tbl .row-thumb .ph{width:48px;height:48px;border-radius:10px;flex-shrink:0}
+  .tbl td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;color:#3d3d3d;font-size:12.5px}
+  .tbl td.act{text-align:right;white-space:nowrap}
+
+  /* Chips / pills */
+  .chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:11.5px;font-weight:500;font-family:var(--sans)}
+  .chip.live{background:var(--matcha-soft);color:var(--matcha-deep)}
+  .chip.draft{background:#F3F0E7;color:#8a7d5a}
+  .chip.sched{background:#EFF3FF;color:#3a63b3}
+  .chip.arch{background:#F3F0EC;color:var(--muted)}
+  .chip.low{background:#FDF3F3;color:var(--danger)}
+
+  /* Filter row */
+  .fbar{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+  .fbar .search{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:10px;height:38px;padding:0 12px;width:280px}
+  .fbar .search input{border:0;outline:0;background:transparent;flex:1;font-size:13px}
+  .seg{display:inline-flex;background:var(--surface-2);border-radius:10px;padding:3px;gap:2px}
+  .seg button{padding:6px 12px;font-size:12.5px;border-radius:7px;color:var(--muted)}
+  .seg button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.06);font-weight:500}
+  .fbar .right{margin-left:auto;display:flex;gap:8px;align-items:center}
+
+  /* Editor panel */
+  .editor{display:grid;grid-template-columns:1fr 320px;gap:16px;align-items:flex-start}
+  .tab-row{display:flex;gap:2px;background:var(--surface-2);border-radius:10px;padding:3px;margin-bottom:16px;width:max-content}
+  .tab-row button{padding:7px 14px;font-size:13px;border-radius:7px;color:var(--muted)}
+  .tab-row button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.06);font-weight:500}
+  .field-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .field-grid .full{grid-column:1/-1}
+  .help{font-size:12px;color:var(--muted);line-height:1.5}
+
+  /* Drop zone */
+  .drop{border:1.5px dashed var(--line);border-radius:12px;padding:18px;background:var(--surface);display:flex;gap:14px;align-items:center;transition:border-color .15s ease, background .15s ease}
+  .drop:hover{border-color:var(--accent);background:var(--matcha-soft)}
+  .drop .ic{width:40px;height:40px;border-radius:10px;background:#fff;display:grid;place-items:center;color:var(--muted)}
+  .drop .t b{display:block;font-size:13.5px}
+  .drop .t span{font-size:12px;color:var(--muted)}
+
+  /* Media grid */
+  .media{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+  .media .tile{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;cursor:pointer;transition:transform .15s ease, box-shadow .15s ease;position:relative}
+  .media .tile:hover{transform:translateY(-2px);box-shadow:0 8px 20px -12px rgba(0,0,0,.15)}
+  .media .tile .thumb{aspect-ratio:1;}
+  .media .tile .meta{padding:8px 10px}
+  .media .tile .n{font-size:12px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .media .tile .s{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:1px}
+
+  /* Settings */
+  .sw{position:relative;width:34px;height:20px;background:#ddd;border-radius:999px;cursor:pointer;transition:background .15s ease}
+  .sw::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;background:#fff;border-radius:999px;transition:left .15s ease;box-shadow:0 1px 2px rgba(0,0,0,.15)}
+  .sw.on{background:var(--accent)}
+  .sw.on::after{left:16px}
+
+  /* Preview phone/iframe */
+  .preview-box{background:var(--surface-2);border:1px solid var(--line);border-radius:14px;padding:12px;position:sticky;top:76px}
+  .preview-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .preview-top .u{font-family:var(--mono);font-size:10.5px;color:var(--muted);background:#fff;padding:4px 8px;border-radius:6px}
+  .preview-frame{aspect-ratio:4/5;background:#fff;border-radius:10px;overflow:hidden;display:flex;flex-direction:column}
+
+  .toast{position:fixed;right:22px;bottom:22px;background:var(--ink);color:#fff;padding:12px 16px;border-radius:12px;font-size:13px;display:flex;gap:10px;align-items:center;box-shadow:0 18px 40px -16px rgba(0,0,0,.4);z-index:1000;animation:toast .25s ease both}
+  .toast .d{width:8px;height:8px;border-radius:999px;background:var(--matcha)}
+  @keyframes toast{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+  .empty{text-align:center;padding:60px 20px;color:var(--muted)}
+  .empty h3{font-family:var(--serif);font-weight:500;font-size:22px;color:var(--ink);margin:8px 0 6px}
+  .empty p{font-size:13.5px;margin:0 auto 16px;max-width:360px;line-height:1.5}
+
+  .kv{display:grid;grid-template-columns:120px 1fr;gap:12px;font-size:13px;padding:10px 0;border-bottom:1px solid var(--line-2)}
+  .kv:last-child{border-bottom:0}
+  .kv .k{color:var(--muted);font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase}
+  .badge-dot{display:inline-flex;align-items:center;gap:6px}
+  .badge-dot .d{width:6px;height:6px;border-radius:999px;background:var(--matcha)}
+
+  .activity{display:flex;flex-direction:column;gap:14px}
+  .act-item{display:flex;gap:10px;align-items:flex-start;font-size:13px}
+  .act-item .av{width:28px;height:28px;border-radius:999px;background:var(--surface-2);display:grid;place-items:center;color:var(--muted);flex-shrink:0;font-size:11px;font-weight:600}
+  .act-item .av.m{background:var(--matcha-soft);color:var(--matcha-deep)}
+  .act-item .t{line-height:1.45}
+  .act-item .t b{font-weight:500}
+  .act-item .t span{display:block;color:var(--muted);font-size:11.5px;margin-top:2px;font-family:var(--mono);letter-spacing:.04em}
+
+  .modal-scrim{position:fixed;inset:0;background:rgba(26,26,26,.5);backdrop-filter:blur(4px);z-index:100;display:grid;place-items:center;animation:toast .2s ease both}
+  .modal{background:#fff;border-radius:16px;padding:24px;width:520px;max-width:92vw;box-shadow:0 40px 80px -20px rgba(0,0,0,.35)}
+  .modal h2{font-family:var(--serif);font-weight:500;font-size:22px;margin:0 0 4px}
+  .modal .sub{color:var(--muted);font-size:13px;margin-bottom:18px}
+  .modal .foot{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
+
+  hr{border:0;border-top:1px solid var(--line);margin:16px 0}
+</style>
 </head>
 <body>
-  <script src="https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js" type="module"></script>
+<div id="root"></div>
+
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useMemo, useRef } = React;
+
+/* ============ Icon set ============ */
+const Icon = ({name, size=16, stroke=1.8}) => {
+  const p = {
+    dash: <><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></>,
+    pages: <><path d="M7 3h10l4 4v14H7z"/><path d="M17 3v4h4"/><path d="M11 11h6M11 15h6M11 19h4"/></>,
+    recipe: <><path d="M4 7h16l-2 13H6z"/><path d="M9 7V4h6v3"/><path d="M9 12h6M9 16h4"/></>,
+    shop: <><path d="M4 8h16l-1 12H5z"/><path d="M8 8V5a4 4 0 0 1 8 0v3"/></>,
+    reel: <><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m10 9 6 3-6 3z" fill="currentColor" stroke="currentColor"/></>,
+    quote: <><path d="M7 6c-2 1-4 3-4 7v5h5v-7H4.5"/><path d="M17 6c-2 1-4 3-4 7v5h5v-7h-3.5"/></>,
+    media: <><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m3 17 5-4 5 4 3-2 5 4"/></>,
+    settings: <><circle cx="12" cy="12" r="3"/><path d="m4.5 14 .8 1.4-1.2 1.8 1.7 1.7 1.8-1.2L9 18.5V21h3l.4-2.4 1.6-.8 1.8 1.2 1.7-1.7-1.2-1.8.8-1.5L20 14v-3l-2.4-.4-.8-1.6 1.2-1.8-1.7-1.7-1.8 1.2L13 5.5 12.6 3h-3l-.4 2.5-1.6.8-1.8-1.2L4.1 6.7l1.2 1.8L4.5 10l-2 .5v3z" stroke="none" fill="none"/></>,
+    search: <><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></>,
+    bell: <><path d="M6 10a6 6 0 0 1 12 0v5l1.5 2h-15L6 15z"/><path d="M10 20a2 2 0 0 0 4 0"/></>,
+    plus: <><path d="M12 5v14M5 12h14"/></>,
+    edit: <><path d="M4 20h4L19 9l-4-4L4 16z"/></>,
+    trash: <><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></>,
+    external: <><path d="M14 4h6v6"/><path d="M10 14 20 4"/><path d="M20 14v6H4V4h6"/></>,
+    chevD: <path d="m6 9 6 6 6-6"/>,
+    chevR: <path d="m9 6 6 6-6 6"/>,
+    save: <><path d="M5 3h11l4 4v14H5z"/><path d="M8 3v6h9V3"/><path d="M8 15h9v6H8z"/></>,
+    drag: <><circle cx="9" cy="6" r="1.4" fill="currentColor" stroke="none"/><circle cx="15" cy="6" r="1.4" fill="currentColor" stroke="none"/><circle cx="9" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="15" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="9" cy="18" r="1.4" fill="currentColor" stroke="none"/><circle cx="15" cy="18" r="1.4" fill="currentColor" stroke="none"/></>,
+    eye: <><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></>,
+    upload: <><path d="M12 15V4"/><path d="m6 10 6-6 6 6"/><path d="M4 17v3h16v-3"/></>,
+    filter: <><path d="M4 5h16l-6 8v6l-4 2v-8z"/></>,
+    arrow: <><path d="M5 12h14"/><path d="m13 5 7 7-7 7"/></>,
+    check: <path d="m5 12 5 5 9-11"/>,
+    close: <><path d="M6 6l12 12"/><path d="m18 6-12 12"/></>,
+    mail: <><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></>,
+    tt: <path d="M15 3v9.5a3.5 3.5 0 1 1-3.5-3.5M15 3c0 2.5 2 4.5 4.5 4.5V10c-2 0-3.7-.6-5-1.7"/>,
+    ig: <><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></>,
+    fb: <path d="M14 8h2V5h-2a3 3 0 0 0-3 3v2H9v3h2v6h3v-6h2l.5-3H14V8z"/>,
+    yt: <><rect x="3" y="5" width="18" height="14" rx="4"/><path d="m10 9 6 3-6 3z" fill="currentColor"/></>,
+    logout: <><path d="M14 17v2H4V5h10v2"/><path d="M9 12h12"/><path d="m17 8 4 4-4 4"/></>,
+    globe: <><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/></>,
+    up: <path d="m6 15 6-6 6 6"/>,
+    clock: <><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></>,
+    tag: <><path d="M4 13 13 4l6 6-9 9z"/><circle cx="8" cy="9" r="1" fill="currentColor"/></>,
+    star: <path d="m12 3 2.9 5.9 6.6.9-4.8 4.6 1.2 6.5L12 17.8 6.1 20.9l1.2-6.5L2.5 9.8l6.6-.9z"/>,
+    calendar: <><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></>,
+  };
+  return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round">{p[name]}</svg>;
+};
+
+/* ============ Seed data ============ */
+const SEED = {
+  pages: [
+    { id:"home", title:"Home", path:"/", file:"../Myumminess.html", status:"live", updated:"Apr 22, 2026", sections:8, desc:"Landing · hero + reels + recipes" },
+    { id:"follow", title:"Follow Me", path:"/follow", file:"../Follow Me.html", status:"live", updated:"Apr 23, 2026", sections:7, desc:"TikTok + Instagram funnel" },
+    { id:"about", title:"About Me", path:"/about", file:"../About Me.html", status:"live", updated:"Apr 21, 2026", sections:9, desc:"Narrative + 1:1 booking" },
+    { id:"recipes-index", title:"Recipes", path:"/recipes", file:"../Recipes.html", status:"live", updated:"Apr 22, 2026", sections:6, desc:"Recipe library index" },
+    { id:"shop-index", title:"Shop", path:"/shop", file:"../Shop.html", status:"live", updated:"Apr 20, 2026", sections:5, desc:"Affiliate product grid" },
+    { id:"blog-index", title:"Blog", path:"/blog", file:"../Blog.html", status:"live", updated:"Apr 19, 2026", sections:6, desc:"Article index + categories" },
+    { id:"booking", title:"Book a Session", path:"/booking", file:"../Booking.html", status:"live", updated:"Apr 18, 2026", sections:7, desc:"1:1 coaching · calendar + pricing" },
+    { id:"contact", title:"Contact", path:"/contact", file:"../Contact.html", status:"live", updated:"Apr 20, 2026", sections:5, desc:"Contact form + channels" },
+    { id:"sitemap", title:"Sitemap", path:"/sitemap", file:"../Sitemap.html", status:"live", updated:"Apr 24, 2026", sections:4, desc:"Visual site map · auto-generated" },
+  ],
+  site: {
+    name:"Myumminess",
+    tagline:"Eat better. Feel better. Live better.",
+    accent:"matcha",
+    heroHeadline:"Eat better. Feel better. Live better.",
+    heroSub:"Simple recipes, daily routines and practical tips from a certified health coach — for the kind of wellness that actually fits your life.",
+    ctaPrimary:"Explore Recipes",
+    ctaSecondary:"Shop My Essentials",
+    contactEmail:"hello@myumminess.com",
+  },
+  recipes: [
+    { id:1, title:"Matcha oat latte", status:"live", kind:"matcha", cat:"Drinks", time:"5 min", stars:4.9, views:"12.4K", updated:"Apr 22" },
+    { id:2, title:"Golden buddha bowl", status:"live", kind:"peach", cat:"Lunch", time:"25 min", stars:4.8, views:"8.9K", updated:"Apr 21" },
+    { id:3, title:"Overnight chia parfait", status:"live", kind:"", cat:"Breakfast", time:"10 min", stars:4.7, views:"6.2K", updated:"Apr 19" },
+    { id:4, title:"Miso-roasted veg bowl", status:"draft", kind:"dark", cat:"Dinner", time:"35 min", stars:0, views:"—", updated:"Apr 18" },
+    { id:5, title:"Strawberry protein smoothie", status:"live", kind:"peach", cat:"Drinks", time:"4 min", stars:4.9, views:"14.1K", updated:"Apr 16" },
+    { id:6, title:"Sunday meal-prep guide", status:"sched", kind:"matcha", cat:"Guides", time:"60 min", stars:0, views:"—", updated:"Apr 15" },
+  ],
+  products: [
+    { id:1, title:"Ceremonial-grade matcha", status:"live", cat:"Pantry", price:"$34", stock:"In stock", sales:128, updated:"Apr 22" },
+    { id:2, title:"Hand-forged bamboo whisk", status:"live", cat:"Kitchen", price:"$22", stock:"In stock", sales:94, updated:"Apr 21" },
+    { id:3, title:"Cold-brew glass carafe", status:"live", cat:"Kitchen", price:"$48", stock:"Low · 4 left", stockWarn:true, sales:67, updated:"Apr 20" },
+    { id:4, title:"Daily greens blend", status:"live", cat:"Supplement", price:"$29", stock:"In stock", sales:212, updated:"Apr 19" },
+    { id:5, title:"Linen apron — natural", status:"draft", cat:"Kitchen", price:"$38", stock:"—", sales:0, updated:"Apr 18" },
+  ],
+  reels: [
+    { id:1, plat:"TikTok", title:"5-min green smoothie", views:"1.2M", likes:"128K", updated:"Apr 23" },
+    { id:2, plat:"Reel", title:"What I eat in a day", views:"890K", likes:"72K", updated:"Apr 22" },
+    { id:3, plat:"TikTok", title:"Healthy snack swaps", views:"1.5M", likes:"98K", updated:"Apr 20" },
+    { id:4, plat:"Reel", title:"My morning routine", views:"670K", likes:"54K", updated:"Apr 19" },
+  ],
+  testimonials: [
+    { id:1, name:"Sofia R.", handle:"@sofir", quote:"Three months in — I finally feel like I know what I'm eating and why.", status:"live" },
+    { id:2, name:"Daniel P.", handle:"@dan_p", quote:"The morning routine changed how I feel before 9am. Actually sustainable.", status:"live" },
+    { id:3, name:"Priya K.", handle:"@priya_eats", quote:"Recipes that don't make me dread weekday dinners. Thank you.", status:"draft" },
+  ],
+  media: [
+    { name:"hero-lifestyle.jpg", size:"842 KB", kind:"" },
+    { name:"matcha-latte.jpg", size:"412 KB", kind:"matcha" },
+    { name:"buddha-bowl.jpg", size:"527 KB", kind:"peach" },
+    { name:"portrait-studio.jpg", size:"1.1 MB", kind:"dark" },
+    { name:"morning-routine.jpg", size:"688 KB", kind:"matcha" },
+    { name:"smoothie-strawberry.jpg", size:"394 KB", kind:"peach" },
+    { name:"meal-prep-sun.jpg", size:"752 KB", kind:"" },
+    { name:"kitchen-essentials.jpg", size:"612 KB", kind:"dark" },
+    { name:"greens-flatlay.jpg", size:"480 KB", kind:"matcha" },
+    { name:"apron-linen.jpg", size:"298 KB", kind:""},
+  ],
+  activity: [
+    { who:"MT", name:"Marta (you)", act:"published", obj:"Matcha oat latte", time:"2h ago", m:true },
+    { who:"MT", name:"Marta (you)", act:"updated hero copy on", obj:"Home", time:"Yesterday", m:true },
+    { who:"ED", name:"Elena (editor)", act:"drafted", obj:"Miso-roasted veg bowl", time:"2 days ago" },
+    { who:"MT", name:"Marta (you)", act:"scheduled", obj:"Sunday meal-prep guide", time:"3 days ago", m:true },
+    { who:"ED", name:"Elena (editor)", act:"uploaded 4 images to", obj:"Media library", time:"4 days ago" },
+  ],
+};
+
+/* ============ Sidebar ============ */
+const NAV = [
+  { group:"Workspace", items:[
+    { id:"dashboard", label:"Dashboard", icon:"dash" },
+    { id:"pages", label:"Pages", icon:"pages", n:9 },
+  ]},
+  { group:"Content", items:[
+    { id:"recipes", label:"Recipes", icon:"recipe", n:128 },
+    { id:"products", label:"Shop products", icon:"shop", n:42 },
+    { id:"reels", label:"Reels & videos", icon:"reel", n:86 },
+    { id:"testimonials", label:"Testimonials", icon:"quote", n:23 },
+  ]},
+  { group:"Assets", items:[
+    { id:"media", label:"Media library", icon:"media", n:312 },
+  ]},
+  { group:"System", items:[
+    { id:"settings", label:"Site settings", icon:"settings" },
+  ]},
+];
+
+function Sidebar({route, setRoute, onLogout}){
+  return (
+    <aside className="sidebar">
+      <div className="sb-head">
+        <img src="../assets/logo-black.png" alt="Myumminess"/>
+        <div className="sub">CMS</div>
+      </div>
+      {NAV.map(g => (
+        <div key={g.group}>
+          <div className="sb-section">{g.group}</div>
+          <div className="sb-nav">
+            {g.items.map(it => (
+              <div key={it.id} className={"sb-item " + (route===it.id?"on":"")} onClick={()=>setRoute(it.id)}>
+                <Icon name={it.icon} size={15}/>
+                <span>{it.label}</span>
+                {it.n!=null && <span className="n">{it.n}</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+      <div className="sb-foot">
+        <a href="content.html" target="_blank" className="sb-item" style={{color:"var(--muted)"}}>
+          <Icon name="edit" size={15}/> <span>Edit content</span>
+        </a>
+        <a href="../Myumminess.html" target="_blank" className="sb-item" style={{color:"var(--muted)"}}>
+          <Icon name="external" size={15}/> <span>View live site</span>
+        </a>
+        <div className="sb-user">
+          <div className="av">MT</div>
+          <div className="t">Marta Tarragona<span>Owner · Admin</span></div>
+          <button className="icon-btn" onClick={onLogout} title="Sign out"><Icon name="logout" size={15}/></button>
+        </div>
+      </div>
+    </aside>
+  );
+}
+
+/* ============ Topbar ============ */
+function Topbar({crumb, onNew}){
+  return (
+    <div className="topbar">
+      <div className="breadcrumb">
+        <span>Myumminess</span> <Icon name="chevR" size={12}/>
+        <b>{crumb}</b>
+      </div>
+      <div className="search">
+        <Icon name="search" size={14}/>
+        <input placeholder="Search content, media, pages…"/>
+        <kbd>⌘K</kbd>
+      </div>
+      <button className="icon-btn pill" title="Notifications"><Icon name="bell" size={16}/></button>
+      {onNew && <button className="btn btn-accent btn-sm" onClick={onNew}><Icon name="plus" size={14}/> New</button>}
+    </div>
+  );
+}
+
+/* ============ Dashboard ============ */
+const Spark = ({color="#6DBE7B"}) => (
+  <svg className="spark" viewBox="0 0 52 26"><polyline points="0,18 8,14 16,16 24,8 32,12 40,4 52,6" fill="none" stroke={color} strokeWidth="1.6" strokeLinecap="round"/></svg>
+);
+function Dashboard({setRoute, data, toast}){
+  const top = [
+    { k:"reel", t:"5-min green smoothie", s:"Reel · TikTok", ty:"Reel", v:"1.2M", e:"11.8%", kind:"matcha" },
+    { k:"reel", t:"What I eat in a day", s:"Reel · Instagram", ty:"Reel", v:"890K", e:"9.3%", kind:"peach" },
+    { k:"recipe", t:"Matcha oat latte", s:"Recipe · Drinks", ty:"Recipe", v:"42.1K", e:"14.2%", kind:"" },
+    { k:"recipe", t:"Strawberry protein smoothie", s:"Recipe · Drinks", ty:"Recipe", v:"38.9K", e:"12.7%", kind:"dark" },
+  ];
+  return (
+    <>
+      <div className="ph-head">
+        <div>
+          <div className="ek">Wednesday · April 24, 2026</div>
+          <h1>Good morning, Marta.</h1>
+          <p>5 drafts waiting on review · 1 post scheduled for tomorrow · 312 images in the library.</p>
+        </div>
+        <div className="actions">
+          <button className="btn btn-ghost" onClick={()=>toast("Import dialog opened")}><Icon name="upload" size={14}/> Import</button>
+          <button className="btn btn-accent" onClick={()=>setRoute("recipes")}><Icon name="plus" size={14}/> New recipe</button>
+        </div>
+      </div>
+
+      <div className="stats">
+        <div className="stat" style={{cursor:"pointer"}} onClick={()=>toast("Opening analytics · Pageviews")}><Spark/><span className="l">Pageviews · 7d</span><span className="v">148K</span><span className="d"><Icon name="up" size={12}/> +12.4% vs last week</span></div>
+        <div className="stat" style={{cursor:"pointer"}} onClick={()=>toast("Opening analytics · Followers")}><Spark color="#E87A56"/><span className="l">New followers</span><span className="v">2,841</span><span className="d"><Icon name="up" size={12}/> +8.1% TikTok leading</span></div>
+        <div className="stat" style={{cursor:"pointer"}} onClick={()=>toast("Opening analytics · Affiliate")}><Spark/><span className="l">Affiliate clicks</span><span className="v">1,204</span><span className="d"><Icon name="up" size={12}/> +3.2% conv. 4.7%</span></div>
+        <div className="stat" style={{cursor:"pointer"}} onClick={()=>toast("Opening analytics · Newsletter")}><Spark color="#E87A56"/><span className="l">Newsletter opt-ins</span><span className="v">412</span><span className="d"><Icon name="up" size={12}/> +18% weekly</span></div>
+      </div>
+
+      <div className="split-main">
+        <div>
+          <div className="card">
+            <div className="card-head">
+              <h3>Top performing content · last 7 days</h3>
+              <button className="btn btn-ghost btn-sm" onClick={()=>toast("Analytics dashboard · coming soon")}>Open analytics <Icon name="arrow" size={12}/></button>
+            </div>
+            <table className="tbl">
+              <thead><tr><th>Title</th><th>Type</th><th>Views</th><th>Engagement</th><th>Status</th></tr></thead>
+              <tbody>
+                {top.map((r,i) => (
+                  <tr key={i} style={{cursor:"pointer"}} onClick={()=>{ setRoute(r.k==="reel"?"reels":"recipes"); }}>
+                    <td><div className="row-thumb"><div className={"ph " + r.kind}/><div><div className="title">{r.t}</div><div className="sub">{r.s}</div></div></div></td>
+                    <td>{r.ty}</td><td className="num">{r.v}</td><td className="num">{r.e}</td>
+                    <td><span className="chip live"><span className="badge-dot"><span className="d"/></span> Live</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="card">
+            <div className="card-head"><h3>Quick actions</h3></div>
+            <div className="grid-3">
+              <div className="drop" onClick={()=>setRoute("recipes")}><div className="ic"><Icon name="recipe" size={18}/></div><div className="t"><b>New recipe</b><span>Add ingredients, steps, photos</span></div></div>
+              <div className="drop" onClick={()=>setRoute("media")}><div className="ic"><Icon name="upload" size={18}/></div><div className="t"><b>Upload media</b><span>JPG / PNG / MP4 up to 80 MB</span></div></div>
+              <div className="drop" onClick={()=>setRoute("pages")}><div className="ic"><Icon name="edit" size={18}/></div><div className="t"><b>Edit homepage</b><span>Hero, reels, shop strip</span></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div className="card">
+            <div className="card-head"><h3>Recent activity</h3></div>
+            <div className="activity">
+              {data.activity.map((a,i) => (
+                <div className="act-item" key={i}>
+                  <div className={"av " + (a.m?"m":"")}>{a.who}</div>
+                  <div className="t"><b>{a.name}</b> {a.act} <b>{a.obj}</b><span>{a.time}</span></div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="card">
+            <div className="card-head"><h3>Scheduled</h3></div>
+            <div style={{display:"flex",gap:12,alignItems:"center"}}>
+              <div className="ph matcha" style={{width:56,height:56,borderRadius:10}}/>
+              <div>
+                <div style={{fontWeight:500,fontSize:14}}>Sunday meal-prep guide</div>
+                <div style={{fontSize:12,color:"var(--muted)",marginTop:2,fontFamily:"var(--mono)"}}>Apr 25, 2026 · 08:00 CET</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+/* ============ Pages list ============ */
+function PagesList({data, setData, openPage, toast}){
+  return (
+    <>
+      <div className="ph-head">
+        <div><div className="ek">Pages · {data.pages.length}</div><h1>All pages</h1><p>Edit the structured blocks that make up each page on your site.</p></div>
+        <div className="actions">
+          <a href="../Myumminess.html" target="_blank" className="btn btn-ghost"><Icon name="external" size={14}/> Preview site</a>
+          <button className="btn btn-accent" onClick={()=>toast("New page · template picker")}><Icon name="plus" size={14}/> New page</button>
+        </div>
+      </div>
+      <div className="fbar">
+        <div className="search"><Icon name="search" size={14}/><input placeholder="Search pages"/></div>
+        <div className="seg"><button className="on">All</button><button>Live</button><button>Draft</button><button>Scheduled</button></div>
+        <div className="right"><button className="btn btn-ghost btn-sm"><Icon name="filter" size={12}/> Filter</button></div>
+      </div>
+      <table className="tbl">
+        <thead><tr><th style={{width:"38%"}}>Page</th><th>Path</th><th>Sections</th><th>Updated</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+          {data.pages.map(p => {
+            const kind = p.id==="home"?"matcha":p.id==="follow"?"dark":p.id==="about"?"peach":p.id==="booking"?"matcha":p.id==="blog-index"?"peach":p.id==="shop-index"?"dark":p.id==="sitemap"?"":"";
+            return (
+              <tr key={p.id} onClick={()=>openPage(p.id)} style={{cursor:"pointer"}}>
+                <td><div className="row-thumb"><div className={"ph " + kind}/><div><div className="title">{p.title}</div><div className="sub">{p.desc}</div></div></div></td>
+                <td className="num">{p.path}</td>
+                <td className="num">{p.sections}</td>
+                <td className="num">{p.updated}</td>
+                <td><span className={"chip " + p.status}><span className="badge-dot"><span className="d" style={{background:p.status==="live"?"var(--matcha)":p.status==="draft"?"#c7b68a":"#7697d0"}}/></span> {p.status==="live"?"Live":p.status==="draft"?"Draft":"Scheduled"}</span></td>
+                <td className="act" onClick={e=>e.stopPropagation()}>
+                  {p.file && <a href={p.file} target="_blank" className="icon-btn" title="Open live page" style={{display:"inline-grid"}}><Icon name="external" size={14}/></a>}
+                  <button className="icon-btn" onClick={()=>openPage(p.id)}><Icon name="edit" size={14}/></button>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </>
+  );
+}
+
+/* ============ Page editor (Home) ============ */
+function HomePageEditor({data, setData, back, toast}){
+  const s = data.site;
+  const [tab, setTab] = useState("hero");
+  const [local, setLocal] = useState(s);
+  const save = () => { setData({...data, site:local}); toast("Home page saved · pushed live in 2s"); };
+  return (
+    <>
+      <div className="ph-head">
+        <div>
+          <div className="ek" style={{display:"flex",gap:8,alignItems:"center"}}><button onClick={back} className="btn btn-ghost btn-sm" style={{height:22,padding:"0 8px",fontSize:11}}><Icon name="chevR" size={10} stroke={2} /> Pages</button> Home page</div>
+          <h1>Home <span style={{color:"var(--muted)",fontWeight:400,fontSize:18,letterSpacing:0}}>· /</span></h1>
+          <p>Edit the blocks that appear on your homepage. Changes go live on save.</p>
+        </div>
+        <div className="actions">
+          <button className="btn btn-ghost"><Icon name="eye" size={14}/> Preview</button>
+          <button className="btn btn-ghost"><Icon name="external" size={14}/> Open live</button>
+          <button className="btn btn-accent" onClick={save}><Icon name="save" size={14}/> Save &amp; publish</button>
+        </div>
+      </div>
+
+      <div className="tab-row">
+        {["hero","reels","recipes","shop","about","newsletter","seo"].map(t => (
+          <button key={t} className={tab===t?"on":""} onClick={()=>setTab(t)}>{t[0].toUpperCase()+t.slice(1)}</button>
+        ))}
+      </div>
+
+      <div className="editor">
+        <div>
+          {tab==="hero" && (
+            <div className="card">
+              <div className="card-head"><h3>Hero block</h3><span className="hint">Shown above the fold on every visit</span></div>
+              <div className="field-grid">
+                <div className="fld full">
+                  <label>Eyebrow</label>
+                  <input value="Certified health coach" readOnly/>
+                </div>
+                <div className="fld full">
+                  <label>Headline</label>
+                  <input value={local.heroHeadline} onChange={e=>setLocal({...local, heroHeadline:e.target.value})}/>
+                  <span className="hint">Use "." to force a line break. Wrap a phrase in *asterisks* to italicize.</span>
+                </div>
+                <div className="fld full">
+                  <label>Subheadline</label>
+                  <textarea value={local.heroSub} onChange={e=>setLocal({...local, heroSub:e.target.value})}/>
+                </div>
+                <div className="fld">
+                  <label>Primary CTA</label>
+                  <input value={local.ctaPrimary} onChange={e=>setLocal({...local, ctaPrimary:e.target.value})}/>
+                </div>
+                <div className="fld">
+                  <label>Secondary CTA</label>
+                  <input value={local.ctaSecondary} onChange={e=>setLocal({...local, ctaSecondary:e.target.value})}/>
+                </div>
+                <div className="fld full">
+                  <label>Hero image</label>
+                  <div className="drop">
+                    <div className="ph" style={{width:72,height:56,borderRadius:10}}><span className="lbl">hero-lifestyle.jpg</span></div>
+                    <div className="t"><b>hero-lifestyle.jpg</b><span>1600×1200 · 842 KB · Uploaded Apr 22</span></div>
+                    <div style={{marginLeft:"auto",display:"flex",gap:6}}>
+                      <button className="btn btn-ghost btn-sm"><Icon name="edit" size={12}/> Replace</button>
+                      <button className="btn btn-ghost btn-sm">Crop</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {tab==="reels" && (
+            <div className="card">
+              <div className="card-head"><h3>Reels strip</h3><span className="hint">4 featured videos below hero</span></div>
+              {data.reels.map((r,i) => (
+                <div key={r.id} className="drop" style={{marginBottom:8}}>
+                  <Icon name="drag" size={16}/>
+                  <div className="ph" style={{width:56,height:72,borderRadius:10}}><span className="lbl">{r.plat}</span></div>
+                  <div className="t"><b>{r.title}</b><span>{r.views} views · {r.likes} likes</span></div>
+                  <div style={{marginLeft:"auto",display:"flex",gap:6}}>
+                    <button className="btn btn-ghost btn-sm">Swap</button>
+                    <button className="icon-btn"><Icon name="trash" size={14}/></button>
+                  </div>
+                </div>
+              ))}
+              <button className="btn btn-ghost"><Icon name="plus" size={14}/> Add reel from library</button>
+            </div>
+          )}
+
+          {tab==="recipes" && (
+            <div className="card">
+              <div className="card-head"><h3>Featured recipes</h3><span className="hint">First 6 recipes shown below the reels</span></div>
+              <div className="field-grid">
+                <div className="fld"><label>Section title</label><input defaultValue="Latest Recipes"/></div>
+                <div className="fld"><label>Section eyebrow</label><input defaultValue="New &amp; delicious"/></div>
+                <div className="fld full"><label>Section subtitle</label><input defaultValue="Tested in my own kitchen — quick, forgiving, and kind to your schedule."/></div>
+                <div className="fld full"><label>Source</label>
+                  <select defaultValue="latest"><option value="latest">Latest recipes (auto)</option><option>Hand-picked</option><option>Most-viewed · last 30d</option></select>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {tab==="shop" && (
+            <div className="card">
+              <div className="card-head"><h3>Shop strip</h3><span className="hint">Affiliate product carousel on homepage</span></div>
+              <div className="fld"><label>Products to show</label><select defaultValue="6"><option>3</option><option>6</option><option>8</option></select></div>
+              {data.products.slice(0,3).map((p,i) => (
+                <div key={p.id} className="drop" style={{marginBottom:8}}>
+                  <Icon name="drag" size={16}/>
+                  <div className="ph" style={{width:56,height:56,borderRadius:10}}/>
+                  <div className="t"><b>{p.title}</b><span>{p.cat} · {p.price}</span></div>
+                  <div style={{marginLeft:"auto"}}><button className="btn btn-ghost btn-sm">Edit</button></div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {tab==="about" && (
+            <div className="card">
+              <div className="card-head"><h3>About teaser</h3></div>
+              <div className="field-grid">
+                <div className="fld full"><label>Quote</label><textarea defaultValue="I don't believe in extreme diets — just habits that actually work."/></div>
+                <div className="fld full"><label>Portrait</label>
+                  <div className="drop"><div className="ph dark" style={{width:72,height:56,borderRadius:10}}/><div className="t"><b>portrait-studio.jpg</b><span>1.1 MB · Apr 21</span></div></div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {tab==="newsletter" && (
+            <div className="card">
+              <div className="card-head"><h3>Newsletter band</h3></div>
+              <div className="field-grid">
+                <div className="fld full"><label>Headline</label><input defaultValue="Join 20,000+ others"/></div>
+                <div className="fld full"><label>Subhead</label><input defaultValue="Get simple, healthy recipes + new recipes in your inbox."/></div>
+                <div className="fld"><label>Provider</label><select defaultValue="kit"><option value="kit">Kit (ConvertKit)</option><option>Mailchimp</option><option>Beehiiv</option></select></div>
+                <div className="fld"><label>Button label</label><input defaultValue="Subscribe"/></div>
+              </div>
+            </div>
+          )}
+
+          {tab==="seo" && (
+            <div className="card">
+              <div className="card-head"><h3>SEO &amp; social</h3></div>
+              <div className="field-grid">
+                <div className="fld full"><label>Page title</label><input defaultValue="Myumminess — Eat better. Feel better. Live better."/></div>
+                <div className="fld full"><label>Meta description</label><textarea defaultValue="Recipes, routines, and honest recommendations from a certified health coach."/></div>
+                <div className="fld"><label>Canonical URL</label><input defaultValue="https://myumminess.com/"/></div>
+                <div className="fld"><label>Social card</label>
+                  <div className="drop" style={{padding:10}}><div className="ph" style={{width:52,height:36,borderRadius:6}}/><div className="t"><b>og-home.jpg</b><span>1200×630</span></div></div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div>
+          <div className="preview-box">
+            <div className="preview-top">
+              <div style={{fontFamily:"var(--mono)",fontSize:11,color:"var(--muted)",letterSpacing:".12em",textTransform:"uppercase"}}>Preview</div>
+              <span className="u">/ desktop</span>
+            </div>
+            <div className="preview-frame">
+              <div style={{padding:"12px 14px",borderBottom:"1px solid var(--line)",display:"flex",alignItems:"center",gap:8,fontSize:11,color:"var(--muted)"}}>
+                <div style={{width:8,height:8,borderRadius:999,background:"#FF6058"}}/><div style={{width:8,height:8,borderRadius:999,background:"#FFBD2E"}}/><div style={{width:8,height:8,borderRadius:999,background:"#27C93F"}}/>
+                <span style={{marginLeft:6}}>myumminess.com</span>
+              </div>
+              <div style={{padding:"18px",textAlign:"center",background:"var(--surface)",flex:1,display:"flex",flexDirection:"column",justifyContent:"center",gap:12}}>
+                <div style={{fontFamily:"var(--mono)",fontSize:9,color:"var(--muted)",letterSpacing:".16em",textTransform:"uppercase"}}>Certified health coach</div>
+                <div style={{fontFamily:"var(--serif)",fontSize:26,lineHeight:1.02,letterSpacing:"-.015em"}}>{local.heroHeadline.split(".")[0]}. <em style={{color:"var(--matcha-deep)",fontStyle:"italic"}}>{local.heroHeadline.split(".")[1]}.</em></div>
+                <div style={{fontSize:10.5,color:"var(--muted)",lineHeight:1.4,padding:"0 8px"}}>{local.heroSub.slice(0,120)}…</div>
+                <div style={{display:"flex",gap:6,justifyContent:"center"}}>
+                  <div style={{background:"var(--matcha)",color:"#fff",padding:"6px 10px",fontSize:10,borderRadius:999}}>{local.ctaPrimary}</div>
+                  <div style={{border:"1px solid var(--ink)",padding:"6px 10px",fontSize:10,borderRadius:999}}>{local.ctaSecondary}</div>
+                </div>
+              </div>
+            </div>
+            <div style={{marginTop:10,fontSize:11,color:"var(--muted)",lineHeight:1.5}}>Live preview updates as you type. Publishing pushes to <b style={{color:"var(--ink)"}}>myumminess.com</b>.</div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+/* ============ Recipes list + editor ============ */
+function RecipesView({data, setData, toast}){
+  const [editing, setEditing] = useState(null);
+  const [filter, setFilter] = useState("all");
+  if(editing != null){
+    const r = data.recipes.find(x => x.id === editing);
+    return <RecipeEditor recipe={r} back={()=>setEditing(null)} toast={toast}/>;
+  }
+  const filtered = filter==="all" ? data.recipes : data.recipes.filter(r => r.status===filter);
+  return (
+    <>
+      <div className="ph-head">
+        <div><div className="ek">Recipes · {data.recipes.length} total</div><h1>Recipes</h1><p>Your library of tested recipes. Drafts don't appear on the site.</p></div>
+        <div className="actions">
+          <button className="btn btn-ghost"><Icon name="upload" size={14}/> Import from CSV</button>
+          <button className="btn btn-accent" onClick={()=>setEditing(1)}><Icon name="plus" size={14}/> New recipe</button>
+        </div>
+      </div>
+      <div className="fbar">
+        <div className="search"><Icon name="search" size={14}/><input placeholder="Search recipes…"/></div>
+        <div className="seg">
+          {[["all","All"],["live","Live"],["draft","Draft"],["sched","Scheduled"]].map(([k,l])=>(
+            <button key={k} className={filter===k?"on":""} onClick={()=>setFilter(k)}>{l}</button>
+          ))}
+        </div>
+        <div className="right">
+          <select style={{background:"#fff",border:"1px solid var(--line)",borderRadius:10,height:38,padding:"0 12px",fontSize:13}}><option>All categories</option><option>Drinks</option><option>Breakfast</option><option>Lunch</option><option>Dinner</option></select>
+          <button className="btn btn-ghost btn-sm"><Icon name="filter" size={12}/> More filters</button>
+        </div>
+      </div>
+      <table className="tbl">
+        <thead><tr><th style={{width:"38%"}}>Recipe</th><th>Category</th><th>Time</th><th>Rating</th><th>Views · 30d</th><th>Updated</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+          {filtered.map(r => (
+            <tr key={r.id} onClick={()=>setEditing(r.id)} style={{cursor:"pointer"}}>
+              <td><div className="row-thumb"><div className={"ph " + (r.kind||"")}><span className="lbl">{r.cat}</span></div><div><div className="title">{r.title}</div><div className="sub">ID · rec_{String(r.id).padStart(4,"0")}</div></div></div></td>
+              <td><span className="chip" style={{background:"var(--surface-2)",color:"#6b6658"}}>{r.cat}</span></td>
+              <td className="num">{r.time}</td>
+              <td className="num">{r.stars>0 ? (<span style={{display:"inline-flex",alignItems:"center",gap:4}}><Icon name="star" size={11} stroke={2}/> {r.stars}</span>) : "—"}</td>
+              <td className="num">{r.views}</td>
+              <td className="num">{r.updated}</td>
+              <td><span className={"chip " + r.status}>{r.status==="live"?"Live":r.status==="draft"?"Draft":"Scheduled"}</span></td>
+              <td className="act"><button className="icon-btn" onClick={e=>{e.stopPropagation();setEditing(r.id)}}><Icon name="edit" size={14}/></button></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </>
+  );
+}
+
+function RecipeEditor({recipe, back, toast}){
+  const [local, setLocal] = useState({
+    title: recipe.title,
+    slug: recipe.title.toLowerCase().replace(/[^a-z0-9]+/g,"-"),
+    category: recipe.cat,
+    time: recipe.time,
+    servings: "2",
+    blurb: "A 5-minute matcha oat latte that tastes like a café but costs pennies to make. Whisked ceremonial-grade matcha over warm oat milk.",
+    status: recipe.status,
+  });
+  const [ingredients, setIngredients] = useState([
+    "1 tsp ceremonial-grade matcha",
+    "60 ml hot water (80°C)",
+    "200 ml oat milk, warmed",
+    "1 tsp maple syrup (optional)",
+  ]);
+  const [steps, setSteps] = useState([
+    "Sift matcha into a bowl or mug to break up clumps.",
+    "Add hot water and whisk vigorously in an M-shape until frothy.",
+    "Warm the oat milk and pour slowly over the matcha.",
+    "Sweeten to taste and enjoy immediately.",
+  ]);
+  return (
+    <>
+      <div className="ph-head">
+        <div>
+          <div className="ek" style={{display:"flex",gap:8,alignItems:"center"}}><button onClick={back} className="btn btn-ghost btn-sm" style={{height:22,padding:"0 8px",fontSize:11}}><Icon name="chevR" size={10}/> Recipes</button> Edit recipe</div>
+          <h1>{local.title}</h1>
+          <p>ID · rec_{String(recipe.id).padStart(4,"0")} · Last updated {recipe.updated}, 2026</p>
+        </div>
+        <div className="actions">
+          <button className="btn btn-ghost" onClick={()=>toast("Preview opened in new tab")}><Icon name="eye" size={14}/> Preview</button>
+          <button className="btn btn-danger" onClick={()=>toast("Recipe moved to trash")}><Icon name="trash" size={14}/> Delete</button>
+          <button className="btn btn-accent" onClick={()=>toast("Recipe saved")}><Icon name="save" size={14}/> Save</button>
+        </div>
+      </div>
+
+      <div className="editor">
+        <div>
+          <div className="card">
+            <div className="card-head"><h3>Content</h3></div>
+            <div className="field-grid">
+              <div className="fld full"><label>Title</label><input value={local.title} onChange={e=>setLocal({...local,title:e.target.value, slug:e.target.value.toLowerCase().replace(/[^a-z0-9]+/g,"-")})}/></div>
+              <div className="fld full"><label>Slug</label><input value={local.slug} onChange={e=>setLocal({...local,slug:e.target.value})}/><span className="hint">/recipes/{local.slug}</span></div>
+              <div className="fld full"><label>Short description</label><textarea value={local.blurb} onChange={e=>setLocal({...local,blurb:e.target.value})}/></div>
+              <div className="fld"><label>Category</label><select value={local.category} onChange={e=>setLocal({...local,category:e.target.value})}><option>Drinks</option><option>Breakfast</option><option>Lunch</option><option>Dinner</option><option>Snacks</option><option>Guides</option></select></div>
+              <div className="fld"><label>Total time</label><input value={local.time} onChange={e=>setLocal({...local,time:e.target.value})}/></div>
+              <div className="fld"><label>Servings</label><input value={local.servings} onChange={e=>setLocal({...local,servings:e.target.value})}/></div>
+              <div className="fld"><label>Difficulty</label><select><option>Easy</option><option>Medium</option><option>Hard</option></select></div>
+            </div>
+          </div>
+
+          <div className="card">
+            <div className="card-head"><h3>Ingredients · {ingredients.length}</h3><span className="hint">Drag to reorder</span></div>
+            {ingredients.map((it, i) => (
+              <div key={i} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 0",borderBottom:"1px solid var(--line-2)"}}>
+                <Icon name="drag" size={14}/>
+                <input value={it} onChange={e=>{const n=[...ingredients];n[i]=e.target.value;setIngredients(n)}} style={{flex:1,background:"transparent",border:0,outline:0,fontSize:13.5}}/>
+                <button className="icon-btn" onClick={()=>setIngredients(ingredients.filter((_,x)=>x!==i))}><Icon name="trash" size={13}/></button>
+              </div>
+            ))}
+            <button className="btn btn-ghost btn-sm" style={{marginTop:10}} onClick={()=>setIngredients([...ingredients,""])}><Icon name="plus" size={12}/> Add ingredient</button>
+          </div>
+
+          <div className="card">
+            <div className="card-head"><h3>Method · {steps.length} steps</h3></div>
+            {steps.map((s, i) => (
+              <div key={i} style={{display:"flex",alignItems:"flex-start",gap:10,padding:"10px 0",borderBottom:"1px solid var(--line-2)"}}>
+                <div style={{width:22,height:22,borderRadius:999,background:"var(--matcha-soft)",color:"var(--matcha-deep)",display:"grid",placeItems:"center",fontSize:11,fontWeight:600,fontFamily:"var(--mono)",flexShrink:0,marginTop:2}}>{i+1}</div>
+                <textarea value={s} onChange={e=>{const n=[...steps];n[i]=e.target.value;setSteps(n)}} style={{flex:1,background:"transparent",border:0,outline:0,fontSize:13.5,minHeight:40,resize:"vertical",lineHeight:1.45}}/>
+                <button className="icon-btn" onClick={()=>setSteps(steps.filter((_,x)=>x!==i))}><Icon name="trash" size={13}/></button>
+              </div>
+            ))}
+            <button className="btn btn-ghost btn-sm" style={{marginTop:10}} onClick={()=>setSteps([...steps,""])}><Icon name="plus" size={12}/> Add step</button>
+          </div>
+
+          <div className="card">
+            <div className="card-head"><h3>Nutrition · per serving</h3><span className="hint">Optional</span></div>
+            <div className="field-grid">
+              <div className="fld"><label>Calories</label><input defaultValue="184"/></div>
+              <div className="fld"><label>Protein (g)</label><input defaultValue="5.2"/></div>
+              <div className="fld"><label>Carbs (g)</label><input defaultValue="22.4"/></div>
+              <div className="fld"><label>Fat (g)</label><input defaultValue="6.1"/></div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div className="card">
+            <div className="card-head"><h3>Status</h3></div>
+            <div className="fld">
+              <select value={local.status} onChange={e=>setLocal({...local,status:e.target.value})}>
+                <option value="live">Published · Live</option>
+                <option value="draft">Draft</option>
+                <option value="sched">Scheduled</option>
+              </select>
+            </div>
+            <div className="kv"><div className="k">Visibility</div><div>Public</div></div>
+            <div className="kv"><div className="k">Author</div><div>Marta Tarragona</div></div>
+            <div className="kv"><div className="k">Published</div><div>Apr 22, 2026 · 07:40</div></div>
+            <div className="kv"><div className="k">URL</div><div style={{fontFamily:"var(--mono)",fontSize:11.5,color:"var(--info)",wordBreak:"break-all"}}>/recipes/{local.slug}</div></div>
+          </div>
+
+          <div className="card">
+            <div className="card-head"><h3>Hero photo</h3></div>
+            <div className="ph matcha" style={{aspectRatio:"4/3",borderRadius:10}}><span className="lbl">matcha-latte.jpg</span></div>
+            <div style={{display:"flex",gap:6,marginTop:10}}>
+              <button className="btn btn-ghost btn-sm" style={{flex:1}}>Replace</button>
+              <button className="btn btn-ghost btn-sm" style={{flex:1}}>Crop</button>
+            </div>
+          </div>
+
+          <div className="card">
+            <div className="card-head"><h3>Tags</h3></div>
+            <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
+              {["healthy","5-minute","matcha","plant-based","breakfast"].map(t => (
+                <span key={t} style={{background:"var(--surface-2)",padding:"5px 10px",borderRadius:999,fontSize:12,display:"inline-flex",alignItems:"center",gap:4}}>
+                  <Icon name="tag" size={10} stroke={2}/> {t}
+                </span>
+              ))}
+              <button className="btn btn-ghost btn-sm"><Icon name="plus" size={11}/> Add</button>
+            </div>
+          </div>
+
+          <div className="card">
+            <div className="card-head"><h3>Related products</h3><span className="hint">Shown below recipe</span></div>
+            <div style={{display:"flex",flexDirection:"column",gap:8}}>
+              <div className="drop" style={{padding:10}}><div className="ph matcha" style={{width:36,height:36,borderRadius:8}}/><div className="t"><b>Ceremonial-grade matcha</b><span>$34 · 3.2% commission</span></div></div>
+              <div className="drop" style={{padding:10}}><div className="ph" style={{width:36,height:36,borderRadius:8}}/><div className="t"><b>Bamboo whisk</b><span>$22 · 4.0% commission</span></div></div>
+              <button className="btn btn-ghost btn-sm"><Icon name="plus" size={12}/> Link product</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+/* ============ Products ============ */
+function ProductsView({data, toast}){
+  return (
+    <>
+      <div className="ph-head">
+        <div><div className="ek">Shop · {data.products.length} products</div><h1>Shop products</h1><p>Affiliate products displayed across recipes, shop page, and homepage strip.</p></div>
+        <div className="actions">
+          <button className="btn btn-ghost"><Icon name="upload" size={14}/> Import</button>
+          <button className="btn btn-accent"><Icon name="plus" size={14}/> New product</button>
+        </div>
+      </div>
+      <div className="fbar">
+        <div className="search"><Icon name="search" size={14}/><input placeholder="Search products…"/></div>
+        <div className="seg"><button className="on">All</button><button>Live</button><button>Draft</button><button>Out of stock</button></div>
+        <div className="right"><select style={{background:"#fff",border:"1px solid var(--line)",borderRadius:10,height:38,padding:"0 12px",fontSize:13}}><option>All categories</option><option>Kitchen</option><option>Pantry</option><option>Supplement</option></select></div>
+      </div>
+      <table className="tbl">
+        <thead><tr><th style={{width:"34%"}}>Product</th><th>Category</th><th>Price</th><th>Stock / inventory</th><th>Sales · 30d</th><th>Updated</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+          {data.products.map(p => (
+            <tr key={p.id}>
+              <td><div className="row-thumb"><div className="ph"/><div><div className="title">{p.title}</div><div className="sub">SKU · prod_{String(p.id).padStart(4,"0")}</div></div></div></td>
+              <td><span className="chip" style={{background:"var(--surface-2)",color:"#6b6658"}}>{p.cat}</span></td>
+              <td className="num">{p.price}</td>
+              <td>{p.stockWarn ? <span className="chip low">{p.stock}</span> : <span style={{color:"var(--muted)",fontSize:12.5}}>{p.stock}</span>}</td>
+              <td className="num">{p.sales}</td>
+              <td className="num">{p.updated}</td>
+              <td><span className={"chip " + p.status}>{p.status==="live"?"Live":"Draft"}</span></td>
+              <td className="act"><button className="icon-btn"><Icon name="edit" size={14}/></button></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </>
+  );
+}
+
+/* ============ Reels ============ */
+function ReelsView({data, toast}){
+  return (
+    <>
+      <div className="ph-head">
+        <div><div className="ek">Reels · {data.reels.length} visible</div><h1>Reels &amp; videos</h1><p>Embed TikTok and Instagram posts. Used on the Follow Me page and homepage strip.</p></div>
+        <div className="actions">
+          <button className="btn btn-ghost"><Icon name="external" size={14}/> Sync from TikTok</button>
+          <button className="btn btn-accent"><Icon name="plus" size={14}/> Embed URL</button>
+        </div>
+      </div>
+      <div className="grid-3">
+        {data.reels.map(r => (
+          <div key={r.id} className="card" style={{padding:0,overflow:"hidden"}}>
+            <div className={"ph " + (r.id%2?"matcha":"peach")} style={{aspectRatio:"9/14",borderRadius:0}}>
+              <span className="lbl">{r.plat} · {r.title}</span>
+            </div>
+            <div style={{padding:14}}>
+              <div style={{display:"flex",alignItems:"center",gap:8}}>
+                <span className="chip" style={{background:r.plat==="TikTok"?"#1A1A1A":"linear-gradient(135deg,#F56040,#E1306C)",color:"#fff"}}><Icon name={r.plat==="TikTok"?"tt":"ig"} size={11}/> {r.plat}</span>
+                <span style={{marginLeft:"auto",fontSize:11.5,color:"var(--muted)",fontFamily:"var(--mono)"}}>{r.updated}</span>
+              </div>
+              <div style={{fontWeight:500,marginTop:8,fontSize:14}}>{r.title}</div>
+              <div style={{fontFamily:"var(--mono)",fontSize:11,color:"var(--muted)",marginTop:4,letterSpacing:".06em"}}>{r.views} views · {r.likes} likes</div>
+              <div style={{display:"flex",gap:6,marginTop:12}}>
+                <button className="btn btn-ghost btn-sm" style={{flex:1}}><Icon name="edit" size={12}/> Edit</button>
+                <button className="btn btn-ghost btn-sm"><Icon name="external" size={12}/></button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+
+/* ============ Testimonials ============ */
+function TestimonialsView({data}){
+  return (
+    <>
+      <div className="ph-head">
+        <div><div className="ek">Testimonials</div><h1>Testimonials</h1><p>Social proof shown on About Me and product pages.</p></div>
+        <div className="actions"><button className="btn btn-accent"><Icon name="plus" size={14}/> New testimonial</button></div>
+      </div>
+      <div className="grid-2">
+        {data.testimonials.map(t => (
+          <div key={t.id} className="card" style={{position:"relative"}}>
+            <span className={"chip " + t.status} style={{position:"absolute",top:16,right:16}}>{t.status==="live"?"Live":"Draft"}</span>
+            <div style={{fontFamily:"var(--serif)",fontStyle:"italic",fontSize:18,lineHeight:1.4,letterSpacing:"-.005em",paddingRight:48}}>"{t.quote}"</div>
+            <div style={{display:"flex",alignItems:"center",gap:10,marginTop:16}}>
+              <div style={{width:36,height:36,borderRadius:999,background:"var(--surface-2)",display:"grid",placeItems:"center",fontSize:12,fontWeight:600}}>{t.name.split(" ").map(x=>x[0]).join("")}</div>
+              <div>
+                <div style={{fontSize:13.5,fontWeight:500}}>{t.name}</div>
+                <div style={{fontSize:11.5,color:"var(--muted)",fontFamily:"var(--mono)"}}>{t.handle}</div>
+              </div>
+              <div style={{marginLeft:"auto",display:"flex",gap:6}}>
+                <button className="btn btn-ghost btn-sm"><Icon name="edit" size={12}/></button>
+                <button className="icon-btn"><Icon name="trash" size={14}/></button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+
+/* ============ Media library ============ */
+function MediaView({data}){
+  return (
+    <>
+      <div className="ph-head">
+        <div><div className="ek">Media · 312 assets · 1.8 GB / 10 GB used</div><h1>Media library</h1><p>All images, videos and documents used on the site.</p></div>
+        <div className="actions">
+          <button className="btn btn-ghost"><Icon name="filter" size={14}/> Filter</button>
+          <button className="btn btn-accent"><Icon name="upload" size={14}/> Upload</button>
+        </div>
+      </div>
+      <div className="drop" style={{marginBottom:16}}>
+        <div className="ic"><Icon name="upload" size={18}/></div>
+        <div className="t"><b>Drag &amp; drop files anywhere</b><span>JPG, PNG, WEBP, MP4 · up to 80 MB each · 312/2000 slots used</span></div>
+        <div style={{marginLeft:"auto"}}><button className="btn btn-ghost btn-sm">Browse</button></div>
+      </div>
+      <div className="media">
+        {data.media.map((m,i) => (
+          <div key={i} className="tile">
+            <div className={"thumb ph " + (m.kind||"")}><span className="lbl">{m.name}</span></div>
+            <div className="meta"><div className="n">{m.name}</div><div className="s">{m.size}</div></div>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+}
+
+/* ============ Settings ============ */
+function SettingsView({data, setData, toast}){
+  const [tab, setTab] = useState("brand");
+  const [local, setLocal] = useState(data.site);
+  const [sw, setSw] = useState({comments:true, analytics:true, cookieBar:false, twoFactor:true});
+  const toggle = (k) => setSw(s=>({...s,[k]:!s[k]}));
+  return (
+    <>
+      <div className="ph-head">
+        <div><div className="ek">Settings</div><h1>Site settings</h1><p>Domain, brand tokens, integrations and permissions.</p></div>
+        <div className="actions"><button className="btn btn-accent" onClick={()=>{setData({...data,site:local});toast("Settings saved")}}><Icon name="save" size={14}/> Save changes</button></div>
+      </div>
+      <div className="tab-row">
+        {[["brand","Brand"],["domain","Domain & SEO"],["integrations","Integrations"],["team","Team"],["security","Security"]].map(([k,l]) => <button key={k} className={tab===k?"on":""} onClick={()=>setTab(k)}>{l}</button>)}
+      </div>
+
+      {tab==="brand" && (
+        <div className="grid-2">
+          <div className="card">
+            <div className="card-head"><h3>Brand tokens</h3></div>
+            <div className="fld"><label>Site name</label><input value={local.name} onChange={e=>setLocal({...local,name:e.target.value})}/></div>
+            <div className="fld"><label>Tagline</label><input value={local.tagline} onChange={e=>setLocal({...local,tagline:e.target.value})}/></div>
+            <div className="fld"><label>Accent color</label>
+              <div style={{display:"flex",gap:8}}>
+                {[["matcha","#6DBE7B"],["peach","#FF9B7A"],["ink","#1A1A1A"]].map(([n,c])=>(
+                  <button key={n} onClick={()=>setLocal({...local,accent:n})} style={{flex:1,height:44,borderRadius:10,border:local.accent===n?"2px solid var(--ink)":"1px solid var(--line)",background:"#fff",display:"flex",alignItems:"center",gap:8,padding:"0 12px",textTransform:"capitalize",fontSize:13}}>
+                    <span style={{width:18,height:18,borderRadius:6,background:c}}/> {n}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="fld"><label>Fonts</label>
+              <div style={{display:"flex",gap:8,fontSize:13}}>
+                <div style={{flex:1,border:"1px solid var(--line)",borderRadius:10,padding:"10px 12px"}}><div style={{fontFamily:"var(--mono)",fontSize:10,letterSpacing:".12em",textTransform:"uppercase",color:"var(--muted)"}}>Serif</div><div style={{fontFamily:"var(--serif)",fontSize:16,marginTop:2}}>Playfair Display</div></div>
+                <div style={{flex:1,border:"1px solid var(--line)",borderRadius:10,padding:"10px 12px"}}><div style={{fontFamily:"var(--mono)",fontSize:10,letterSpacing:".12em",textTransform:"uppercase",color:"var(--muted)"}}>Sans</div><div style={{fontSize:16,marginTop:2}}>Inter</div></div>
+              </div>
+            </div>
+          </div>
+          <div className="card">
+            <div className="card-head"><h3>Logo</h3></div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+              <div>
+                <div style={{fontFamily:"var(--mono)",fontSize:10,letterSpacing:".12em",textTransform:"uppercase",color:"var(--muted)",marginBottom:6}}>Light bg</div>
+                <div style={{background:"#fff",border:"1px solid var(--line)",borderRadius:10,padding:20,display:"grid",placeItems:"center",aspectRatio:"2/1"}}><img src="../assets/logo-black.png" style={{height:22}}/></div>
+              </div>
+              <div>
+                <div style={{fontFamily:"var(--mono)",fontSize:10,letterSpacing:".12em",textTransform:"uppercase",color:"var(--muted)",marginBottom:6}}>Dark bg</div>
+                <div style={{background:"#1A1A1A",border:"1px solid var(--line)",borderRadius:10,padding:20,display:"grid",placeItems:"center",aspectRatio:"2/1"}}><img src="../assets/logo-white.png" style={{height:22}}/></div>
+              </div>
+            </div>
+            <button className="btn btn-ghost btn-sm" style={{marginTop:12}}><Icon name="upload" size={12}/> Replace logo</button>
+            <hr/>
+            <div className="card-head"><h3 style={{fontSize:16}}>Favicon</h3></div>
+            <div style={{display:"flex",gap:10,alignItems:"center"}}>
+              <div style={{width:32,height:32,borderRadius:8,background:"var(--ink)",display:"grid",placeItems:"center",color:"#fff",fontFamily:"var(--serif)",fontStyle:"italic"}}>m</div>
+              <button className="btn btn-ghost btn-sm">Upload 32×32</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {tab==="domain" && (
+        <div className="grid-2">
+          <div className="card">
+            <div className="card-head"><h3>Domain</h3></div>
+            <div className="kv"><div className="k">Primary</div><div>myumminess.com <span className="chip live" style={{marginLeft:6}}>Verified</span></div></div>
+            <div className="kv"><div className="k">SSL</div><div>Auto-renew · expires Aug 14, 2026</div></div>
+            <div className="kv"><div className="k">CDN</div><div>Cloudflare · EU + NA</div></div>
+            <div className="kv"><div className="k">Redirects</div><div>3 configured</div></div>
+            <button className="btn btn-ghost btn-sm" style={{marginTop:12}}>Manage DNS <Icon name="arrow" size={11}/></button>
+          </div>
+          <div className="card">
+            <div className="card-head"><h3>Default SEO</h3></div>
+            <div className="fld"><label>Site title</label><input defaultValue="Myumminess — Eat better. Feel better. Live better."/></div>
+            <div className="fld"><label>Meta description</label><textarea defaultValue="Recipes, routines, and honest recommendations from a certified health coach."/></div>
+            <div className="fld"><label>Sitemap</label><input defaultValue="https://myumminess.com/sitemap.xml" readOnly style={{fontFamily:"var(--mono)",fontSize:12}}/></div>
+          </div>
+        </div>
+      )}
+
+      {tab==="integrations" && (
+        <div className="grid-2">
+          {[
+            { n:"Kit (ConvertKit)", d:"Newsletter · 18,214 subscribers", on:true, color:"#FB6970" },
+            { n:"TikTok", d:"@myumminess · 1.2M followers · last sync 2h ago", on:true, color:"#1A1A1A" },
+            { n:"Instagram", d:"@myumminess · 600K followers · last sync 2h ago", on:true, color:"#E1306C" },
+            { n:"Stripe", d:"Affiliate commission payouts", on:true, color:"#635BFF" },
+            { n:"Google Analytics", d:"GA4 · G-X4ZK9QF · active", on:true, color:"#F9AB00" },
+            { n:"Typeform", d:"Contact form · 214 responses", on:false, color:"#0445AF" },
+          ].map((it,i) => (
+            <div key={i} className="card" style={{display:"flex",gap:14,alignItems:"center",padding:16}}>
+              <div style={{width:44,height:44,borderRadius:10,background:it.color,color:"#fff",display:"grid",placeItems:"center",fontWeight:600,fontSize:14}}>{it.n[0]}</div>
+              <div style={{flex:1}}>
+                <div style={{fontWeight:500,fontSize:14}}>{it.n}</div>
+                <div style={{color:"var(--muted)",fontSize:12,marginTop:2}}>{it.d}</div>
+              </div>
+              {it.on ? <span className="chip live"><span className="badge-dot"><span className="d"/></span> Connected</span> : <button className="btn btn-ghost btn-sm">Connect</button>}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {tab==="team" && (
+        <div className="card">
+          <div className="card-head"><h3>Team · 3 members</h3><button className="btn btn-accent btn-sm"><Icon name="plus" size={12}/> Invite</button></div>
+          <table className="tbl" style={{border:0}}>
+            <thead><tr><th>Member</th><th>Role</th><th>Last active</th><th>2FA</th><th></th></tr></thead>
+            <tbody>
+              <tr><td><div className="row-thumb"><div style={{width:36,height:36,borderRadius:999,background:"var(--matcha-soft)",color:"var(--matcha-deep)",display:"grid",placeItems:"center",fontWeight:600}}>MT</div><div><div className="title">Marta Tarragona</div><div className="sub">marta@myumminess.com</div></div></div></td><td>Owner · Admin</td><td className="num">Now</td><td><span className="chip live">Enabled</span></td><td className="act">—</td></tr>
+              <tr><td><div className="row-thumb"><div style={{width:36,height:36,borderRadius:999,background:"var(--surface-2)",display:"grid",placeItems:"center",fontWeight:600}}>ED</div><div><div className="title">Elena Díaz</div><div className="sub">elena@myumminess.com</div></div></div></td><td>Editor</td><td className="num">2h ago</td><td><span className="chip live">Enabled</span></td><td className="act"><button className="icon-btn"><Icon name="edit" size={14}/></button></td></tr>
+              <tr><td><div className="row-thumb"><div style={{width:36,height:36,borderRadius:999,background:"var(--surface-2)",display:"grid",placeItems:"center",fontWeight:600}}>LC</div><div><div className="title">Luca Conti</div><div className="sub">luca@freelance.dev</div></div></div></td><td>Developer · Limited</td><td className="num">3d ago</td><td><span className="chip draft">Not set up</span></td><td className="act"><button className="icon-btn"><Icon name="edit" size={14}/></button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {tab==="security" && (
+        <div className="card">
+          <div className="card-head"><h3>Security &amp; privacy</h3></div>
+          {[
+            { k:"twoFactor", t:"Require 2FA for all admins", d:"Admins must verify with authenticator app." },
+            { k:"comments", t:"Comments on recipes", d:"Visitors can leave comments. Moderated by default." },
+            { k:"analytics", t:"Anonymous analytics", d:"Track page performance without collecting PII." },
+            { k:"cookieBar", t:"Show cookie consent banner", d:"Required for EU visitors." },
+          ].map(it => (
+            <div key={it.k} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"14px 0",borderBottom:"1px solid var(--line-2)"}}>
+              <div><div style={{fontWeight:500,fontSize:14}}>{it.t}</div><div style={{fontSize:12.5,color:"var(--muted)",marginTop:2}}>{it.d}</div></div>
+              <div className={"sw " + (sw[it.k]?"on":"")} onClick={()=>toggle(it.k)}/>
+            </div>
+          ))}
+        </div>
+      )}
+    </>
+  );
+}
+
+/* ============ Root ============ */
+function App(){
+  const [authed, setAuthed] = useState(false);
+  const [route, setRoute] = useState("dashboard");
+  const [sub, setSub] = useState(null); // sub-view (e.g. specific page)
+  const [data, setData] = useState(SEED);
+  const [toast, setToast] = useState(null);
+
+  useEffect(() => {
+    try {
+      const ver = localStorage.getItem("myumm.cms.ver");
+      if(ver !== "2") { localStorage.removeItem("myumm.cms.data"); localStorage.setItem("myumm.cms.ver","2"); }
+      const saved = localStorage.getItem("myumm.cms.data");
+      if(saved) setData(JSON.parse(saved));
+      if(localStorage.getItem("myumm.cms.auth") === "yes") setAuthed(true);
+    } catch(e){}
+  }, []);
+  useEffect(() => { try { localStorage.setItem("myumm.cms.data", JSON.stringify(data)); } catch(e){} }, [data]);
+
+  const showToast = (msg) => { setToast(msg); setTimeout(()=>setToast(null), 2600); };
+
+  if(!authed) return <Login onIn={()=>{setAuthed(true);try{localStorage.setItem("myumm.cms.auth","yes")}catch(e){}}}/>;
+
+  const crumbs = {dashboard:"Dashboard",pages:"Pages",recipes:"Recipes",products:"Products",reels:"Reels",testimonials:"Testimonials",media:"Media library",settings:"Settings"};
+  const crumb = sub ? `${crumbs[route]} / ${sub==="home"?"Home":sub}` : crumbs[route];
+
+  return (
+    <div className="app">
+      <Sidebar route={route} setRoute={r=>{setRoute(r);setSub(null)}} onLogout={()=>{setAuthed(false);try{localStorage.removeItem("myumm.cms.auth")}catch(e){}}}/>
+      <div className="main">
+        <Topbar crumb={crumb}/>
+        <div className="pageview">
+          {route==="dashboard" && <Dashboard setRoute={setRoute} data={data} toast={showToast}/>}
+          {route==="pages" && !sub && <PagesList data={data} setData={setData} openPage={(id)=>setSub(id)} toast={showToast}/>}
+          {route==="pages" && sub==="home" && <HomePageEditor data={data} setData={setData} back={()=>setSub(null)} toast={showToast}/>}
+          {route==="pages" && sub && sub!=="home" && <GenericPageEditor pageId={sub} data={data} back={()=>setSub(null)} toast={showToast}/>}
+          {route==="recipes" && <RecipesView data={data} setData={setData} toast={showToast}/>}
+          {route==="products" && <ProductsView data={data} toast={showToast}/>}
+          {route==="reels" && <ReelsView data={data} toast={showToast}/>}
+          {route==="testimonials" && <TestimonialsView data={data}/>}
+          {route==="media" && <MediaView data={data}/>}
+          {route==="settings" && <SettingsView data={data} setData={setData} toast={showToast}/>}
+        </div>
+      </div>
+      {toast && <div className="toast"><span className="d"/>{toast}</div>}
+    </div>
+  );
+}
+
+function GenericPageEditor({pageId, data, back, toast}){
+  const p = data.pages.find(x => x.id === pageId);
+  const BLOCKS = {
+    "follow": ["Hero","Platform split","Reel preview","Creator credibility","CTA strip","Newsletter","Footer"],
+    "about": ["Portrait hero","Story · chapter 1","Story · chapter 2","Credentials","Values","Press logos","1:1 coaching teaser","Testimonials","Footer"],
+    "recipes-index": ["Page hero","Category filters","Featured recipe","Recipe grid","Popular this week","Newsletter"],
+    "shop-index": ["Page hero","Category rail","Featured product","Product grid","Trust badges"],
+    "blog-index": ["Page hero","Category nav","Featured article","Article grid","Popular tags","Newsletter"],
+    "booking": ["Page hero","What you get","Package selector","Calendar · availability","Pricing table","FAQ","Guarantee"],
+    "contact": ["Page hero","Contact form","Direct channels","Office hours","FAQ"],
+    "sitemap": ["Page hero","Visual tree","Full page index","Footer"],
+  };
+  const blocks = BLOCKS[pageId] || ["Hero","Content","Footer"];
+  return (
+    <>
+      <div className="ph-head">
+        <div>
+          <div className="ek" style={{display:"flex",gap:8,alignItems:"center"}}><button onClick={back} className="btn btn-ghost btn-sm" style={{height:22,padding:"0 8px",fontSize:11}}><Icon name="chevR" size={10}/> Pages</button> {p.title}</div>
+          <h1>{p.title} <span style={{color:"var(--muted)",fontWeight:400,fontSize:18,letterSpacing:0}}>· {p.path}</span></h1>
+          <p>{p.desc} · {blocks.length} blocks · last updated {p.updated}</p>
+        </div>
+        <div className="actions">
+          {p.file && <a href={p.file} target="_blank" className="btn btn-ghost"><Icon name="eye" size={14}/> Preview live</a>}
+          <button className="btn btn-accent" onClick={()=>toast(p.title + " saved")}><Icon name="save" size={14}/> Save</button>
+        </div>
+      </div>
+      <div className="editor">
+        <div>
+          <div className="card">
+            <div className="card-head"><h3>Page blocks · {blocks.length}</h3><span className="hint">Drag to reorder · click to edit</span></div>
+            {blocks.map((n,i) => (
+              <div key={i} className="drop" style={{marginBottom:8,cursor:"pointer"}}>
+                <Icon name="drag" size={16}/>
+                <div className="ph" style={{width:60,height:40,borderRadius:8}}/>
+                <div className="t"><b>{n}</b><span>Block · {i+1} of {blocks.length}</span></div>
+                <div style={{marginLeft:"auto",display:"flex",gap:6,alignItems:"center"}}>
+                  <span className="chip live">Visible</span>
+                  <button className="icon-btn"><Icon name="edit" size={14}/></button>
+                  <button className="icon-btn"><Icon name="trash" size={14}/></button>
+                </div>
+              </div>
+            ))}
+            <button className="btn btn-ghost" style={{marginTop:8}}><Icon name="plus" size={14}/> Add block</button>
+          </div>
+
+          {pageId==="booking" && (
+            <div className="card">
+              <div className="card-head"><h3>Coaching packages</h3><button className="btn btn-ghost btn-sm"><Icon name="plus" size={12}/> Add package</button></div>
+              {[
+                { n:"Single session", d:"60 min · ideal for a check-in", price:"€95", dur:"60 min" },
+                { n:"4-session reset", d:"Monthly plan with weekly calls", price:"€320", dur:"4 × 60 min" },
+                { n:"12-week transformation", d:"Flagship coaching programme", price:"€840", dur:"12 × 60 min" },
+              ].map((pkg,i) => (
+                <div key={i} className="drop" style={{marginBottom:8}}>
+                  <Icon name="drag" size={14}/>
+                  <div className="t" style={{flex:1}}><b>{pkg.n}</b><span>{pkg.d} · {pkg.dur}</span></div>
+                  <span className="chip" style={{background:"var(--matcha-soft)",color:"var(--matcha-deep)"}}>{pkg.price}</span>
+                  <button className="icon-btn"><Icon name="edit" size={14}/></button>
+                </div>
+              ))}
+              <hr/>
+              <div className="field-grid">
+                <div className="fld"><label>Calendar integration</label><select defaultValue="cal"><option value="cal">Cal.com (connected)</option><option>Calendly</option><option>Google Calendar</option></select></div>
+                <div className="fld"><label>Timezone</label><select defaultValue="madrid"><option value="madrid">Europe / Madrid</option><option>UTC</option></select></div>
+                <div className="fld"><label>Buffer between calls</label><select defaultValue="15"><option>0 min</option><option>15</option><option>30</option></select></div>
+                <div className="fld"><label>Cancellation window</label><select defaultValue="24"><option>12 h</option><option>24</option><option>48</option></select></div>
+              </div>
+            </div>
+          )}
+
+          {pageId==="contact" && (
+            <div className="card">
+              <div className="card-head"><h3>Form fields</h3><button className="btn btn-ghost btn-sm"><Icon name="plus" size={12}/> Add field</button></div>
+              {[
+                { n:"Name", t:"text", req:true },
+                { n:"Email", t:"email", req:true },
+                { n:"Topic", t:"select", req:true },
+                { n:"Message", t:"textarea", req:true },
+                { n:"Newsletter opt-in", t:"checkbox", req:false },
+              ].map((f,i) => (
+                <div key={i} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 0",borderBottom:"1px solid var(--line-2)"}}>
+                  <Icon name="drag" size={14}/>
+                  <div style={{flex:1,fontSize:13.5,fontWeight:500}}>{f.n}</div>
+                  <span className="chip" style={{background:"var(--surface-2)",color:"#6b6658"}}>{f.t}</span>
+                  {f.req && <span className="chip live">Required</span>}
+                  <button className="icon-btn"><Icon name="edit" size={14}/></button>
+                </div>
+              ))}
+              <hr/>
+              <div className="field-grid">
+                <div className="fld"><label>Submission endpoint</label><select defaultValue="type"><option value="type">Typeform</option><option>Email (SMTP)</option><option>Webhook</option></select></div>
+                <div className="fld"><label>Success redirect</label><input defaultValue="/contact/thanks"/></div>
+                <div className="fld full"><label>Auto-reply subject</label><input defaultValue="Thanks for reaching out — I'll reply within 48h"/></div>
+              </div>
+            </div>
+          )}
+
+          {pageId==="blog-index" && (
+            <div className="card">
+              <div className="card-head"><h3>Blog posts · 24 published</h3><button className="btn btn-accent btn-sm"><Icon name="plus" size={12}/> New post</button></div>
+              <table className="tbl" style={{border:0,fontSize:13}}>
+                <thead><tr><th>Title</th><th>Category</th><th>Published</th><th>Views</th><th>Status</th></tr></thead>
+                <tbody>
+                  <tr><td className="title">Why I stopped counting calories</td><td><span className="chip" style={{background:"var(--surface-2)",color:"#6b6658"}}>Mindset</span></td><td className="num">Apr 18</td><td className="num">12.4K</td><td><span className="chip live">Live</span></td></tr>
+                  <tr><td className="title">The 80/20 approach that actually works</td><td><span className="chip" style={{background:"var(--surface-2)",color:"#6b6658"}}>Nutrition</span></td><td className="num">Apr 12</td><td className="num">8.9K</td><td><span className="chip live">Live</span></td></tr>
+                  <tr><td className="title">5 kitchen tools I use every single day</td><td><span className="chip" style={{background:"var(--surface-2)",color:"#6b6658"}}>Kitchen</span></td><td className="num">Apr 05</td><td className="num">6.2K</td><td><span className="chip live">Live</span></td></tr>
+                  <tr><td className="title">Morning routine · 2026 edition</td><td><span className="chip" style={{background:"var(--surface-2)",color:"#6b6658"}}>Routine</span></td><td className="num">—</td><td className="num">—</td><td><span className="chip draft">Draft</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {pageId==="sitemap" && (
+            <div className="card">
+              <div className="card-head"><h3>Auto-generated sitemap</h3><button className="btn btn-ghost btn-sm"><Icon name="external" size={12}/> View XML</button></div>
+              <div className="kv"><div className="k">Status</div><div><span className="chip live"><span className="badge-dot"><span className="d"/></span> Published</span></div></div>
+              <div className="kv"><div className="k">URLs indexed</div><div>214 pages · last crawled 2h ago</div></div>
+              <div className="kv"><div className="k">Submitted to</div><div>Google Search Console · Bing Webmaster</div></div>
+              <div className="kv"><div className="k">Robots.txt</div><div style={{fontFamily:"var(--mono)",fontSize:12}}>User-agent: * · Allow: /</div></div>
+              <div className="kv"><div className="k">Auto-regenerate</div><div>On every publish · <span className="chip live">Enabled</span></div></div>
+            </div>
+          )}
+        </div>
+
+        <div>
+          <div className="card">
+            <div className="card-head"><h3>Status</h3></div>
+            <div className="fld"><select defaultValue={p.status}><option value="live">Published · Live</option><option value="draft">Draft</option><option value="sched">Scheduled</option></select></div>
+            <div className="kv"><div className="k">URL</div><div style={{fontFamily:"var(--mono)",fontSize:12,color:"var(--info)"}}>{p.path}</div></div>
+            <div className="kv"><div className="k">Template</div><div>{pageId.includes("index")?"List · default":"Landing · default"}</div></div>
+            <div className="kv"><div className="k">Updated</div><div>{p.updated}</div></div>
+            <div className="kv"><div className="k">File</div><div style={{fontFamily:"var(--mono)",fontSize:11.5,wordBreak:"break-all"}}>{p.file||"—"}</div></div>
+          </div>
+
+          <div className="card">
+            <div className="card-head"><h3>SEO</h3></div>
+            <div className="fld"><label>Meta title</label><input defaultValue={p.title + " — Myumminess"}/></div>
+            <div className="fld"><label>Meta description</label><textarea defaultValue={p.desc}/></div>
+            <div className="fld"><label>OG image</label>
+              <div className="drop" style={{padding:10}}><div className="ph" style={{width:52,height:36,borderRadius:6}}/><div className="t"><b>og-{p.id}.jpg</b><span>1200×630</span></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+function Login({onIn}){
+  const [email, setEmail] = useState("marta@myumminess.com");
+  const [pass, setPass] = useState("demo-password");
+  const submit = (e) => { e.preventDefault(); onIn(); };
+  return (
+    <div className="login">
+      <div className="login-side">
+        <div className="top">
+          <img src="../assets/logo-white.png" className="logo" alt="Myumminess"/>
+          <span className="tag">CMS · v2.4</span>
+        </div>
+        <div className="mid">
+          <h1>Run the site the way you <em>run the kitchen</em>.</h1>
+          <p>Everything on myumminess.com — recipes, reels, products, pages — edited in one calm, focused place. No code. No FTP.</p>
+        </div>
+        <div className="bot">Certified · secure · GDPR compliant</div>
+      </div>
+      <form className="login-form" onSubmit={submit}>
+        <div className="kicker">Sign in</div>
+        <h2>Welcome back, Marta.</h2>
+        <div className="fld"><label>Email</label><input type="email" value={email} onChange={e=>setEmail(e.target.value)} required/></div>
+        <div className="fld"><label>Password</label><input type="password" value={pass} onChange={e=>setPass(e.target.value)} placeholder="••••••••"/></div>
+        <button type="submit" className="btn btn-primary btn-lg">Sign in to CMS <Icon name="arrow" size={14}/></button>
+        <div className="foot">
+          <a href="#" style={{color:"var(--ink)"}}>Forgot password?</a>
+          <span>SSO with Google</span>
+        </div>
+        <div className="hint-box">
+          <b>Prototype</b> — credentials are pre-filled. Just click <b>Sign in to CMS</b> to access the Dashboard, Pages, Recipes, Products, Reels, Testimonials, Media library and Settings.
+        </div>
+      </form>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
 </body>
 </html>
