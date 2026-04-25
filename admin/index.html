@@ -982,7 +982,7 @@ function RecipesView({data, toast, ghRecList, setGhRecList, ghCats, ghMedia, set
   );
 }
 function RecipeEditor({recipe, back, toast, onSave, onDelete, ghMedia, setGhMedia, ghCats}){
-  const isNew = !recipe._path;
+  const isNew = recipe._listIdx === undefined;
   const [local, setLocal] = useState({
     title:      recipe.title || '',
     slug:       recipe.slug  || (recipe.title||'').toLowerCase().replace(/[^a-z0-9]+/g,'-'),
@@ -1013,9 +1013,7 @@ function RecipeEditor({recipe, back, toast, onSave, onDelete, ghMedia, setGhMedi
     if (!local.title) { toast('Title is required'); return; }
     const slug = local.slug || local.title.toLowerCase().replace(/[^a-z0-9]+/g,'-');
     const tagArr = tags.split(',').map(t=>t.trim()).filter(Boolean);
-    const itemRef = isNew
-      ? { _path: 'content/recipes/'+slug+'.json', _name: slug+'.json' }
-      : recipe;
+    const itemRef = recipe;
     const fullData = {
       title: local.title, slug, cat: local.cat, kind: recipe.kind||'',
       time: local.time, servings: local.servings, difficulty: local.difficulty,
@@ -1030,7 +1028,7 @@ function RecipeEditor({recipe, back, toast, onSave, onDelete, ghMedia, setGhMedi
   };
 
   const handleDelete = async () => {
-    if (!recipe._path || !window.confirm('Delete "' + (local.title||'this recipe') + '"?')) return;
+    if (isNew || !window.confirm('Delete "' + (local.title||'this recipe') + '"?')) return;
     if (onDelete) { await onDelete(recipe); back(); }
   };
 

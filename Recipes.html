@@ -618,7 +618,7 @@ function DetailPanel({recipe, open, onClose}){
                 </div>
 
                 {/* ⭐ AFFILIATE BLOCK — primary revenue section */}
-                <div className="affiliate-block">
+                {(recipe.affiliates&&recipe.affiliates.length>0) && <div className="affiliate-block">
                   <div className="af-head">
                     <div className="i"><Icon name="pkg" size={19}/></div>
                     <div>
@@ -627,7 +627,7 @@ function DetailPanel({recipe, open, onClose}){
                     </div>
                   </div>
                   <div className="af-products">
-                    {recipe.affiliates.map((a,i)=>(
+                    {(recipe.affiliates||[]).map((a,i)=>(
                       <div className="af-item" key={i}>
                         <div className={"ph img " + a.kind} style={{width:56,height:56,borderRadius:12,flexShrink:0}}>
                           <div className="ph-center" style={{fontSize:8}}>{a.name.split(" ")[0]}</div>
@@ -651,7 +651,7 @@ function DetailPanel({recipe, open, onClose}){
                   <p className="af-disclaimer">
                     These are affiliate links to Shopee Vietnam. If you buy through them, I earn a small commission at no extra cost to you. I only link products I personally use and trust.
                   </p>
-                </div>
+                </div>}
               </div>
 
               {/* Right — recipe content */}
@@ -660,6 +660,7 @@ function DetailPanel({recipe, open, onClose}){
                   <div className="eyebrow"><span className="dot"/>Recipe</div>
                   <h2>{recipe.title}</h2>
                   <p className="desc">{recipe.blurb || recipe.desc}</p>
+                  {(recipe.benefits&&recipe.benefits.length>0) && (
                   <div className="benefits">
                     <div className="b-label">Why this works</div>
                     <ul>
@@ -668,6 +669,7 @@ function DetailPanel({recipe, open, onClose}){
                       ))}
                     </ul>
                   </div>
+                  )}
                 </div>
 
                 <div className="tabs">
