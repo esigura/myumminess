@@ -832,18 +832,18 @@ function HomePageEditor({data, setData, back, toast, ghPage, onSave}){
 }
 
 /* ============ Recipes list + editor ============ */
-function RecipesView({data, setData, toast}){
-  const [editing, setEditing] = useState(null);
+function RecipesView({data, setData, toast, ghItems, onSave}){
+  const [editing, setEditing] = useState(null); // full recipe object
   const [filter, setFilter] = useState("all");
+  const items = (ghItems && ghItems.length > 0) ? ghItems : data.recipes;
   if(editing != null){
-    const r = data.recipes.find(x => x.id === editing);
-    return <RecipeEditor recipe={r} back={()=>setEditing(null)} toast={toast}/>;
+    return <RecipeEditor recipe={editing} back={()=>setEditing(null)} toast={toast} onSave={onSave}/>;
   }
-  const filtered = filter==="all" ? data.recipes : data.recipes.filter(r => r.status===filter);
+  const filtered = filter==="all" ? items : items.filter(r => r.status===filter);
   return (
     <>
       <div className="ph-head">
-        <div><div className="ek">Recipes · {data.recipes.length} total</div><h1>Recipes</h1><p>Your library of tested recipes. Drafts don't appear on the site.</p></div>
+        <div><div className="ek">Recipes · {items.length} total{ghItems && ghItems.length > 0 ? ' · from GitHub' : ' · preview data'}</div><h1>Recipes</h1><p>Your library of tested recipes. Drafts don't appear on the site.</p></div>
         <div className="actions">
           <button className="btn btn-ghost"><Icon name="upload" size={14}/> Import from CSV</button>
           <button className="btn btn-accent" onClick={()=>setEditing(1)}><Icon name="plus" size={14}/> New recipe</button>
@@ -864,16 +864,16 @@ function RecipesView({data, setData, toast}){
       <table className="tbl">
         <thead><tr><th style={{width:"38%"}}>Recipe</th><th>Category</th><th>Time</th><th>Rating</th><th>Views · 30d</th><th>Updated</th><th>Status</th><th></th></tr></thead>
         <tbody>
-          {filtered.map(r => (
-            <tr key={r.id} onClick={()=>setEditing(r.id)} style={{cursor:"pointer"}}>
-              <td><div className="row-thumb"><div className={"ph " + (r.kind||"")}><span className="lbl">{r.cat}</span></div><div><div className="title">{r.title}</div><div className="sub">ID · rec_{String(r.id).padStart(4,"0")}</div></div></div></td>
-              <td><span className="chip" style={{background:"var(--surface-2)",color:"#6b6658"}}>{r.cat}</span></td>
-              <td className="num">{r.time}</td>
+          {filtered.map((r,i) => (
+            <tr key={r._path || r.id || i} onClick={()=>setEditing(r)} style={{cursor:"pointer"}}>
+              <td><div className="row-thumb"><div className={"ph " + (r.kind||"")}><span className="lbl">{r.cat || r.category}</span></div><div><div className="title">{r.title}</div><div className="sub">{r._name ? r._name.replace('.json','') : 'rec_' + String(r.id).padStart(4,"0")}</div></div></div></td>
+              <td><span className="chip" style={{background:"var(--surface-2)",color:"#6b6658"}}>{r.cat || r.category || '—'}</span></td>
+              <td className="num">{r.time || '—'}</td>
               <td className="num">{r.stars>0 ? (<span style={{display:"inline-flex",alignItems:"center",gap:4}}><Icon name="star" size={11} stroke={2}/> {r.stars}</span>) : "—"}</td>
-              <td className="num">{r.views}</td>
-              <td className="num">{r.updated}</td>
-              <td><span className={"chip " + r.status}>{r.status==="live"?"Live":r.status==="draft"?"Draft":"Scheduled"}</span></td>
-              <td className="act"><button className="icon-btn" onClick={e=>{e.stopPropagation();setEditing(r.id)}}><Icon name="edit" size={14}/></button></td>
+              <td className="num">{r.views || '—'}</td>
+              <td className="num">{r.updated || '—'}</td>
+              <td><span className={"chip " + (r.status||'draft')}>{r.status==="live"?"Live":r.status==="draft"?"Draft":"Scheduled"}</span></td>
+              <td className="act"><button className="icon-btn" onClick={e=>{e.stopPropagation();setEditing(r)}}><Icon name="edit" size={14}/></button></td>
             </tr>
           ))}
         </tbody>
@@ -882,40 +882,49 @@ function RecipesView({data, setData, toast}){
   );
 }
 
-function RecipeEditor({recipe, back, toast}){
+function RecipeEditor({recipe, back, toast, onSave}){
   const [local, setLocal] = useState({
-    title: recipe.title,
-    slug: recipe.title.toLowerCase().replace(/[^a-z0-9]+/g,"-"),
-    category: recipe.cat,
-    time: recipe.time,
-    servings: "2",
-    blurb: "A 5-minute matcha oat latte that tastes like a café but costs pennies to make. Whisked ceremonial-grade matcha over warm oat milk.",
-    status: recipe.status,
+    title: recipe.title || '',
+    slug: (recipe.slug) || (recipe.title||'').toLowerCase().replace(/[^a-z0-9]+/g,"-"),
+    category: recipe.cat || recipe.category || '',
+    time: recipe.time || '',
+    servings: recipe.servings || "2",
+    blurb: recipe.blurb || recipe.description || "A 5-minute matcha oat latte that tastes like a café but costs pennies to make. Whisked ceremonial-grade matcha over warm oat milk.",
+    status: recipe.status || 'draft',
   });
-  const [ingredients, setIngredients] = useState([
-    "1 tsp ceremonial-grade matcha",
-    "60 ml hot water (80°C)",
-    "200 ml oat milk, warmed",
-    "1 tsp maple syrup (optional)",
-  ]);
-  const [steps, setSteps] = useState([
-    "Sift matcha into a bowl or mug to break up clumps.",
-    "Add hot water and whisk vigorously in an M-shape until frothy.",
-    "Warm the oat milk and pour slowly over the matcha.",
-    "Sweeten to taste and enjoy immediately.",
-  ]);
+  const save = async () => {
+    const fullData = { ...recipe, ...local, ingredients, steps };
+    if (onSave && recipe._sha) { await onSave(recipe, fullData); }
+    else { toast("Recipe saved"); }
+  };
+  const [ingredients, setIngredients] = useState(
+    Array.isArray(recipe.ingredients) ? recipe.ingredients : [
+      "1 tsp ceremonial-grade matcha",
+      "60 ml hot water (80°C)",
+      "200 ml oat milk, warmed",
+      "1 tsp maple syrup (optional)",
+    ]
+  );
+  const [steps, setSteps] = useState(
+    Array.isArray(recipe.steps) ? recipe.steps : [
+      "Sift matcha into a bowl or mug to break up clumps.",
+      "Add hot water and whisk vigorously in an M-shape until frothy.",
+      "Warm the oat milk and pour slowly over the matcha.",
+      "Sweeten to taste and enjoy immediately.",
+    ]
+  );
   return (
     <>
       <div className="ph-head">
         <div>
           <div className="ek" style={{display:"flex",gap:8,alignItems:"center"}}><button onClick={back} className="btn btn-ghost btn-sm" style={{height:22,padding:"0 8px",fontSize:11}}><Icon name="chevR" size={10}/> Recipes</button> Edit recipe</div>
           <h1>{local.title}</h1>
-          <p>ID · rec_{String(recipe.id).padStart(4,"0")} · Last updated {recipe.updated}, 2026</p>
+          <p>{recipe._name ? recipe._name.replace('.json','') : 'rec_' + String(recipe.id||0).padStart(4,"0")} · Last updated {recipe.updated || '—'}</p>
         </div>
         <div className="actions">
           <button className="btn btn-ghost" onClick={()=>toast("Preview opened in new tab")}><Icon name="eye" size={14}/> Preview</button>
           <button className="btn btn-danger" onClick={()=>toast("Recipe moved to trash")}><Icon name="trash" size={14}/> Delete</button>
-          <button className="btn btn-accent" onClick={()=>toast("Recipe saved")}><Icon name="save" size={14}/> Save</button>
+          <button className="btn btn-accent" onClick={save}><Icon name="save" size={14}/> Save</button>
         </div>
       </div>
 
@@ -1021,11 +1030,12 @@ function RecipeEditor({recipe, back, toast}){
 }
 
 /* ============ Products ============ */
-function ProductsView({data, toast}){
+function ProductsView({data, toast, ghItems, onSave}){
+  const items = (ghItems && ghItems.length > 0) ? ghItems : data.products;
   return (
     <>
       <div className="ph-head">
-        <div><div className="ek">Shop · {data.products.length} products</div><h1>Shop products</h1><p>Affiliate products displayed across recipes, shop page, and homepage strip.</p></div>
+        <div><div className="ek">Shop · {items.length} products{ghItems && ghItems.length > 0 ? ' · from GitHub' : ' · preview data'}</div><h1>Shop products</h1><p>Affiliate products displayed across recipes, shop page, and homepage strip.</p></div>
         <div className="actions">
           <button className="btn btn-ghost"><Icon name="upload" size={14}/> Import</button>
           <button className="btn btn-accent"><Icon name="plus" size={14}/> New product</button>
@@ -1039,15 +1049,15 @@ function ProductsView({data, toast}){
       <table className="tbl">
         <thead><tr><th style={{width:"34%"}}>Product</th><th>Category</th><th>Price</th><th>Stock / inventory</th><th>Sales · 30d</th><th>Updated</th><th>Status</th><th></th></tr></thead>
         <tbody>
-          {data.products.map(p => (
-            <tr key={p.id}>
-              <td><div className="row-thumb"><div className="ph"/><div><div className="title">{p.title}</div><div className="sub">SKU · prod_{String(p.id).padStart(4,"0")}</div></div></div></td>
-              <td><span className="chip" style={{background:"var(--surface-2)",color:"#6b6658"}}>{p.cat}</span></td>
-              <td className="num">{p.price}</td>
-              <td>{p.stockWarn ? <span className="chip low">{p.stock}</span> : <span style={{color:"var(--muted)",fontSize:12.5}}>{p.stock}</span>}</td>
-              <td className="num">{p.sales}</td>
-              <td className="num">{p.updated}</td>
-              <td><span className={"chip " + p.status}>{p.status==="live"?"Live":"Draft"}</span></td>
+          {items.map((p,i) => (
+            <tr key={p._path || p.id || i}>
+              <td><div className="row-thumb"><div className="ph"/><div><div className="title">{p.title}</div><div className="sub">{p._name ? p._name.replace('.json','') : 'prod_' + String(p.id||0).padStart(4,"0")}</div></div></div></td>
+              <td><span className="chip" style={{background:"var(--surface-2)",color:"#6b6658"}}>{p.cat || p.category || '—'}</span></td>
+              <td className="num">{p.price || '—'}</td>
+              <td>{p.stockWarn ? <span className="chip low">{p.stock}</span> : <span style={{color:"var(--muted)",fontSize:12.5}}>{p.stock || '—'}</span>}</td>
+              <td className="num">{p.sales || '—'}</td>
+              <td className="num">{p.updated || '—'}</td>
+              <td><span className={"chip " + (p.status||'draft')}>{p.status==="live"?"Live":"Draft"}</span></td>
               <td className="act"><button className="icon-btn"><Icon name="edit" size={14}/></button></td>
             </tr>
           ))}
