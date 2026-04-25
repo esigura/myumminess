@@ -21,19 +21,48 @@
       "Natural energy boost without the crash"
     ],
     "ingredients": [
-      {"name": "Frozen spinach", "amt": "1 large handful"},
-      {"name": "Banana (frozen)", "amt": "1 medium"},
-      {"name": "Protein powder (vanilla)", "amt": "1 scoop"},
-      {"name": "Almond milk", "amt": "250 ml"},
-      {"name": "Almond butter", "amt": "1 tbsp"},
-      {"name": "Chia seeds", "amt": "1 tsp"},
-      {"name": "Ice", "amt": "4–5 cubes"}
+      {
+        "name": "Frozen spinach",
+        "amt": "1 large handful"
+      },
+      {
+        "name": "Banana (frozen)",
+        "amt": "1 medium"
+      },
+      {
+        "name": "Protein powder (vanilla)",
+        "amt": "1 scoop"
+      },
+      {
+        "name": "Almond milk",
+        "amt": "250 ml"
+      },
+      {
+        "name": "Almond butter",
+        "amt": "1 tbsp"
+      },
+      {
+        "name": "Chia seeds",
+        "amt": "1 tsp"
+      },
+      {
+        "name": "Ice",
+        "amt": "4–5 cubes"
+      }
     ],
     "steps": [
-      {"text": "Add all ingredients to the blender in this order: liquid first, then soft ingredients, frozen items last. This helps the blades catch everything."},
-      {"text": "Blend on high for <b>45–60 seconds</b> until completely smooth. Scrape down the sides if needed and blend again for 10 seconds."},
-      {"text": "Taste and adjust. Too thick? Add a splash of almond milk. Want it sweeter? Half a medjool date works perfectly."},
-      {"text": "Pour immediately and drink within 10 minutes for best texture and nutrition."}
+      {
+        "text": "Add all ingredients to the blender in this order: liquid first, then soft ingredients, frozen items last. This helps the blades catch everything."
+      },
+      {
+        "text": "Blend on high for <b>45–60 seconds</b> until completely smooth. Scrape down the sides if needed and blend again for 10 seconds."
+      },
+      {
+        "text": "Taste and adjust. Too thick? Add a splash of almond milk. Want it sweeter? Half a medjool date works perfectly."
+      },
+      {
+        "text": "Pour immediately and drink within 10 minutes for best texture and nutrition."
+      }
     ]
   },
   {
@@ -58,20 +87,52 @@
       "Easy to batch — scales perfectly for 4 servings"
     ],
     "ingredients": [
-      {"name": "Chicken breast", "amt": "200g"},
-      {"name": "Quinoa (dry)", "amt": "80g"},
-      {"name": "Cherry tomatoes", "amt": "100g"},
-      {"name": "Cucumber", "amt": "½ medium"},
-      {"name": "Olive oil", "amt": "1 tbsp"},
-      {"name": "Lemon juice", "amt": "1 tbsp"},
-      {"name": "Salt & pepper", "amt": "to taste"},
-      {"name": "Fresh herbs (optional)", "amt": "handful"}
+      {
+        "name": "Chicken breast",
+        "amt": "200g"
+      },
+      {
+        "name": "Quinoa (dry)",
+        "amt": "80g"
+      },
+      {
+        "name": "Cherry tomatoes",
+        "amt": "100g"
+      },
+      {
+        "name": "Cucumber",
+        "amt": "½ medium"
+      },
+      {
+        "name": "Olive oil",
+        "amt": "1 tbsp"
+      },
+      {
+        "name": "Lemon juice",
+        "amt": "1 tbsp"
+      },
+      {
+        "name": "Salt & pepper",
+        "amt": "to taste"
+      },
+      {
+        "name": "Fresh herbs (optional)",
+        "amt": "handful"
+      }
     ],
     "steps": [
-      {"text": "Cook quinoa: rinse well, then combine with 160ml water and a pinch of salt. Bring to boil, cover and simmer for <b>12 minutes</b>. Fluff with a fork and let cool."},
-      {"text": "Season chicken with salt, pepper and a drizzle of olive oil. Cook in a non-stick pan on medium-high for <b>6 minutes per side</b> until cooked through. Rest 5 minutes before slicing."},
-      {"text": "Halve the cherry tomatoes, dice the cucumber. Toss with lemon juice, olive oil, salt and pepper."},
-      {"text": "Assemble: quinoa base, sliced chicken, vegetables. Finish with fresh herbs if using. Works warm or cold."}
+      {
+        "text": "Cook quinoa: rinse well, then combine with 160ml water and a pinch of salt. Bring to boil, cover and simmer for <b>12 minutes</b>. Fluff with a fork and let cool."
+      },
+      {
+        "text": "Season chicken with salt, pepper and a drizzle of olive oil. Cook in a non-stick pan on medium-high for <b>6 minutes per side</b> until cooked through. Rest 5 minutes before slicing."
+      },
+      {
+        "text": "Halve the cherry tomatoes, dice the cucumber. Toss with lemon juice, olive oil, salt and pepper."
+      },
+      {
+        "text": "Assemble: quinoa base, sliced chicken, vegetables. Finish with fresh herbs if using. Works warm or cold."
+      }
     ]
   },
   {
@@ -96,19 +157,48 @@
       "Zero effort in the morning — it's already made"
     ],
     "ingredients": [
-      {"name": "Rolled oats", "amt": "80g"},
-      {"name": "Almond milk", "amt": "200ml"},
-      {"name": "Greek yoghurt", "amt": "3 tbsp"},
-      {"name": "Chia seeds", "amt": "1 tbsp"},
-      {"name": "Mixed berries (frozen)", "amt": "100g"},
-      {"name": "Honey or maple syrup", "amt": "1 tsp"},
-      {"name": "Vanilla extract", "amt": "¼ tsp"}
+      {
+        "name": "Rolled oats",
+        "amt": "80g"
+      },
+      {
+        "name": "Almond milk",
+        "amt": "200ml"
+      },
+      {
+        "name": "Greek yoghurt",
+        "amt": "3 tbsp"
+      },
+      {
+        "name": "Chia seeds",
+        "amt": "1 tbsp"
+      },
+      {
+        "name": "Mixed berries (frozen)",
+        "amt": "100g"
+      },
+      {
+        "name": "Honey or maple syrup",
+        "amt": "1 tsp"
+      },
+      {
+        "name": "Vanilla extract",
+        "amt": "¼ tsp"
+      }
     ],
     "steps": [
-      {"text": "Combine oats, almond milk, yoghurt, chia seeds, honey and vanilla in a jar or container. Stir well — make sure the chia seeds are evenly distributed."},
-      {"text": "Add the frozen berries on top (they thaw overnight and create a natural jam layer)."},
-      {"text": "Cover and refrigerate for <b>at least 6 hours</b>, ideally overnight."},
-      {"text": "In the morning, stir, add fresh toppings if you like (granola, more fruit, nut butter) and eat cold."}
+      {
+        "text": "Combine oats, almond milk, yoghurt, chia seeds, honey and vanilla in a jar or container. Stir well — make sure the chia seeds are evenly distributed."
+      },
+      {
+        "text": "Add the frozen berries on top (they thaw overnight and create a natural jam layer)."
+      },
+      {
+        "text": "Cover and refrigerate for <b>at least 6 hours</b>, ideally overnight."
+      },
+      {
+        "text": "In the morning, stir, add fresh toppings if you like (granola, more fruit, nut butter) and eat cold."
+      }
     ]
   },
   {
@@ -133,20 +223,52 @@
       "Ripe avocado creates genuine creaminess"
     ],
     "ingredients": [
-      {"name": "Pasta (any shape)", "amt": "160g dry"},
-      {"name": "Ripe avocado", "amt": "2 medium"},
-      {"name": "Garlic", "amt": "2 cloves"},
-      {"name": "Lemon juice", "amt": "2 tbsp"},
-      {"name": "Olive oil", "amt": "2 tbsp"},
-      {"name": "Fresh basil", "amt": "large handful"},
-      {"name": "Salt & black pepper", "amt": "to taste"},
-      {"name": "Cherry tomatoes (to serve)", "amt": "handful"}
+      {
+        "name": "Pasta (any shape)",
+        "amt": "160g dry"
+      },
+      {
+        "name": "Ripe avocado",
+        "amt": "2 medium"
+      },
+      {
+        "name": "Garlic",
+        "amt": "2 cloves"
+      },
+      {
+        "name": "Lemon juice",
+        "amt": "2 tbsp"
+      },
+      {
+        "name": "Olive oil",
+        "amt": "2 tbsp"
+      },
+      {
+        "name": "Fresh basil",
+        "amt": "large handful"
+      },
+      {
+        "name": "Salt & black pepper",
+        "amt": "to taste"
+      },
+      {
+        "name": "Cherry tomatoes (to serve)",
+        "amt": "handful"
+      }
     ],
     "steps": [
-      {"text": "Cook pasta in well-salted boiling water until al dente. Reserve <b>½ cup of pasta water</b> before draining."},
-      {"text": "While pasta cooks, blend avocado, garlic, lemon juice, olive oil, basil, salt and pepper until completely smooth."},
-      {"text": "Toss hot drained pasta with the avocado sauce. Add pasta water a splash at a time until you reach a silky consistency."},
-      {"text": "Serve immediately topped with cherry tomatoes and extra black pepper. This doesn't keep — eat it fresh."}
+      {
+        "text": "Cook pasta in well-salted boiling water until al dente. Reserve <b>½ cup of pasta water</b> before draining."
+      },
+      {
+        "text": "While pasta cooks, blend avocado, garlic, lemon juice, olive oil, basil, salt and pepper until completely smooth."
+      },
+      {
+        "text": "Toss hot drained pasta with the avocado sauce. Add pasta water a splash at a time until you reach a silky consistency."
+      },
+      {
+        "text": "Serve immediately topped with cherry tomatoes and extra black pepper. This doesn't keep — eat it fresh."
+      }
     ]
   },
   {
@@ -171,19 +293,48 @@
       "Batch-friendly — store in fridge up to 2 weeks"
     ],
     "ingredients": [
-      {"name": "Medjool dates (pitted)", "amt": "200g"},
-      {"name": "Rolled oats", "amt": "150g"},
-      {"name": "Almond butter", "amt": "3 tbsp"},
-      {"name": "Cacao powder", "amt": "2 tbsp"},
-      {"name": "Chia seeds", "amt": "1 tbsp"},
-      {"name": "Desiccated coconut (to roll)", "amt": "4 tbsp"},
-      {"name": "Pinch of sea salt", "amt": ""}
+      {
+        "name": "Medjool dates (pitted)",
+        "amt": "200g"
+      },
+      {
+        "name": "Rolled oats",
+        "amt": "150g"
+      },
+      {
+        "name": "Almond butter",
+        "amt": "3 tbsp"
+      },
+      {
+        "name": "Cacao powder",
+        "amt": "2 tbsp"
+      },
+      {
+        "name": "Chia seeds",
+        "amt": "1 tbsp"
+      },
+      {
+        "name": "Desiccated coconut (to roll)",
+        "amt": "4 tbsp"
+      },
+      {
+        "name": "Pinch of sea salt",
+        "amt": ""
+      }
     ],
     "steps": [
-      {"text": "Soak dates in warm water for 10 minutes if they feel dry. Drain well."},
-      {"text": "Blend dates in a food processor until they form a paste. Add oats, almond butter, cacao, chia seeds and salt. Pulse until it comes together as a sticky dough — don't over-blend, some texture is good."},
-      {"text": "Refrigerate the mixture for <b>15 minutes</b> — easier to roll when cold."},
-      {"text": "Roll into balls (about 2 tbsp each) and roll in desiccated coconut. Store in an airtight container in the fridge for up to 2 weeks."}
+      {
+        "text": "Soak dates in warm water for 10 minutes if they feel dry. Drain well."
+      },
+      {
+        "text": "Blend dates in a food processor until they form a paste. Add oats, almond butter, cacao, chia seeds and salt. Pulse until it comes together as a sticky dough — don't over-blend, some texture is good."
+      },
+      {
+        "text": "Refrigerate the mixture for <b>15 minutes</b> — easier to roll when cold."
+      },
+      {
+        "text": "Roll into balls (about 2 tbsp each) and roll in desiccated coconut. Store in an airtight container in the fridge for up to 2 weeks."
+      }
     ]
   },
   {
@@ -208,19 +359,48 @@
       "High in antioxidants from mixed berries"
     ],
     "ingredients": [
-      {"name": "Frozen mango", "amt": "150g"},
-      {"name": "Frozen banana", "amt": "1 medium"},
-      {"name": "Plain kefir or yoghurt", "amt": "100ml"},
-      {"name": "Spinach", "amt": "1 handful"},
-      {"name": "Rolled oats (to top)", "amt": "3 tbsp"},
-      {"name": "Mixed berries (to top)", "amt": "handful"},
-      {"name": "Honey drizzle", "amt": "1 tsp"}
+      {
+        "name": "Frozen mango",
+        "amt": "150g"
+      },
+      {
+        "name": "Frozen banana",
+        "amt": "1 medium"
+      },
+      {
+        "name": "Plain kefir or yoghurt",
+        "amt": "100ml"
+      },
+      {
+        "name": "Spinach",
+        "amt": "1 handful"
+      },
+      {
+        "name": "Rolled oats (to top)",
+        "amt": "3 tbsp"
+      },
+      {
+        "name": "Mixed berries (to top)",
+        "amt": "handful"
+      },
+      {
+        "name": "Honey drizzle",
+        "amt": "1 tsp"
+      }
     ],
     "steps": [
-      {"text": "Blend frozen mango, banana, kefir and spinach with <b>minimal liquid</b>. The goal is a thick, spoonable consistency — stop as soon as it blends."},
-      {"text": "Pour into a cold bowl (chilling the bowl first keeps it thick longer)."},
-      {"text": "Top with oats, fresh berries, a drizzle of honey and any other toppings you like — granola, coconut flakes, seeds."},
-      {"text": "Eat immediately before it melts."}
+      {
+        "text": "Blend frozen mango, banana, kefir and spinach with <b>minimal liquid</b>. The goal is a thick, spoonable consistency — stop as soon as it blends."
+      },
+      {
+        "text": "Pour into a cold bowl (chilling the bowl first keeps it thick longer)."
+      },
+      {
+        "text": "Top with oats, fresh berries, a drizzle of honey and any other toppings you like — granola, coconut flakes, seeds."
+      },
+      {
+        "text": "Eat immediately before it melts."
+      }
     ]
   },
   {
@@ -245,18 +425,44 @@
       "Zero prep except seasoning"
     ],
     "ingredients": [
-      {"name": "Salmon fillet", "amt": "200g"},
-      {"name": "Lemon", "amt": "½, sliced"},
-      {"name": "Olive oil", "amt": "1 tbsp"},
-      {"name": "Garlic powder", "amt": "½ tsp"},
-      {"name": "Salt & pepper", "amt": "to taste"},
-      {"name": "Fresh dill (optional)", "amt": "small sprig"}
+      {
+        "name": "Salmon fillet",
+        "amt": "200g"
+      },
+      {
+        "name": "Lemon",
+        "amt": "½, sliced"
+      },
+      {
+        "name": "Olive oil",
+        "amt": "1 tbsp"
+      },
+      {
+        "name": "Garlic powder",
+        "amt": "½ tsp"
+      },
+      {
+        "name": "Salt & pepper",
+        "amt": "to taste"
+      },
+      {
+        "name": "Fresh dill (optional)",
+        "amt": "small sprig"
+      }
     ],
     "steps": [
-      {"text": "Preheat oven to 200°C. Line a baking tray with parchment paper."},
-      {"text": "Pat the salmon dry. Drizzle with olive oil, season with garlic powder, salt and pepper."},
-      {"text": "Lay lemon slices underneath and on top of the fillet. Bake for <b>12–14 minutes</b> depending on thickness. It's done when it flakes easily with a fork."},
-      {"text": "Rest for 2 minutes before serving. Finish with fresh dill if using."}
+      {
+        "text": "Preheat oven to 200°C. Line a baking tray with parchment paper."
+      },
+      {
+        "text": "Pat the salmon dry. Drizzle with olive oil, season with garlic powder, salt and pepper."
+      },
+      {
+        "text": "Lay lemon slices underneath and on top of the fillet. Bake for <b>12–14 minutes</b> depending on thickness. It's done when it flakes easily with a fork."
+      },
+      {
+        "text": "Rest for 2 minutes before serving. Finish with fresh dill if using."
+      }
     ]
   },
   {
@@ -281,18 +487,176 @@
       "Prebiotic fibre supports digestive health"
     ],
     "ingredients": [
-      {"name": "Chia seeds", "amt": "3 tbsp"},
-      {"name": "Greek yoghurt", "amt": "150g"},
-      {"name": "Almond milk", "amt": "100ml"},
-      {"name": "Vanilla extract", "amt": "¼ tsp"},
-      {"name": "Honey", "amt": "1 tsp"},
-      {"name": "Toppings of choice", "amt": ""}
+      {
+        "name": "Chia seeds",
+        "amt": "3 tbsp"
+      },
+      {
+        "name": "Greek yoghurt",
+        "amt": "150g"
+      },
+      {
+        "name": "Almond milk",
+        "amt": "100ml"
+      },
+      {
+        "name": "Vanilla extract",
+        "amt": "¼ tsp"
+      },
+      {
+        "name": "Honey",
+        "amt": "1 tsp"
+      },
+      {
+        "name": "Toppings of choice",
+        "amt": ""
+      }
     ],
     "steps": [
-      {"text": "Whisk together chia seeds, yoghurt, almond milk, vanilla and honey in a jar."},
-      {"text": "Stir again after 5 minutes to break up any clumps that form."},
-      {"text": "Cover and refrigerate for <b>at least 4 hours</b> or overnight."},
-      {"text": "Top with fruit, granola, or a drizzle of nut butter before eating."}
+      {
+        "text": "Whisk together chia seeds, yoghurt, almond milk, vanilla and honey in a jar."
+      },
+      {
+        "text": "Stir again after 5 minutes to break up any clumps that form."
+      },
+      {
+        "text": "Cover and refrigerate for <b>at least 4 hours</b> or overnight."
+      },
+      {
+        "text": "Top with fruit, granola, or a drizzle of nut butter before eating."
+      }
     ]
+  },
+  {
+    "title": "Green Protein Smoothie",
+    "slug": "green-protein-smoothie",
+    "cat": "quick",
+    "kind": "matcha",
+    "time": "5 min",
+    "servings": "2",
+    "difficulty": "Easy",
+    "blurb": "The smoothie I make every single morning. Takes 5 minutes, keeps me full until lunch, and tastes better than anything I've bought.",
+    "status": "live",
+    "heroImage": "/Website/Green Smoothie_.png",
+    "tags": [
+      "Quick · High Protein · Filling"
+    ],
+    "nutrition": {
+      "calories": "",
+      "protein": "",
+      "carbs": "",
+      "fat": ""
+    },
+    "ingredients": [
+      {
+        "name": "Frozen spinach",
+        "amt": "1 large handful"
+      },
+      {
+        "name": "Banana (frozen)",
+        "amt": "1 medium"
+      },
+      {
+        "name": "Protein powder (vanilla)",
+        "amt": "1 scoop"
+      },
+      {
+        "name": "Almond milk",
+        "amt": "250 ml"
+      },
+      {
+        "name": "Almond butter",
+        "amt": "1 tbsp"
+      },
+      {
+        "name": "Chia seeds",
+        "amt": "1 tsp"
+      },
+      {
+        "name": "Ice",
+        "amt": "4–5 cubes"
+      }
+    ],
+    "steps": [
+      {
+        "text": "Add all ingredients to the blender in this order: liquid first, then soft ingredients, frozen items last. This helps the blades catch everything."
+      },
+      {
+        "text": "Blend on high for <b>45–60 seconds</b> until completely smooth. Scrape down the sides if needed and blend again for 10 seconds."
+      },
+      {
+        "text": "Taste and adjust. Too thick? Add a splash of almond milk. Want it sweeter? Half a medjool date works perfectly."
+      },
+      {
+        "text": "Pour immediately and drink within 10 minutes for best texture and nutrition."
+      }
+    ],
+    "id": 9
+  },
+  {
+    "title": "Green Protein Smoothie",
+    "slug": "green-protein-smoothie",
+    "cat": "quick",
+    "kind": "matcha",
+    "time": "5 min",
+    "servings": "2",
+    "difficulty": "Easy",
+    "blurb": "The smoothie I make every single morning. Takes 5 minutes, keeps me full until lunch, and tastes better than anything I've bought.",
+    "status": "live",
+    "heroImage": "",
+    "tags": [
+      "Quick · High Protein · Filling"
+    ],
+    "nutrition": {
+      "calories": "",
+      "protein": "",
+      "carbs": "",
+      "fat": ""
+    },
+    "ingredients": [
+      {
+        "name": "Frozen spinach",
+        "amt": "1 large handful"
+      },
+      {
+        "name": "Banana (frozen)",
+        "amt": "1 medium"
+      },
+      {
+        "name": "Protein powder (vanilla)",
+        "amt": "1 scoop"
+      },
+      {
+        "name": "Almond milk",
+        "amt": "250 ml"
+      },
+      {
+        "name": "Almond butter",
+        "amt": "1 tbsp"
+      },
+      {
+        "name": "Chia seeds",
+        "amt": "1 tsp"
+      },
+      {
+        "name": "Ice",
+        "amt": "4–5 cubes"
+      }
+    ],
+    "steps": [
+      {
+        "text": "Add all ingredients to the blender in this order: liquid first, then soft ingredients, frozen items last. This helps the blades catch everything."
+      },
+      {
+        "text": "Blend on high for <b>45–60 seconds</b> until completely smooth. Scrape down the sides if needed and blend again for 10 seconds."
+      },
+      {
+        "text": "Taste and adjust. Too thick? Add a splash of almond milk. Want it sweeter? Half a medjool date works perfectly."
+      },
+      {
+        "text": "Pour immediately and drink within 10 minutes for best texture and nutrition."
+      }
+    ],
+    "id": 10
   }
 ]
