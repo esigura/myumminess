@@ -77,17 +77,24 @@
     "slug": "chicken-quinoa-bowl",
     "title": "Chicken Quinoa Bowl",
     "cat": "weight",
-    "tags": "High Protein · Balanced · Meal Prep",
+    "tags": [
+      "High Protein · Balanced · Meal Prep"
+    ],
     "time": "15 min",
     "stars": 4.8,
     "reviews": 412,
     "kind": "peach",
     "status": "live",
-    "heroImage": "",
+    "heroImage": "/Website/EnjoyingChicken.png",
     "blurb": "My go-to meal prep staple. Make a big batch Sunday, eat it for three days. Protein-packed, filling, and actually delicious cold.",
     "servings": "2",
     "difficulty": "Easy",
-    "nutrition": {},
+    "nutrition": {
+      "calories": "",
+      "protein": "",
+      "carbs": "",
+      "fat": ""
+    },
     "benefits": [
       "Complete protein from both chicken and quinoa",
       "Complex carbs for sustained energy",
