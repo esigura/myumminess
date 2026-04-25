@@ -555,8 +555,11 @@ function Hero({onOpen, page, featured}){
 function RecipeCard({recipe,active,onOpen,favs,toggleFav}){
   return (
     <article className={"rcard " + (active?"active":"")}>
-      <div className={"ph img " + (recipe.kind||"")} onClick={()=>onOpen(recipe)} style={recipe.heroImage?{backgroundImage:`url(${recipe.heroImage})`,backgroundSize:"cover",backgroundPosition:"center"}:{}}>
-        {!recipe.heroImage && <div className="ph-center">[ {recipe.title} ]</div>}
+      <div className={"img" + (recipe.heroImage ? '' : ' ph ' + (recipe.kind||''))} onClick={()=>onOpen(recipe)} style={{position:"relative"}}>
+        {recipe.heroImage
+          ? <img src={recipe.heroImage} style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover"}}/>
+          : <div className="ph-center">[ {recipe.title} ]</div>
+        }
         <div className="time-badge"><Icon name="clock" size={11}/> {recipe.time}</div>
         <button className={"fav " + (favs[recipe.id]?"on":"")} onClick={e=>{e.stopPropagation();toggleFav(recipe.id);}}>
           <Icon name={favs[recipe.id]?"heartFill":"heart"} size={14}/>
@@ -564,7 +567,7 @@ function RecipeCard({recipe,active,onOpen,favs,toggleFav}){
       </div>
       <div className="body" onClick={()=>onOpen(recipe)}>
         <h3 className="name">{recipe.title}</h3>
-        <div className="tags">{recipe.tags}</div>
+        <div className="tags">{Array.isArray(recipe.tags) ? recipe.tags.join(' · ') : recipe.tags}</div>
       </div>
       <div className="foot" onClick={()=>onOpen(recipe)}>
         <div className="stars">{recipe.stars} · {recipe.reviews}</div>
@@ -595,7 +598,7 @@ function DetailPanel({recipe, open, onClose}){
         <div className="detail-inner">
           <div className="wrap">
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:40}}>
-              <div className="eyebrow"><span className="dot"/>{recipe.tags}</div>
+              <div className="eyebrow"><span className="dot"/>{Array.isArray(recipe.tags)?recipe.tags.join(' · '):recipe.tags}</div>
               <button className="btn btn-light btn-sm" onClick={onClose} style={{gap:6}}>
                 <Icon name="close" size={12}/> Close
               </button>
@@ -614,7 +617,7 @@ function DetailPanel({recipe, open, onClose}){
                 <div className="detail-meta-row">
                   <span className="dmeta"><span className="d"/><Icon name="clock" size={13}/> {recipe.time}</span>
                   <span className="dmeta"><span className="d"/> {recipe.stars} ({recipe.reviews} reviews)</span>
-                  <span className="dmeta"><span className="d"/> {recipe.tags.split(" · ")[0]}</span>
+                  <span className="dmeta"><span className="d"/> {(Array.isArray(recipe.tags)?recipe.tags[0]:(recipe.tags||'').split(' · ')[0])}</span>
                 </div>
 
                 {/* ⭐ AFFILIATE BLOCK — primary revenue section */}
