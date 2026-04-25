@@ -145,8 +145,8 @@
   .hero-scroll .line{width:40px;height:1px;background:var(--ink);opacity:.6}
 
   /* Category chips */
-  .chips{display:flex;gap:8px;flex-wrap:wrap;padding:28px 0;border-bottom:1px solid var(--line)}
-  .chip{border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-size:13px;color:var(--ink);background:#fff;transition:all .2s ease;display:inline-flex;gap:8px;align-items:center}
+  .chips{display:grid;grid-template-columns:repeat(9,1fr);gap:8px;padding:28px 0;border-bottom:1px solid var(--line)}
+  .chip{border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-size:13px;color:var(--ink);background:#fff;transition:all .2s ease;display:flex;gap:8px;align-items:center;justify-content:center;text-align:center}
   .chip:hover{border-color:var(--ink)}
   .chip.active{background:var(--ink);color:#fff;border-color:var(--ink)}
   .chip .n{font-family:var(--mono);font-size:10.5px;color:var(--muted)}
@@ -418,18 +418,9 @@ function Header({cartCount, onCartOpen, active, setActive}){
             <a href="Follow%20Me.html">Follow<span className="u"/></a>
           </nav>
           <div className="nav-right">
-            <div className="search" role="search">
-              <Icon name="search" size={16} stroke={1.8}/>
-              <input placeholder="Search recipes, tips…" aria-label="Search"/>
-              <kbd style={{fontFamily:"var(--mono)",fontSize:10,color:"var(--muted)",background:"#fff",border:"1px solid var(--line)",padding:"2px 6px",borderRadius:6}}>⌘K</kbd>
-            </div>
             <a className="icon-btn" href="#" aria-label="Instagram"><Icon name="ig" size={16}/></a>
             <a className="icon-btn" href="#" aria-label="TikTok"><Icon name="tt" size={16}/></a>
             <a className="icon-btn" href="#" aria-label="Facebook"><Icon name="fb" size={16}/></a>
-            <button className="icon-btn cart-badge" onClick={onCartOpen} aria-label="Cart">
-              <Icon name="cart" size={17}/>
-              {cartCount>0 && <span className="cb">{cartCount}</span>}
-            </button>
           </div>
         </div>
       </div>
