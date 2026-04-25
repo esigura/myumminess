@@ -761,7 +761,7 @@ function ImagePicker({value, onChange, ghMedia, setGhMedia, toast}){
 }
 
 /* ============ Page field editor (all 8 pages) ============ */
-function PageFieldEditor({pageId, data, back, toast, ghPage, onSave, ghMedia, setGhMedia}){
+function PageFieldEditor({pageId, data, back, toast, ghPage, onSave, ghMedia, setGhMedia, ghRecList}){
   const p = data.pages.find(x=>x.id===pageId)||{title:pageId,path:'/',desc:'',updated:'—'};
   const initial = (ghPage&&ghPage.data) ? ghPage.data : {};
   const [local, setLocal] = useState(initial);
@@ -779,7 +779,8 @@ function PageFieldEditor({pageId, data, back, toast, ghPage, onSave, ghMedia, se
     .replace(/([A-Z])/g,' $1').replace(/(\d+)/g,' $1 ').replace(/\s+/g,' ').trim()
     .replace(/^./,s=>s.toUpperCase());
 
-  const fieldType = (key) => {
+  const fieldType = (key, val) => {
+    if(Array.isArray(val)) return 'array';
     const k = key.toLowerCase();
     if(k.endsWith('image')||k.startsWith('image')) return 'image';
     if(k.includes('body')||k.endsWith('sub')||k==='subtitle'||k.includes('blurb')||k==='promisebar'||(k.includes('desc')&&!k.includes('url'))) return 'textarea';
@@ -791,7 +792,7 @@ function PageFieldEditor({pageId, data, back, toast, ghPage, onSave, ghMedia, se
   const getGroup = (key) => { const k=key.toLowerCase(); for(const [p,l] of Object.entries(PFXGRP)) if(k.startsWith(p)) return l; return 'Content'; };
 
   const grouped = {};
-  Object.entries(local).forEach(([k,v])=>{ const g=getGroup(k); if(!grouped[g]) grouped[g]=[]; grouped[g].push([k,v]); });
+  Object.entries(local).forEach(([k,v])=>{ if(typeof v==='object'&&!Array.isArray(v)&&v!==null) return; const g=getGroup(k); if(!grouped[g]) grouped[g]=[]; grouped[g].push([k,v]); });
   const groupOrder = ['Content',...Object.keys(grouped).filter(g=>g!=='Content').sort()];
   const noData = Object.keys(local).length===0;
 
@@ -823,9 +824,41 @@ function PageFieldEditor({pageId, data, back, toast, ghPage, onSave, ghMedia, se
           <div className="card-head"><h3>{group}</h3></div>
           <div className="field-grid">
             {grouped[group].map(([key,value])=>{
-              const type = fieldType(key);
+              const type = fieldType(key, value);
               const full = type==='image'||type==='textarea'||String(value||'').length>60;
               return (
+                {type==='array' && key==='categories' && (
+                  <div className="fld full" key={key}>
+                    <label>Category tabs <span className="hint" style={{fontWeight:400}}>— shown as filter tabs on the Recipes page</span></label>
+                    {(value||[]).map((cat,ci)=>(
+                      <div key={ci} style={{display:'flex',gap:8,alignItems:'center',marginBottom:6}}>
+                        <input value={cat.label||''} onChange={e=>{const a=[...value];a[ci]={...a[ci],label:e.target.value};set(key,a);}} placeholder="Label e.g. Quick Meals" style={{flex:2,background:'var(--input)',border:'1px solid transparent',borderRadius:8,padding:'8px 10px',fontSize:13}}/>
+                        <input value={cat.id||''} onChange={e=>{const a=[...value];a[ci]={...a[ci],id:e.target.value};set(key,a);}} placeholder="ID e.g. quick" style={{flex:1,background:'var(--input)',border:'1px solid transparent',borderRadius:8,padding:'8px 10px',fontSize:13,fontFamily:'var(--mono)'}}/>
+                        <button onClick={()=>set(key,value.filter((_,x)=>x!==ci))} style={{background:'none',border:0,cursor:'pointer',color:'var(--muted)',fontSize:18,lineHeight:1}}>×</button>
+                      </div>
+                    ))}
+                    <button className="btn btn-ghost btn-sm" style={{marginTop:4}} onClick={()=>set(key,[...(value||[]),{id:'',label:''}])}><Icon name="plus" size={12}/> Add category</button>
+                    <span className="hint" style={{display:'block',marginTop:6}}>Label = display name · ID = short key used in recipe files (e.g. "quick", "gut")</span>
+                  </div>
+                )}
+                {type==='array' && key==='featured' && (
+                  <div className="fld full" key={key}>
+                    <label>This week's top picks <span className="hint" style={{fontWeight:400}}>— shown in the hero section</span></label>
+                    {[0,1,2].map(pi=>{
+                      const recipes = ghRecList&&ghRecList.items.length>0?ghRecList.items:[];
+                      return (
+                        <div key={pi} style={{marginBottom:6}}>
+                          <select value={(value||[])[pi]||''} onChange={e=>{const a=[...(value||[])];a[pi]=e.target.value;set(key,a.filter(Boolean));}} style={{width:'100%',background:'var(--input)',border:'1px solid transparent',borderRadius:8,padding:'8px 10px',fontSize:13}}>
+                            <option value="">— Pick {pi===0?'1st':pi===1?'2nd':'3rd'} featured recipe —</option>
+                            {recipes.filter(r=>r.status!=='draft').map(r=><option key={r.slug||r.id} value={r.slug}>{r.title||r.name}</option>)}
+                          </select>
+                        </div>
+                      );
+                    })}
+                    <span className="hint" style={{display:'block',marginTop:4}}>Only published (live) recipes appear here</span>
+                  </div>
+                )}
+                {type!=='array' && (
                 <div className={'fld '+(full?'full':'')} key={key}>
                   <label>{fmtLabel(key)}</label>
                   {type==='image'
@@ -837,6 +870,7 @@ function PageFieldEditor({pageId, data, back, toast, ghPage, onSave, ghMedia, se
                     : <input value={String(value||'')} onChange={e=>set(key,e.target.value)}/>
                   }
                 </div>
+                )}
               );
             })}
           </div>
@@ -847,62 +881,110 @@ function PageFieldEditor({pageId, data, back, toast, ghPage, onSave, ghMedia, se
 }
 
 /* ============ Recipes list + editor ============ */
-function RecipesView({data, setData, toast, ghItems, onSave, onDelete, ghMedia, setGhMedia}){
-  const [editing, setEditing] = useState(null); // full recipe object
-  const [filter, setFilter] = useState("all");
-  const items = (ghItems && ghItems.length > 0) ? ghItems : data.recipes;
-  if(editing != null){
-    return <RecipeEditor recipe={editing} back={()=>setEditing(null)} toast={toast} onSave={onSave} onDelete={onDelete} ghMedia={ghMedia} setGhMedia={setGhMedia}/>;
+function RecipesView({data, toast, ghRecList, setGhRecList, ghCats, ghMedia, setGhMedia}){
+  const [editing, setEditing]   = useState(null);
+  const [statusF, setStatusF]   = useState("all");
+  const [catF, setCatF]         = useState("all");
+  const [search, setSearch]     = useState("");
+
+  const items = (ghRecList && ghRecList.items.length > 0) ? ghRecList.items : data.recipes;
+
+  const saveRecipeList = async (newItems) => {
+    toast('Saving to GitHub…');
+    try {
+      const result = await ghWrite('content/recipes-list.json', newItems, ghRecList.sha, 'Update recipes list via CMS');
+      setGhRecList({sha: result.content.sha, items: newItems});
+      toast('Saved ✓ — deploying now');
+    } catch(e) { toast('Save failed: ' + e.message); }
+  };
+
+  const handleSave = async (recipe, newData) => {
+    const isNew = recipe._listIdx === undefined;
+    let newItems;
+    if (isNew) {
+      const nextId = items.length > 0 ? Math.max(...items.map(r=>r.id||0)) + 1 : 1;
+      newItems = [...items, {...newData, id: nextId}];
+    } else {
+      newItems = items.map((r, i) => i === recipe._listIdx ? {...r, ...newData} : r);
+    }
+    await saveRecipeList(newItems);
+    if (isNew) setEditing(null);
+  };
+
+  const handleDelete = async (recipe) => {
+    if (recipe._listIdx === undefined) return;
+    const newItems = items.filter((_, i) => i !== recipe._listIdx);
+    await saveRecipeList(newItems);
+    setEditing(null);
+  };
+
+  if (editing != null) {
+    return <RecipeEditor recipe={editing} back={()=>setEditing(null)} toast={toast}
+      onSave={handleSave} onDelete={handleDelete} ghMedia={ghMedia} setGhMedia={setGhMedia} ghCats={ghCats}/>;
   }
-  const filtered = filter==="all" ? items : items.filter(r => r.status===filter);
+
+  const filtered = items.filter(r => {
+    if (statusF !== "all" && r.status !== statusF) return false;
+    if (catF !== "all" && r.cat !== catF) return false;
+    if (search && !((r.title||r.name||"").toLowerCase().includes(search.toLowerCase()))) return false;
+    return true;
+  });
+
+  const catLabel = (id) => { const c = (ghCats||[]).find(x=>x.id===id); return c ? c.label : id; };
+
   return (
     <>
       <div className="ph-head">
-        <div><div className="ek">Recipes · {items.length} total{ghItems && ghItems.length > 0 ? ' · from GitHub' : ' · preview data'}</div><h1>Recipes</h1><p>Your library of tested recipes. Drafts don't appear on the site.</p></div>
+        <div>
+          <div className="ek">Recipes &middot; {items.length} total{ghRecList&&ghRecList.items.length>0?' · from GitHub':' · preview data'}</div>
+          <h1>Recipes</h1>
+          <p>Your recipe library. Drafts don't appear on the live site.</p>
+        </div>
         <div className="actions">
-          <button className="btn btn-ghost"><Icon name="upload" size={14}/> Import from CSV</button>
-          <button className="btn btn-accent" onClick={()=>setEditing({title:'',slug:'',category:'Drinks',time:'',servings:'2',blurb:'',status:'draft',ingredients:[],steps:[]})}><Icon name="plus" size={14}/> New recipe</button>
+          <button className="btn btn-accent" onClick={()=>setEditing({title:'',slug:'',cat:'quick',time:'',servings:'2',difficulty:'Easy',blurb:'',status:'draft',tags:'',ingredients:[],steps:[],heroImage:'',nutrition:{}})}><Icon name="plus" size={14}/> New recipe</button>
         </div>
       </div>
       <div className="fbar">
-        <div className="search"><Icon name="search" size={14}/><input placeholder="Search recipes…"/></div>
+        <div className="search"><Icon name="search" size={14}/><input placeholder="Search recipes…" value={search} onChange={e=>setSearch(e.target.value)}/></div>
         <div className="seg">
           {[["all","All"],["live","Live"],["draft","Draft"],["sched","Scheduled"]].map(([k,l])=>(
-            <button key={k} className={filter===k?"on":""} onClick={()=>setFilter(k)}>{l}</button>
+            <button key={k} className={statusF===k?"on":""} onClick={()=>setStatusF(k)}>{l}</button>
           ))}
         </div>
         <div className="right">
-          <select style={{background:"#fff",border:"1px solid var(--line)",borderRadius:10,height:38,padding:"0 12px",fontSize:13}}><option>All categories</option><option>Drinks</option><option>Breakfast</option><option>Lunch</option><option>Dinner</option></select>
-          <button className="btn btn-ghost btn-sm"><Icon name="filter" size={12}/> More filters</button>
+          <select value={catF} onChange={e=>setCatF(e.target.value)} style={{background:"#fff",border:"1px solid var(--line)",borderRadius:10,height:38,padding:"0 12px",fontSize:13}}>
+            <option value="all">All categories</option>
+            {(ghCats||[]).map(c=><option key={c.id} value={c.id}>{c.label}</option>)}
+          </select>
         </div>
       </div>
       <table className="tbl">
-        <thead><tr><th style={{width:"38%"}}>Recipe</th><th>Category</th><th>Time</th><th>Rating</th><th>Views · 30d</th><th>Updated</th><th>Status</th><th></th></tr></thead>
+        <thead><tr><th style={{width:"40%"}}>Recipe</th><th>Category</th><th>Time</th><th>Rating</th><th>Status</th><th></th></tr></thead>
         <tbody>
-          {filtered.map((r,i) => (
-            <tr key={r._path || r.id || i} onClick={()=>setEditing(r)} style={{cursor:"pointer"}}>
-              <td><div className="row-thumb">{(r.heroImage||r.image) ? <img src={r.heroImage||r.image} style={{width:44,height:44,borderRadius:8,objectFit:"cover",flexShrink:0}}/> : <div className={"ph " + (r.kind||"")}><span className="lbl">{r.cat || r.category}</span></div>}<div><div className="title">{r.title}</div><div className="sub">{r._name ? r._name.replace('.json','') : 'rec_' + String(r.id).padStart(4,"0")}</div></div></div></td>
-              <td><span className="chip" style={{background:"var(--surface-2)",color:"#6b6658"}}>{r.cat || r.category || '—'}</span></td>
-              <td className="num">{r.time || '—'}</td>
-              <td className="num">{r.stars>0 ? (<span style={{display:"inline-flex",alignItems:"center",gap:4}}><Icon name="star" size={11} stroke={2}/> {r.stars}</span>) : "—"}</td>
-              <td className="num">{r.views || '—'}</td>
-              <td className="num">{r.updated || '—'}</td>
-              <td><span className={"chip " + (r.status||'draft')}>{r.status==="live"?"Live":r.status==="draft"?"Draft":"Scheduled"}</span></td>
-              <td className="act"><button className="icon-btn" onClick={e=>{e.stopPropagation();setEditing(r)}}><Icon name="edit" size={14}/></button></td>
-            </tr>
-          ))}
+          {filtered.map((r,i) => {
+            const idx = items.indexOf(r);
+            return (
+              <tr key={r.slug||r.id||i} onClick={()=>setEditing({...r, _listIdx:idx})} style={{cursor:"pointer"}}>
+                <td><div className="row-thumb">{(r.heroImage||r.image)?<img src={r.heroImage||r.image} style={{width:44,height:44,borderRadius:8,objectFit:"cover",flexShrink:0}}/>:<div className={"ph "+(r.kind||"")}><span className="lbl">{r.cat}</span></div>}<div><div className="title">{r.title||r.name}</div><div className="sub">{r.slug||'--'}</div></div></div></td>
+                <td><span className="chip" style={{background:"var(--surface-2)",color:"#6b6658"}}>{catLabel(r.cat)||r.cat||'--'}</span></td>
+                <td className="num">{r.time||'--'}</td>
+                <td className="num">{r.stars>0?<span style={{display:"inline-flex",alignItems:"center",gap:4}}><Icon name="star" size={11}/> {r.stars}</span>:'--'}</td>
+                <td><span className={"chip "+(r.status||'draft')}>{r.status==="live"?"Live":r.status==="sched"?"Scheduled":"Draft"}</span></td>
+                <td className="act"><button className="icon-btn" onClick={e=>{e.stopPropagation();setEditing({...r,_listIdx:idx});}}><Icon name="edit" size={14}/></button></td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </>
   );
 }
-
-function RecipeEditor({recipe, back, toast, onSave, onDelete, ghMedia, setGhMedia}){
+function RecipeEditor({recipe, back, toast, onSave, onDelete, ghMedia, setGhMedia, ghCats}){
   const isNew = !recipe._path;
   const [local, setLocal] = useState({
     title:      recipe.title || '',
     slug:       recipe.slug  || (recipe.title||'').toLowerCase().replace(/[^a-z0-9]+/g,'-'),
-    category:   recipe.cat  || recipe.category  || 'Drinks',
+    cat:        recipe.cat  || recipe.category  || 'quick',
     time:       recipe.time      || '',
     servings:   recipe.servings  || '2',
     difficulty: recipe.difficulty|| 'Easy',
@@ -933,7 +1015,7 @@ function RecipeEditor({recipe, back, toast, onSave, onDelete, ghMedia, setGhMedi
       ? { _path: 'content/recipes/'+slug+'.json', _name: slug+'.json' }
       : recipe;
     const fullData = {
-      title: local.title, slug, category: local.category,
+      title: local.title, slug, cat: local.cat, kind: recipe.kind||'',
       time: local.time, servings: local.servings, difficulty: local.difficulty,
       blurb: local.blurb, status: local.status, heroImage,
       tags: tagArr,
@@ -987,8 +1069,8 @@ function RecipeEditor({recipe, back, toast, onSave, onDelete, ghMedia, setGhMedi
               <div className="fld full"><label>Slug</label><input value={local.slug} onChange={e=>setLocal({...local,slug:e.target.value})}/><span className="hint">/recipes/{local.slug}</span></div>
               <div className="fld full"><label>Short description</label><textarea value={local.blurb} onChange={e=>setLocal({...local,blurb:e.target.value})}/></div>
               <div className="fld"><label>Category</label>
-                <select value={local.category} onChange={e=>setLocal({...local,category:e.target.value})}>
-                  {['Drinks','Breakfast','Lunch','Dinner','Snacks','Guides'].map(c=><option key={c}>{c}</option>)}
+                <select value={local.cat} onChange={e=>setLocal({...local,cat:e.target.value})}>
+                  {(ghCats&&ghCats.length>0?ghCats:[{id:'quick',label:'Quick Meals'},{id:'weight',label:'Weight Management'},{id:'gut',label:'Gut Health'},{id:'breakfast',label:'Breakfast'},{id:'snacks',label:'Snacks'}]).map(c=><option key={c.id} value={c.id}>{c.label}</option>)}
                 </select>
               </div>
               <div className="fld"><label>Total time</label><input value={local.time} onChange={e=>setLocal({...local,time:e.target.value})} placeholder="e.g. 15 min"/></div>
@@ -1637,7 +1719,7 @@ function App(){
   const [sub, setSub]             = useState(null);
   const [data, setData]           = useState(SEED);
   const [ghPages, setGhPages]     = useState({});
-  const [ghRec, setGhRec]         = useState([]);
+  const [ghRecList, setGhRecList]  = useState({sha:undefined, items:[]});
   const [ghProds, setGhProds]     = useState([]);
   const [ghPosts, setGhPosts]     = useState([]);
   const [ghReels, setGhReels]     = useState([]);
@@ -1652,9 +1734,9 @@ function App(){
   const doLoadGitHub = async () => {
     setLoading(true);
     try {
-      const [pages, recs, prods, posts, reels, testim, media, commits] = await Promise.all([
+      const [pages, recListFile, prods, posts, reels, testim, media, commits] = await Promise.all([
         loadPagesFromGitHub(),
-        loadCollectionFromGitHub('content/recipes'),
+        ghRead('content/recipes-list.json').catch(()=>null),
         loadCollectionFromGitHub('content/products'),
         loadCollectionFromGitHub('content/posts'),
         loadCollectionFromGitHub('content/reels'),
@@ -1662,7 +1744,9 @@ function App(){
         loadMediaFromGitHub('Website'),
         loadCommitsFromGitHub(12),
       ]);
-      setGhPages(pages); setGhRec(recs); setGhProds(prods); setGhPosts(posts);
+      setGhPages(pages);
+      setGhRecList(recListFile ? {sha:recListFile.sha, items:Array.isArray(recListFile.data)?recListFile.data:[]} : {sha:undefined,items:[]});
+      setGhProds(prods); setGhPosts(posts);
       setGhReels(reels); setGhTestim(testim); setGhMedia(media); setGhCommits(commits);
     } catch(e) { console.error('GitHub load error:', e); showToast('Could not load content from GitHub'); }
     // load GitHub user info
@@ -1709,7 +1793,7 @@ function App(){
       const result = await ghWrite(item._path, newData, item._sha, (isNew ? 'Create ' : 'Update ') + item._name + ' via CMS');
       const newSha = result.content.sha;
       const saved = { ...newData, _sha: newSha, _path: item._path, _name: item._name };
-      if (item._path.startsWith('content/recipes'))     setGhRec(prev => isNew ? [...prev, saved] : prev.map(r => r._path===item._path ? saved : r));
+      // recipes handled via saveRecipeList — not individual files
       else if (item._path.startsWith('content/products')) setGhProds(prev => isNew ? [...prev, saved] : prev.map(p => p._path===item._path ? saved : p));
       else if (item._path.startsWith('content/posts'))    setGhPosts(prev => isNew ? [...prev, saved] : prev.map(p => p._path===item._path ? saved : p));
       else if (item._path.startsWith('content/reels'))    setGhReels(prev => isNew ? [...prev, saved] : prev.map(r => r._path===item._path ? saved : r));
@@ -1723,7 +1807,7 @@ function App(){
     showToast('Deleting…');
     try {
       await ghDelete(item._path, item._sha, 'Delete ' + item._name + ' via CMS');
-      if (item._path.startsWith('content/recipes'))     setGhRec(prev => prev.filter(r => r._path!==item._path));
+      // recipes handled via saveRecipeList — not individual files
       else if (item._path.startsWith('content/products')) setGhProds(prev => prev.filter(p => p._path!==item._path));
       else if (item._path.startsWith('content/posts'))    setGhPosts(prev => prev.filter(p => p._path!==item._path));
       else if (item._path.startsWith('content/reels'))    setGhReels(prev => prev.filter(r => r._path!==item._path));
@@ -1739,14 +1823,14 @@ function App(){
 
   return (
     <div className="app">
-      <Sidebar route={route} setRoute={r=>{setRoute(r);setSub(null)}} onLogout={handleLogout} ghUser={ghUser} counts={{recipes:ghRec.length,products:ghProds.length,posts:ghPosts.length,reels:ghReels.length,testimonials:ghTestim.length,media:ghMedia.length}}/>
+      <Sidebar route={route} setRoute={r=>{setRoute(r);setSub(null)}} onLogout={handleLogout} ghUser={ghUser} counts={{recipes:ghRecList.items.length,products:ghProds.length,posts:ghPosts.length,reels:ghReels.length,testimonials:ghTestim.length,media:ghMedia.length}}/>
       <div className="main">
         <Topbar crumb={crumb} loading={loading}/>
         <div className="pageview">
-          {route==="dashboard"    && <Dashboard setRoute={setRoute} data={data} ghRec={ghRec} ghProds={ghProds} ghPosts={ghPosts} ghCommits={ghCommits} toast={showToast}/>}
+          {route==="dashboard"    && <Dashboard setRoute={setRoute} data={data} ghRec={ghRecList.items} ghProds={ghProds} ghPosts={ghPosts} ghCommits={ghCommits} toast={showToast}/>}
           {route==="pages"  && !sub  && <PagesList data={data} setData={setData} openPage={id=>setSub(id)} toast={showToast}/>}
-          {route==="pages"  && sub && (()=>{ const fk={'recipes-index':'recipes','shop-index':'shop','blog-index':'blog'}[sub]||sub; return <PageFieldEditor pageId={sub} data={data} back={()=>setSub(null)} toast={showToast} ghPage={ghPages[fk]} onSave={local=>savePage(fk,fk,local)} ghMedia={ghMedia} setGhMedia={setGhMedia}/>; })()}
-          {route==="recipes"      && <RecipesView data={data} setData={setData} toast={showToast} ghItems={ghRec} onSave={saveEntry} onDelete={deleteEntry} ghMedia={ghMedia} setGhMedia={setGhMedia}/>}
+          {route==="pages"  && sub && (()=>{ const fk={'recipes-index':'recipes','shop-index':'shop','blog-index':'blog'}[sub]||sub; return <PageFieldEditor pageId={sub} data={data} back={()=>setSub(null)} toast={showToast} ghPage={ghPages[fk]} onSave={local=>savePage(fk,fk,local)} ghMedia={ghMedia} setGhMedia={setGhMedia} ghRecList={ghRecList}/>; })()}
+          {route==="recipes"      && <RecipesView data={data} toast={showToast} ghRecList={ghRecList} setGhRecList={setGhRecList} ghCats={(ghPages.recipes&&ghPages.recipes.data&&ghPages.recipes.data.categories)||[]} ghMedia={ghMedia} setGhMedia={setGhMedia}/>}
           {route==="products"     && <ProductsView data={data} toast={showToast} ghItems={ghProds} onSave={saveEntry} onDelete={deleteEntry}/>}
           {route==="posts"        && <BlogView toast={showToast} ghItems={ghPosts} onSave={saveEntry} onDelete={deleteEntry}/>}
           {route==="reels"        && <ReelsView data={data} toast={showToast} ghItems={ghReels} onSave={saveEntry} onDelete={deleteEntry}/>}
