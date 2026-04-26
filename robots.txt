@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# Block CMS and internal tooling from being indexed
+Disallow: /admin/
+
+Sitemap: https://www.myumminess.com/sitemap.xml
