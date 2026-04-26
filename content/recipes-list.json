@@ -77,17 +77,24 @@
     "slug": "chicken-quinoa-bowl",
     "title": "Chicken Quinoa Bowl",
     "cat": "weight",
-    "tags": "High Protein · Balanced · Meal Prep",
+    "tags": [
+      "High Protein · Balanced · Meal Prep"
+    ],
     "time": "15 min",
     "stars": 4.8,
     "reviews": 412,
     "kind": "peach",
     "status": "live",
-    "heroImage": "",
+    "heroImage": "/Website/EnjoyingChicken.png",
     "blurb": "My go-to meal prep staple. Make a big batch Sunday, eat it for three days. Protein-packed, filling, and actually delicious cold.",
     "servings": "2",
     "difficulty": "Easy",
-    "nutrition": {},
+    "nutrition": {
+      "calories": "",
+      "protein": "",
+      "carbs": "",
+      "fat": ""
+    },
     "benefits": [
       "Complete protein from both chicken and quinoa",
       "Complex carbs for sustained energy",
@@ -147,17 +154,24 @@
     "slug": "berry-overnight-oats",
     "title": "Berry Overnight Oats",
     "cat": "breakfast",
-    "tags": "No Cook · Meal Prep · Gut Health",
+    "tags": [
+      "No Cook · Meal Prep · Gut Health"
+    ],
     "time": "8 min",
     "stars": 4.9,
     "reviews": 518,
     "kind": "",
     "status": "live",
-    "heroImage": "",
+    "heroImage": "/Website/EnjoyingBreakfastsetupIII.png",
     "blurb": "Sunday night, 8 minutes. Monday morning, breakfast is done. This is one of the highest-traffic recipes on my TikTok for good reason.",
     "servings": "1",
     "difficulty": "Easy",
-    "nutrition": {},
+    "nutrition": {
+      "calories": "",
+      "protein": "",
+      "carbs": "",
+      "fat": ""
+    },
     "benefits": [
       "Beta-glucan fibre from oats feeds beneficial gut bacteria",
       "Berries add antioxidants with no added sugar",
@@ -213,17 +227,24 @@
     "slug": "creamy-avocado-pasta",
     "title": "Creamy Avocado Pasta",
     "cat": "quick",
-    "tags": "Easy · Dairy-Free · Delicious",
+    "tags": [
+      "Easy · Dairy-Free · Delicious"
+    ],
     "time": "20 min",
     "stars": 4.7,
     "reviews": 289,
     "kind": "matcha",
     "status": "live",
-    "heroImage": "",
+    "heroImage": "/Website/Myumminess_kitchen.png",
     "blurb": "Creamy without cream. Ready in 20 minutes. The sauce is just blended avocado — which sounds weird until you try it.",
     "servings": "2",
     "difficulty": "Easy",
-    "nutrition": {},
+    "nutrition": {
+      "calories": "",
+      "protein": "",
+      "carbs": "",
+      "fat": ""
+    },
     "benefits": [
       "Healthy monounsaturated fats from avocado",
       "Dairy-free naturally — no substitutions needed",
