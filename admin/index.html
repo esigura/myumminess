@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<script>(function(){var t=localStorage.getItem("myumminess-theme")||(window.matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light");document.documentElement.setAttribute("data-theme",t);})();</script>
+
 <meta name="viewport" content="width=1440">
 <title>Myumminess · CMS</title>
 <meta name="robots" content="noindex, nofollow">
@@ -234,6 +236,24 @@
   .modal .foot{display:flex;gap:8px;justify-content:flex-end;margin-top:18px}
 
   hr{border:0;border-top:1px solid var(--line);margin:16px 0}
+
+  /* ── Dark mode ── */
+  [data-theme="dark"]{
+    --ink:#EDEAE4;--ink-2:#C8C5BF;--muted:#8A8680;--muted-2:#6A6660;
+    --line:#2C2C2A;--line-2:#333330;--paper:#141412;
+    --surface:#1C1C1A;--surface-2:#252522;--input:#252522;
+    --matcha-soft:#1C2E1E;
+  }
+  [data-theme="dark"] .topbar{background:rgba(20,20,18,.96);border-color:var(--line)}
+  [data-theme="dark"] .sidebar{background:var(--surface);border-color:var(--line)}
+  [data-theme="dark"] .card{background:var(--surface);border-color:var(--line)}
+  [data-theme="dark"] .card-head{background:var(--surface-2);border-color:var(--line)}
+  [data-theme="dark"] input,[data-theme="dark"] textarea,[data-theme="dark"] select{background:var(--surface-2);border-color:var(--line);color:var(--ink)}
+  [data-theme="dark"] .recipe-row{background:var(--surface);border-color:var(--line)}
+  [data-theme="dark"] .recipe-row:hover{background:var(--surface-2)}
+  [data-theme="dark"] .tag-chip{background:var(--surface-2);border-color:var(--line)}
+  [data-theme="dark"] .modal-box{background:var(--surface)}
+  [data-theme="dark"] .icon-btn:hover{background:var(--surface-2)}
 </style>
 </head>
 <body>
@@ -551,6 +571,25 @@ function Sidebar({route, setRoute, onLogout, ghUser, counts}){
   );
 }
 
+/* ── Theme Toggle ── */
+function ThemeToggle(){
+  const [dark,setDark]=React.useState(document.documentElement.getAttribute('data-theme')==='dark');
+  const toggle=()=>{
+    const n=dark?'light':'dark';
+    document.documentElement.setAttribute('data-theme',n);
+    localStorage.setItem('myumminess-theme',n);
+    setDark(!dark);
+  };
+  return(
+    <button className="icon-btn" onClick={toggle} aria-label="Toggle dark mode" title="Toggle dark/light mode" style={{flexShrink:0}}>
+      {dark
+        ?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        :<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      }
+    </button>
+  );
+}
+
 /* ============ Topbar ============ */
 function Topbar({crumb, onNew, loading}){
   return (
@@ -566,6 +605,7 @@ function Topbar({crumb, onNew, loading}){
         <kbd>⌘K</kbd>
       </div>
       <button className="icon-btn pill" title="Notifications"><Icon name="bell" size={16}/></button>
+      <ThemeToggle/>
       {onNew && <button className="btn btn-accent btn-sm" onClick={onNew}><Icon name="plus" size={14}/> New</button>}
     </div>
   );

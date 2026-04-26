@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<script>(function(){var t=localStorage.getItem("myumminess-theme")||(window.matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light");document.documentElement.setAttribute("data-theme",t);})();</script>
+
 <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
 <link rel="apple-touch-icon" href="/assets/favicon.svg">
 <meta name="viewport" content="width=1440">
@@ -205,6 +207,25 @@
   @keyframes fadeIn{from{opacity:0}to{opacity:1}}
   .anim-fade{animation:fadeIn .2s ease both}
   .anim-up{animation:fadeUp .35s cubic-bezier(.2,.8,.2,1) both}
+
+  /* ── Dark mode ── */
+  [data-theme="dark"]{
+    --ink:#EDEAE4;--muted:#8A8680;--line:#2C2C2A;
+    --paper:#141412;--surface:#1C1C1A;--surface-2:#252522;--input:#252522;
+  }
+  [data-theme="dark"] .site-header{background:rgba(20,20,18,.94)}
+  [data-theme="dark"] .search,[data-theme="dark"] .search-bar{background:var(--input)}
+  [data-theme="dark"] .search:focus-within,[data-theme="dark"] .search-bar:focus-within{background:#2e2e2c}
+  [data-theme="dark"] .btn-light{background:var(--surface-2);border-color:var(--line);color:var(--ink)}
+  [data-theme="dark"] .btn-ghost{border-color:var(--line)}
+  [data-theme="dark"] .rcard,[data-theme="dark"] .recipe,[data-theme="dark"] .feat-card,
+  [data-theme="dark"] .post-card,[data-theme="dark"] .recipe-card,[data-theme="dark"] .product{background:var(--surface)}
+  [data-theme="dark"] .ing,[data-theme="dark"] .af-item,[data-theme="dark"] .dmeta,
+  [data-theme="dark"] .nutr,[data-theme="dark"] .benefits-card{background:var(--surface-2);border-color:var(--line)}
+  [data-theme="dark"] .cat-nav{background:rgba(20,20,18,.95)}
+  [data-theme="dark"] footer{background:var(--surface)}
+  [data-theme="dark"] .news-form{background:var(--surface-2)}
+  [data-theme="dark"] .news-form input{color:var(--ink)}
 </style>
 </head>
 <body>
@@ -236,6 +257,25 @@ const Icon = ({name, size=18, stroke=1.8, fill="none"}) => {
 };
 
 /* ─────────── Header ─────────── */
+
+function ThemeToggle(){
+  const [dark,setDark]=React.useState(document.documentElement.getAttribute('data-theme')==='dark');
+  const toggle=()=>{
+    const n=dark?'light':'dark';
+    document.documentElement.setAttribute('data-theme',n);
+    localStorage.setItem('myumminess-theme',n);
+    setDark(!dark);
+  };
+  return(
+    <button className="icon-btn" onClick={toggle} aria-label="Toggle dark mode" title="Toggle dark/light mode" style={{flexShrink:0}}>
+      {dark
+        ?<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+        :<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      }
+    </button>
+  );
+}
+
 function Header(){
   return (
     <header className="site-header">
@@ -261,6 +301,8 @@ function Header(){
             <a className="icon-btn" href="#" aria-label="Instagram"><Icon name="ig" size={15}/></a>
             <a className="icon-btn" href="#" aria-label="TikTok"><Icon name="tt" size={15}/></a>
             <a className="icon-btn" href="#" aria-label="Facebook"><Icon name="fb" size={15}/></a>
+          
+            <ThemeToggle/>
           </div>
         </div>
       </div>

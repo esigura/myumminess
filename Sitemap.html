@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<script>(function(){var t=localStorage.getItem("myumminess-theme")||(window.matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light");document.documentElement.setAttribute("data-theme",t);})();</script>
+
 <link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
 <link rel="apple-touch-icon" href="/assets/favicon.svg">
 <meta name="viewport" content="width=1440">
@@ -129,6 +131,25 @@
   /* Footer */
   footer{background:var(--surface);border-top:1px solid var(--line);padding:32px 0}
   .foot-inner{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--muted)}
+
+  /* ── Dark mode ── */
+  [data-theme="dark"]{
+    --ink:#EDEAE4;--muted:#8A8680;--line:#2C2C2A;
+    --paper:#141412;--surface:#1C1C1A;--surface-2:#252522;--input:#252522;
+  }
+  [data-theme="dark"] .site-header{background:rgba(20,20,18,.94)}
+  [data-theme="dark"] .search,[data-theme="dark"] .search-bar{background:var(--input)}
+  [data-theme="dark"] .search:focus-within,[data-theme="dark"] .search-bar:focus-within{background:#2e2e2c}
+  [data-theme="dark"] .btn-light{background:var(--surface-2);border-color:var(--line);color:var(--ink)}
+  [data-theme="dark"] .btn-ghost{border-color:var(--line)}
+  [data-theme="dark"] .rcard,[data-theme="dark"] .recipe,[data-theme="dark"] .feat-card,
+  [data-theme="dark"] .post-card,[data-theme="dark"] .recipe-card,[data-theme="dark"] .product{background:var(--surface)}
+  [data-theme="dark"] .ing,[data-theme="dark"] .af-item,[data-theme="dark"] .dmeta,
+  [data-theme="dark"] .nutr,[data-theme="dark"] .benefits-card{background:var(--surface-2);border-color:var(--line)}
+  [data-theme="dark"] .cat-nav{background:rgba(20,20,18,.95)}
+  [data-theme="dark"] footer{background:var(--surface)}
+  [data-theme="dark"] .news-form{background:var(--surface-2)}
+  [data-theme="dark"] .news-form input{color:var(--ink)}
 </style>
 </head>
 <body>
@@ -149,6 +170,7 @@
       <a href="Follow%20Me.html">Follow<span class="u"></span></a>
     </nav>
     <div class="nav-right">
+      <button class="icon-btn" id="theme-btn" onclick="(function(b){var n=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',n);localStorage.setItem('myumminess-theme',n);b.innerHTML=n==='dark'?'&#9728;':'&#9790;';})(this)" aria-label="Toggle dark mode" style="font-size:16px;cursor:pointer">&#9790;</button>
       <a class="icon-btn" href="https://instagram.com" target="_blank" rel="noopener" aria-label="Instagram">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="5"/><circle cx="17.5" cy="6.5" r=".5" fill="currentColor" stroke="none"/></svg>
       </a>
