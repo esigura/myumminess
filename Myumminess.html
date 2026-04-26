@@ -600,7 +600,7 @@ function Recipes({favs, toggleFav}){
         <div className="recipe-grid" style={{marginTop:24}}>
           {items.map((r,i) => {
             const slug = r.slug || null;
-            const href = slug ? "Recipes.html?slug=" + slug : "Recipes.html";
+            const href = slug ? "recipe.html?slug=" + slug : "Recipes.html";
             const key  = slug || i;
             return (
               <a className="recipe" key={key} href={href} style={{textDecoration:"none",display:"block"}}>
