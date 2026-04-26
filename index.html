@@ -429,15 +429,9 @@ const products = [
 ];
 
 const chipsData = [
-  {name:"All", n:128},
-  {name:"Breakfast", n:24},
-  {name:"Lunch & Dinner", n:38},
-  {name:"Smoothies", n:16},
-  {name:"Snacks", n:21},
-  {name:"Meal Prep", n:14},
-  {name:"Desserts", n:9},
-  {name:"Dairy-Free", n:32},
-  {name:"High-Protein", n:19},
+  {name:"All"}, {name:"Breakfast"}, {name:"Lunch & Dinner"},
+  {name:"Smoothies"}, {name:"Snacks"}, {name:"Meal Prep"},
+  {name:"Desserts"}, {name:"Dairy-Free"}, {name:"High-Protein"},
 ];
 
 /* ---------------- Tweaks ---------------- */
@@ -574,16 +568,30 @@ const CHIP_CAT_MAP = {
 };
 
 /* ---------------- Chips ---------------- */
-function Chips(){
+function Chips({allRecipes}){
+  const counts = React.useMemo(()=>{
+    const c = {};
+    (allRecipes||[]).forEach(r=>{ c[r.cat] = (c[r.cat]||0) + 1; });
+    return c;
+  }, [allRecipes]);
+
+  const getCount = (name) => {
+    if(name === "All") return (allRecipes||[]).length;
+    const cat = CHIP_CAT_MAP[name];
+    return cat ? (counts[cat]||0) : 0;
+  };
+
   return (
     <div className="wrap">
       <div className="chips">
         {chipsData.map(c => {
+          const n = getCount(c.name);
+          if(c.name !== "All" && n === 0) return null;
           const cat = CHIP_CAT_MAP[c.name];
           const href = cat ? "Recipes.html?cat=" + cat : "Recipes.html";
           return (
             <a key={c.name} className="chip" href={href}>
-              {c.name} <span className="n">{c.n}</span>
+              {c.name} <span className="n">{n}</span>
             </a>
           );
         })}
@@ -631,11 +639,18 @@ function Reels(){
 
 /* ---------------- Recipes ---------------- */
 function Recipes({favs, toggleFav}){
-  const [items, setItems] = useState(recipes);
+  const [items, setItems] = useState(recipes.slice(0,5));
+  const [allRecipes, setAllRecipes] = useState([]);
   useEffect(()=>{
     fetch('/content/recipes-list.json')
       .then(r=>r.ok?r.json():null)
-      .then(d=>{ if(Array.isArray(d)&&d.length>0) setItems(d.filter(r=>r.status!=='draft').slice(0,5)); })
+      .then(d=>{
+        if(Array.isArray(d)&&d.length>0){
+          const live = d.filter(r=>r.status!=='draft');
+          setAllRecipes(live);
+          setItems(live.slice(0,5));
+        }
+      })
       .catch(()=>{});
   },[]);
   const fmtStars = (r) => r.stars>0 ? `★ ${r.stars} · ${r.reviews||''}`.replace(/ ·\s*$/,'') : (r.stars||'');
@@ -653,7 +668,7 @@ function Recipes({favs, toggleFav}){
             <a className="link-more" href="Recipes.html">View all recipes <Icon name="arrow" size={14}/></a>
           </div>
         </div>
-        <Chips/>
+        <Chips allRecipes={allRecipes}/>
         <div className="recipe-grid" style={{marginTop:24}}>
           {items.map((r,i) => {
             const slug = r.slug || null;
