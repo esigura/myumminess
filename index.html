@@ -397,7 +397,7 @@ function applyAccent(a){
 
 /* ---------------- Logo ---------------- */
 const Logo = ({dark=false}) => (
-  <a href="Myumminess.html" className="logo" aria-label="Myumminess" style={{display:"inline-flex",alignItems:"center",lineHeight:0}}>
+  <a href="index.html" className="logo" aria-label="Myumminess" style={{display:"inline-flex",alignItems:"center",lineHeight:0}}>
     <img src={dark ? "assets/logo-white.png" : "assets/logo-black.png"} alt="Myumminess" style={{height:22,width:"auto",display:"block"}}/>
   </a>
 );
@@ -415,7 +415,7 @@ function Header(){
         <div className="nav">
           <Logo />
           <nav className="nav-links">
-            <a href="Myumminess.html" className="active">Home<span className="u"/></a>
+            <a href="index.html" className="active">Home<span className="u"/></a>
             <a href="Recipes.html">Recipes<span className="u"/></a>
             <a href="Blog.html">Blog<span className="u"/></a>
             <a href="Shop.html">Shop<span className="u"/></a>
@@ -576,6 +576,15 @@ function Reels(){
 
 /* ---------------- Recipes ---------------- */
 function Recipes({favs, toggleFav}){
+  const [items, setItems] = useState(recipes);
+  useEffect(()=>{
+    fetch('/content/recipes-list.json')
+      .then(r=>r.ok?r.json():null)
+      .then(d=>{ if(Array.isArray(d)&&d.length>0) setItems(d.filter(r=>r.status!=='draft').slice(0,5)); })
+      .catch(()=>{});
+  },[]);
+  const fmtStars = (r) => r.stars>0 ? `★ ${r.stars} · ${r.reviews||''}`.replace(/ ·\s*$/,'') : (r.stars||'');
+  const fmtTags  = (r) => Array.isArray(r.tags) ? r.tags.join(' · ') : (r.tags||'');
   return (
     <section className="section" id="recipes" style={{paddingTop:80}}>
       <div className="wrap">
@@ -591,25 +600,33 @@ function Recipes({favs, toggleFav}){
         </div>
         <Chips/>
         <div className="recipe-grid" style={{marginTop:24}}>
-          {recipes.map((r,i) => (
-            <a className="recipe" key={i} href="Recipes.html" style={{textDecoration:"none",display:"block"}}>
-              <div className={"ph img " + (r.kind || "")}>
-                <div className="ph-center">[ {r.title} ]</div>
-                <div className="time"><Icon name="clock" size={11}/> {r.time}</div>
-                <button className={"fav " + (favs[i] ? "on":"")} onClick={e=>{e.preventDefault();toggleFav(i);}} aria-label="Save recipe">
-                  <Icon name={favs[i] ? "heartFill":"heart"} size={14}/>
-                </button>
-              </div>
-              <div className="body">
-                <h3 className="title">{r.title}</h3>
-                <div className="tags">{r.tags}</div>
-              </div>
-              <div className="foot">
-                <div className="stars">{r.stars}</div>
-                <div className="arrow"><Icon name="arrow" size={12}/></div>
-              </div>
-            </a>
-          ))}
+          {items.map((r,i) => {
+            const slug = r.slug || null;
+            const href = slug ? "Recipes.html?slug=" + slug : "Recipes.html";
+            const key  = slug || i;
+            return (
+              <a className="recipe" key={key} href={href} style={{textDecoration:"none",display:"block"}}>
+                <div className="img" style={{position:"relative"}}>
+                  {r.heroImage
+                    ? <img src={r.heroImage} alt={r.title} style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover"}}/>
+                    : <div className={"ph " + (r.kind||"")} style={{position:"absolute",inset:0}}><div className="ph-center">[ {r.title} ]</div></div>
+                  }
+                  <div className="time"><Icon name="clock" size={11}/> {r.time}</div>
+                  <button className={"fav " + (favs[key] ? "on":"")} onClick={e=>{e.preventDefault();toggleFav(key);}} aria-label="Save recipe">
+                    <Icon name={favs[key] ? "heartFill":"heart"} size={14}/>
+                  </button>
+                </div>
+                <div className="body">
+                  <h3 className="title">{r.title}</h3>
+                  <div className="tags">{fmtTags(r)}</div>
+                </div>
+                <div className="foot">
+                  <div className="stars">{fmtStars(r)}</div>
+                  <div className="arrow"><Icon name="arrow" size={12}/></div>
+                </div>
+              </a>
+            );
+          })}
         </div>
       </div>
     </section>

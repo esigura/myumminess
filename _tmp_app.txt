@@ -1,0 +1,95 @@
+﻿function App(){
+  const [authed, setAuthed]   = useState(false);
+  const [route, setRoute]     = useState("dashboard");
+  const [sub, setSub]         = useState(null);
+  const [data, setData]       = useState(SEED);
+  const [ghPages, setGhPages] = useState({});
+  const [ghRec, setGhRec]     = useState([]);
+  const [ghProds, setGhProds] = useState([]);
+  const [ghPosts, setGhPosts] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [toast, setToast]     = useState(null);
+
+  const showToast = (msg) => { setToast(msg); setTimeout(()=>setToast(null), 3000); };
+
+  const doLoadGitHub = async () => {
+    setLoading(true);
+    try {
+      const [pages, recs, prods, posts] = await Promise.all([
+        loadPagesFromGitHub(),
+        loadCollectionFromGitHub('content/recipes'),
+        loadCollectionFromGitHub('content/products'),
+        loadCollectionFromGitHub('content/posts'),
+      ]);
+      setGhPages(pages);
+      setGhRec(recs);
+      setGhProds(prods);
+      setGhPosts(posts);
+    } catch(e) { console.error('GitHub load error:', e); showToast('Could not load content from GitHub'); }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    try {
+      const m = window.location.hash.match(/[#&]gh_token=([^&]+)/);
+      if (m) {
+        ghSetToken(decodeURIComponent(m[1]));
+        localStorage.setItem('myumm.cms.auth','yes');
+        history.replaceState(null,'', window.location.pathname);
+      }
+      if (localStorage.getItem('myumm.cms.auth') === 'yes' && ghToken()) {
+        setAuthed(true);
+        doLoadGitHub();
+      }
+    } catch(e) {}
+  }, []);
+
+  const handleLogout = () => { setAuthed(false); ghClearToken(); };
+
+  const savePage = async (pageKey, filename, localData) => {
+    const info = ghPages[pageKey];
+    if (!info) { showToast('No GitHub data loaded yet'); return; }
+    showToast('Saving to GitHub…');
+    try {
+      const result = await ghWrite('content/pages/' + filename + '.json', localData, info.sha, 'Update ' + pageKey + ' page via CMS');
+      setGhPages(prev => ({...prev, [pageKey]: {...prev[pageKey], data: localData, sha: result.content.sha}}));
+      showToast(pageKey + ' page saved ✓ — deploying now');
+    } catch(e) { showToast('Save failed: ' + e.message); }
+  };
+
+  const saveEntry = async (item, newData) => {
+    if (!item._sha || !item._path) { showToast('Cannot save: missing file info'); return; }
+    showToast('Saving to GitHub…');
+    try {
+      await ghWrite(item._path, newData, item._sha, 'Update ' + item._name + ' via CMS');
+      showToast('Saved ✓ — deploying now');
+    } catch(e) { showToast('Save failed: ' + e.message); }
+  };
+
+  if (!authed) return <Login />;
+
+  const crumbs = {dashboard:'Dashboard',pages:'Pages',recipes:'Recipes',products:'Products',reels:'Reels',testimonials:'Testimonials',media:'Media library',settings:'Settings'};
+  const crumb = sub ? (crumbs[route] + ' / ' + (sub==='home'?'Home':sub)) : crumbs[route];
+
+  return (
+    <div className="app">
+      <Sidebar route={route} setRoute={r=>{setRoute(r);setSub(null)}} onLogout={handleLogout}/>
+      <div className="main">
+        <Topbar crumb={crumb} loading={loading}/>
+        <div className="pageview">
+          {route==="dashboard" && <Dashboard setRoute={setRoute} data={data} toast={showToast}/>}
+          {route==="pages" && !sub && <PagesList data={data} setData={setData} openPage={id=>setSub(id)} toast={showToast}/>}
+          {route==="pages" && sub==="home" && <HomePageEditor data={data} setData={setData} back={()=>setSub(null)} toast={showToast} ghPage={ghPages.home} onSave={local=>savePage('home','home',local)}/>}
+          {route==="pages" && sub && sub!=="home" && <GenericPageEditor pageId={sub} data={data} back={()=>setSub(null)} toast={showToast} ghPage={ghPages[sub]} onSave={local=>savePage(sub,sub,local)}/>}
+          {route==="recipes" && <RecipesView data={data} setData={setData} toast={showToast} ghItems={ghRec} onSave={saveEntry}/>}
+          {route==="products" && <ProductsView data={data} toast={showToast} ghItems={ghProds} onSave={saveEntry}/>}
+          {route==="reels" && <ReelsView data={data} toast={showToast}/>}
+          {route==="testimonials" && <TestimonialsView data={data}/>}
+          {route==="media" && <MediaView data={data}/>}
+          {route==="settings" && <SettingsView data={data} setData={setData} toast={showToast}/>}
+        </div>
+      </div>
+      {toast && <div className="toast"><span className="d"/>{toast}</div>}
+    </div>
+  );
+}

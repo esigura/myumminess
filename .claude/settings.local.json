@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cp C:/Users/esigu/.claude/projects/C--Users-esigu-OneDrive-Desktop-Myumminess/e1e48522-c8ae-46de-bf6c-b56a2d845fad/tool-results/extracted/myumminess-website/project/Myumminess.html C:/Users/esigu/OneDrive/Desktop/Myumminess/Myumminess.html)",
+      "Bash(mkdir -p C:/Users/esigu/OneDrive/Desktop/Myumminess/assets)",
+      "Bash(cp C:/Users/esigu/.claude/projects/C--Users-esigu-OneDrive-Desktop-Myumminess/e1e48522-c8ae-46de-bf6c-b56a2d845fad/tool-results/extracted/myumminess-website/project/assets/logo-black.png C:/Users/esigu/OneDrive/Desktop/Myumminess/assets/logo-black.png)",
+      "Bash(cp C:/Users/esigu/.claude/projects/C--Users-esigu-OneDrive-Desktop-Myumminess/e1e48522-c8ae-46de-bf6c-b56a2d845fad/tool-results/extracted/myumminess-website/project/assets/logo-white.png C:/Users/esigu/OneDrive/Desktop/Myumminess/assets/logo-white.png)",
+      "Bash(mkdir -p C:/Users/esigu/OneDrive/Desktop/Myumminess/uploads)"
+    ]
+  }
+}
