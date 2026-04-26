@@ -1003,10 +1003,17 @@ function RecipeEditor({recipe, back, toast, onSave, onDelete, ghMedia, setGhMedi
   );
   const [newTag, setNewTag] = useState('');
   const [ingredients, setIngredients] = useState(
-    Array.isArray(recipe.ingredients) ? recipe.ingredients : ['']
+    Array.isArray(recipe.ingredients)
+      ? recipe.ingredients.map(i => typeof i==='string' ? {name:i,amt:''} : {name:i.name||'',amt:i.amt||''})
+      : [{name:'',amt:''}]
   );
   const [steps, setSteps] = useState(
-    Array.isArray(recipe.steps) ? recipe.steps : ['']
+    Array.isArray(recipe.steps)
+      ? recipe.steps.map(s => typeof s==='string' ? s : (s.text||''))
+      : ['']
+  );
+  const [benefits, setBenefits] = useState(
+    Array.isArray(recipe.benefits) ? recipe.benefits : []
   );
 
   const save = async () => {
@@ -1020,8 +1027,9 @@ function RecipeEditor({recipe, back, toast, onSave, onDelete, ghMedia, setGhMedi
       blurb: local.blurb, status: local.status, heroImage,
       tags: tagArr,
       nutrition: { calories: local.calories, protein: local.protein, carbs: local.carbs, fat: local.fat },
-      ingredients: ingredients.filter(Boolean),
-      steps: steps.filter(Boolean),
+      ingredients: ingredients.filter(i=>i.name||i.amt),
+      steps: steps.filter(Boolean).map(s=>({text:s})),
+      benefits: benefits.filter(Boolean),
     };
     if (onSave) { await onSave(itemRef, fullData); if (isNew) back(); }
     else { toast('Recipe saved'); }
@@ -1084,15 +1092,20 @@ function RecipeEditor({recipe, back, toast, onSave, onDelete, ghMedia, setGhMedi
           </div>
 
           <div className="card">
-            <div className="card-head"><h3>Ingredients · {ingredients.filter(Boolean).length}</h3><span className="hint">One per line</span></div>
+            <div className="card-head"><h3>Ingredients · {ingredients.filter(i=>i.name||i.amt).length}</h3><span className="hint">Name + amount per row</span></div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr auto auto",gap:4,marginBottom:4}}>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 100px",gap:6}}><span className="hint" style={{paddingLeft:2}}>Ingredient name</span><span className="hint">Amount</span></div>
+            </div>
             {ingredients.map((it, i) => (
-              <div key={i} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 0",borderBottom:"1px solid var(--line-2)"}}>
-                <Icon name="drag" size={14}/>
-                <input value={it} onChange={e=>{const n=[...ingredients];n[i]=e.target.value;setIngredients(n)}} style={{flex:1,background:"transparent",border:0,outline:0,fontSize:13.5}} placeholder={i===0?'e.g. 1 tsp matcha powder':''}/>
+              <div key={i} style={{display:"grid",gridTemplateColumns:"1fr auto",alignItems:"center",gap:6,marginBottom:4}}>
+                <div style={{display:"grid",gridTemplateColumns:"1fr 100px",gap:6}}>
+                  <input value={it.name||''} onChange={e=>{const n=[...ingredients];n[i]={...n[i],name:e.target.value};setIngredients(n)}} style={{background:"var(--input)",border:"1px solid transparent",borderRadius:8,padding:"7px 10px",fontSize:13,outline:0}} placeholder="e.g. Almond milk"/>
+                  <input value={it.amt||''} onChange={e=>{const n=[...ingredients];n[i]={...n[i],amt:e.target.value};setIngredients(n)}} style={{background:"var(--input)",border:"1px solid transparent",borderRadius:8,padding:"7px 10px",fontSize:13,outline:0}} placeholder="250 ml"/>
+                </div>
                 <button className="icon-btn" onClick={()=>setIngredients(ingredients.filter((_,x)=>x!==i))}><Icon name="trash" size={13}/></button>
               </div>
             ))}
-            <button className="btn btn-ghost btn-sm" style={{marginTop:10}} onClick={()=>setIngredients([...ingredients,""])}><Icon name="plus" size={12}/> Add ingredient</button>
+            <button className="btn btn-ghost btn-sm" style={{marginTop:8}} onClick={()=>setIngredients([...ingredients,{name:'',amt:''}])}><Icon name="plus" size={12}/> Add ingredient</button>
           </div>
 
           <div className="card">
@@ -1105,6 +1118,17 @@ function RecipeEditor({recipe, back, toast, onSave, onDelete, ghMedia, setGhMedi
               </div>
             ))}
             <button className="btn btn-ghost btn-sm" style={{marginTop:10}} onClick={()=>setSteps([...steps,""])}><Icon name="plus" size={12}/> Add step</button>
+          </div>
+
+          <div className="card">
+            <div className="card-head"><h3>Why This Works · {benefits.filter(Boolean).length}</h3><span className="hint">Health benefits shown on detail page</span></div>
+            {benefits.map((b, i) => (
+              <div key={i} style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
+                <input value={b} onChange={e=>{const n=[...benefits];n[i]=e.target.value;setBenefits(n)}} style={{flex:1,background:"var(--input)",border:"1px solid transparent",borderRadius:8,padding:"7px 10px",fontSize:13,outline:0}} placeholder="e.g. High in plant protein — keeps you full for hours"/>
+                <button className="icon-btn" onClick={()=>setBenefits(benefits.filter((_,x)=>x!==i))}><Icon name="trash" size={13}/></button>
+              </div>
+            ))}
+            <button className="btn btn-ghost btn-sm" style={{marginTop:4}} onClick={()=>setBenefits([...benefits,''])}><Icon name="plus" size={12}/> Add benefit</button>
           </div>
 
           <div className="card">
