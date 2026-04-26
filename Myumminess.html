@@ -108,8 +108,8 @@
   .nav-links a .u{position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--ink);transform:scaleX(0);transform-origin:left;transition:transform .3s ease}
   .nav-links a:hover .u, .nav-links a.active .u{transform:scaleX(1)}
   .nav-right{display:flex;align-items:center;gap:14px}
-  .search{display:flex;align-items:center;gap:8px;background:var(--input);border-radius:999px;height:38px;padding:0 14px;width:260px;transition:width .25s ease, background .2s ease}
-  .search:focus-within{width:300px;background:#ece9df}
+  .search{display:flex;align-items:center;gap:8px;background:var(--input);border-radius:999px;height:38px;padding:0 14px;width:190px;transition:width .25s ease, background .2s ease}
+  .search:focus-within{width:240px;background:#ece9df}
   .search input{border:0;outline:0;background:transparent;font-size:13px;flex:1;font-family:inherit;color:var(--ink)}
   .search input::placeholder{color:var(--muted)}
   .icon-btn{width:38px;height:38px;border-radius:999px;display:grid;place-items:center;color:var(--ink);transition:background .2s ease}
@@ -396,13 +396,18 @@ function applyAccent(a){
 
 /* ---------------- Logo ---------------- */
 const Logo = ({dark=false}) => (
-  <a href="#" className="logo" aria-label="Myumminess" style={{display:"inline-flex",alignItems:"center",lineHeight:0}}>
+  <a href="Myumminess.html" className="logo" aria-label="Myumminess" style={{display:"inline-flex",alignItems:"center",lineHeight:0}}>
     <img src={dark ? "assets/logo-white.png" : "assets/logo-black.png"} alt="Myumminess" style={{height:22,width:"auto",display:"block"}}/>
   </a>
 );
 
 /* ---------------- Header ---------------- */
-function Header({cartCount, onCartOpen, active, setActive}){
+function Header(){
+  const goSearch = (e) => {
+    if(e.key==='Enter' && e.target.value.trim()){
+      window.location.href = 'Search.html?q=' + encodeURIComponent(e.target.value.trim());
+    }
+  };
   return (
     <header className="site-header">
       <div className="wrap">
@@ -418,9 +423,12 @@ function Header({cartCount, onCartOpen, active, setActive}){
             <a href="Follow%20Me.html">Follow<span className="u"/></a>
           </nav>
           <div className="nav-right">
-            <a className="icon-btn" href="#" aria-label="Instagram"><Icon name="ig" size={16}/></a>
-            <a className="icon-btn" href="#" aria-label="TikTok"><Icon name="tt" size={16}/></a>
-            <a className="icon-btn" href="#" aria-label="Facebook"><Icon name="fb" size={16}/></a>
+            <div className="search" role="search">
+              <Icon name="search" size={16} stroke={1.8}/>
+              <input placeholder="Search…" aria-label="Search" onKeyDown={goSearch}/>
+            </div>
+            <a className="icon-btn" href="https://instagram.com/myumminess" target="_blank" rel="noopener" aria-label="Instagram"><Icon name="ig" size={16}/></a>
+            <a className="icon-btn" href="https://tiktok.com/@myumminess" target="_blank" rel="noopener" aria-label="TikTok"><Icon name="tt" size={16}/></a>
           </div>
         </div>
       </div>
@@ -506,14 +514,22 @@ function Hero({layout, page}){
 
 /* ---------------- Chips ---------------- */
 function Chips({active, setActive}){
+  const CHIP_CAT_MAP = {
+    "Breakfast":"breakfast", "Snacks":"snacks", "Lunch & Dinner":"weight",
+    "Smoothies":"quick", "Meal Prep":"quick", "Dairy-Free":"gut", "High-Protein":"weight"
+  };
   return (
     <div className="wrap">
       <div className="chips">
-        {chipsData.map(c => (
-          <button key={c.name} className={"chip " + (active===c.name ? "active":"")} onClick={()=>setActive(c.name)}>
-            {c.name} <span className="n">{c.n}</span>
-          </button>
-        ))}
+        {chipsData.map(c => {
+          const cat = CHIP_CAT_MAP[c.name];
+          const href = cat ? "Recipes.html?cat=" + cat : "Recipes.html";
+          return (
+            <a key={c.name} className="chip" href={href}>
+              {c.name} <span className="n">{c.n}</span>
+            </a>
+          );
+        })}
       </div>
     </div>
   );
@@ -557,7 +573,7 @@ function Reels(){
 }
 
 /* ---------------- Recipes ---------------- */
-function Recipes({favs, toggleFav, chip, setChip}){
+function Recipes({favs, toggleFav}){
   return (
     <section className="section" id="recipes" style={{paddingTop:80}}>
       <div className="wrap">
@@ -568,17 +584,17 @@ function Recipes({favs, toggleFav, chip, setChip}){
             <p>Tested in my own kitchen — quick, forgiving, and kind to your schedule.</p>
           </div>
           <div className="right">
-            <a className="link-more" href="#">View all recipes <Icon name="arrow" size={14}/></a>
+            <a className="link-more" href="Recipes.html">View all recipes <Icon name="arrow" size={14}/></a>
           </div>
         </div>
-        <Chips active={chip} setActive={setChip}/>
+        <Chips/>
         <div className="recipe-grid" style={{marginTop:24}}>
           {recipes.map((r,i) => (
-            <article className="recipe" key={i}>
+            <a className="recipe" key={i} href="Recipes.html" style={{textDecoration:"none",display:"block"}}>
               <div className={"ph img " + (r.kind || "")}>
                 <div className="ph-center">[ {r.title} ]</div>
                 <div className="time"><Icon name="clock" size={11}/> {r.time}</div>
-                <button className={"fav " + (favs[i] ? "on":"")} onClick={()=>toggleFav(i)} aria-label="Save recipe">
+                <button className={"fav " + (favs[i] ? "on":"")} onClick={e=>{e.preventDefault();toggleFav(i);}} aria-label="Save recipe">
                   <Icon name={favs[i] ? "heartFill":"heart"} size={14}/>
                 </button>
               </div>
@@ -590,7 +606,7 @@ function Recipes({favs, toggleFav, chip, setChip}){
                 <div className="stars">{r.stars}</div>
                 <div className="arrow"><Icon name="arrow" size={12}/></div>
               </div>
-            </article>
+            </a>
           ))}
         </div>
       </div>
@@ -599,9 +615,7 @@ function Recipes({favs, toggleFav, chip, setChip}){
 }
 
 /* ---------------- Shop ---------------- */
-function Shop({addToCart}){
-  const [added, setAdded] = useState(null);
-  useEffect(()=>{ if(added!=null){ const t=setTimeout(()=>setAdded(null),1400); return ()=>clearTimeout(t);} },[added]);
+function Shop(){
   return (
     <section className="shop-wrap" id="shop">
       <div className="wrap">
@@ -612,12 +626,12 @@ function Shop({addToCart}){
             <p>Not sponsored recommendations — just what's actually on my counter. Every pick links to where I buy it.</p>
           </div>
           <div className="right">
-            <a className="link-more" href="#">View all products <Icon name="arrow" size={14}/></a>
+            <a className="link-more" href="Shop.html">View all products <Icon name="arrow" size={14}/></a>
           </div>
         </div>
         <div className="shop-grid">
           {products.map((p,i) => (
-            <article className="product" key={i}>
+            <a className="product" key={i} href="Shop.html" style={{textDecoration:"none"}}>
               <div className={"ph img " + (p.kind || "")}>
                 <div className="ph-center">[ {p.name} ]</div>
                 <div className={"tag " + (i===3?"peach":"")}>{p.tag}</div>
@@ -629,11 +643,9 @@ function Shop({addToCart}){
               </div>
               <div className="foot">
                 <span className="price">{p.price}</span>
-                <button className="btn btn-primary btn-sm cta" onClick={()=>{addToCart(p); setAdded(i);}}>
-                  {added===i ? <><Icon name="check" size={13}/> Added</> : <>Try what I use</>}
-                </button>
+                <span className="btn btn-primary btn-sm cta">Shop essentials <Icon name="arrow" size={13}/></span>
               </div>
-            </article>
+            </a>
           ))}
         </div>
       </div>
@@ -688,8 +700,8 @@ function About({aboutImage}){
               <div className="stat"><div className="n">2018</div><div className="l">Started</div></div>
             </div>
             <div className="about-ctas">
-              <a className="btn btn-primary" href="#">Read my full story <Icon name="arrow" size={14}/></a>
-              <a className="btn btn-light" href="#">Book a 1:1 session</a>
+              <a className="btn btn-primary" href="About%20Me.html">Read my full story <Icon name="arrow" size={14}/></a>
+              <a className="btn btn-light" href="Booking.html">Book a 1:1 session</a>
             </div>
           </div>
         </div>
@@ -746,28 +758,28 @@ function Footer(){
           <div>
             <h5>Explore</h5>
             <ul>
-              <li><a href="#">Recipes</a></li>
-              <li><a href="#">Blog</a></li>
-              <li><a href="#about">About Me</a></li>
-              <li><a href="#">Contact</a></li>
+              <li><a href="Recipes.html">Recipes</a></li>
+              <li><a href="Blog.html">Blog</a></li>
+              <li><a href="About%20Me.html">About Me</a></li>
+              <li><a href="Contact.html">Work With Me</a></li>
             </ul>
           </div>
           <div>
             <h5>Shop</h5>
             <ul>
-              <li><a href="#shop">All Products</a></li>
-              <li><a href="#">Kitchen Essentials</a></li>
-              <li><a href="#">Supplements</a></li>
-              <li><a href="#">Healthy Snacks</a></li>
+              <li><a href="Shop.html">All Products</a></li>
+              <li><a href="Shop.html">Kitchen Essentials</a></li>
+              <li><a href="Shop.html">Supplements</a></li>
+              <li><a href="Shop.html">Healthy Snacks</a></li>
             </ul>
           </div>
           <div>
             <h5>Resources</h5>
             <ul>
-              <li><a href="#">Meal Prep Guide</a></li>
-              <li><a href="#">Healthy Habits</a></li>
-              <li><a href="#">My Favorites</a></li>
-              <li><a href="#">Privacy Policy</a></li>
+              <li><a href="Recipes.html?cat=quick">Meal Prep Guide</a></li>
+              <li><a href="Blog.html">Healthy Habits</a></li>
+              <li><a href="Follow%20Me.html">Follow Me</a></li>
+              <li><a href="Booking.html">Book a Session</a></li>
             </ul>
           </div>
           <div>
@@ -879,24 +891,16 @@ function App(){
   const page = usePage('/content/pages/home.json', HOME_DEFAULTS);
   const [state, setState] = useState(TWEAK_DEFAULTS);
   const [favs, setFavs] = useState({});
-  const [cartOpen, setCartOpen] = useState(false);
-  const [cart, setCart] = useState([]);
-  const [active, setActive] = useState("Recipes");
-  const [chip, setChip] = useState(state.chipActive || "All");
 
   useEffect(() => applyAccent(state.accent), [state.accent]);
   useEffect(() => { try { localStorage.setItem("myumm.favs", JSON.stringify(favs)); } catch(e){} }, [favs]);
   useEffect(() => {
     try {
       const f = JSON.parse(localStorage.getItem("myumm.favs") || "{}"); if(Object.keys(f).length) setFavs(f);
-      const c = JSON.parse(localStorage.getItem("myumm.cart") || "[]"); if(c.length) setCart(c);
     } catch(e){}
   }, []);
-  useEffect(() => { try { localStorage.setItem("myumm.cart", JSON.stringify(cart)); } catch(e){} }, [cart]);
 
   const toggleFav = (i) => setFavs(f => ({...f, [i]: !f[i]}));
-  const addToCart = (p) => setCart(c => c.find(x=>x.name===p.name) ? c : [...c, p]);
-  const removeItem = (i) => setCart(c => c.filter((_,x) => x!==i));
 
   const onEdit = (patch) => {
     window.parent.postMessage({type:"__edit_mode_set_keys", edits:patch}, "*");
@@ -904,15 +908,14 @@ function App(){
 
   return (
     <>
-      <Header cartCount={cart.length} onCartOpen={()=>setCartOpen(true)} active={active} setActive={setActive}/>
+      <Header/>
       <Hero layout={state.heroLayout} page={page}/>
       <Reels/>
-      <Recipes favs={favs} toggleFav={toggleFav} chip={chip} setChip={setChip}/>
-      <Shop addToCart={addToCart}/>
+      <Recipes favs={favs} toggleFav={toggleFav}/>
+      <Shop/>
       <About aboutImage={page.aboutImage}/>
       <Newsletter headline={page.newsHeadline} sub={page.newsSub}/>
       <Footer/>
-      <CartDrawer open={cartOpen} onClose={()=>setCartOpen(false)} items={cart} removeItem={removeItem}/>
       <Tweaks state={state} setState={setState} onEdit={onEdit}/>
     </>
   );

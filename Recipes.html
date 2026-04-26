@@ -477,7 +477,7 @@ function Header(){
           <div className="nav-right">
             <div className="search-bar" role="search">
               <Icon name="search" size={15}/>
-              <input placeholder="Search recipes…" aria-label="Search"/>
+              <input placeholder="Search recipes…" aria-label="Search" onKeyDown={e=>{if(e.key==='Enter'&&e.target.value.trim()) window.location.href='Search.html?q='+encodeURIComponent(e.target.value.trim());}}/>
             </div>
             <a className="icon-btn" href="#" aria-label="Instagram"><Icon name="ig" size={15}/></a>
             <a className="icon-btn" href="#" aria-label="TikTok"><Icon name="tt" size={15}/></a>
@@ -772,7 +772,8 @@ function Footer(){
 function App(){
   const page = usePage('/content/pages/recipes.json', RECIPES_DEFAULTS);
   const [recipes, setRecipes] = useState(RECIPES_STATIC_FALLBACK);
-  const [cat, setCat] = useState("all");
+  const initCat = new URLSearchParams(window.location.search).get('cat') || 'all';
+  const [cat, setCat] = useState(initCat);
   const [activeRecipe, setActiveRecipe] = useState(null);
   const [favs, setFavs] = useState({});
 

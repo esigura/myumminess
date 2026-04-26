@@ -240,7 +240,7 @@ const ALL_IDS = ["all","kitchen","supplements","snacks","daily"];
 const CAT_LABELS = {all:"All Essentials",kitchen:"Kitchen Tools",supplements:"Supplements",snacks:"Healthy Snacks",daily:"Daily Essentials"};
 
 /* ─── Header ─── */
-function Header({cartCount,onCart}){
+function Header(){
   return (
     <header className="site-header">
       <div className="wrap">
@@ -258,13 +258,9 @@ function Header({cartCount,onCart}){
             <a href="Follow%20Me.html">Follow<span className="u"/></a>
           </nav>
           <div className="nav-right">
-            <div className="search"><Icon name="search" size={15}/><input placeholder="Search products…" aria-label="Search"/></div>
-            <a className="icon-btn" href="#" aria-label="Instagram"><Icon name="ig" size={15}/></a>
-            <a className="icon-btn" href="#" aria-label="TikTok"><Icon name="tt" size={15}/></a>
-            <button className="icon-btn cart-badge" onClick={onCart} aria-label="Saved items">
-              <Icon name="cart" size={16}/>
-              {cartCount>0 && <span className="cb">{cartCount}</span>}
-            </button>
+            <div className="search"><Icon name="search" size={15}/><input placeholder="Search products…" aria-label="Search" onKeyDown={e=>{if(e.key==='Enter'&&e.target.value.trim()) window.location.href='Search.html?q='+encodeURIComponent(e.target.value.trim());}}/></div>
+            <a className="icon-btn" href="https://instagram.com/myumminess" target="_blank" rel="noopener" aria-label="Instagram"><Icon name="ig" size={15}/></a>
+            <a className="icon-btn" href="https://tiktok.com/@myumminess" target="_blank" rel="noopener" aria-label="TikTok"><Icon name="tt" size={15}/></a>
           </div>
         </div>
       </div>
@@ -449,8 +445,6 @@ function Footer(){
 function App(){
   const page = usePage('/content/pages/shop.json', SHOP_DEFAULTS);
   const [activeCat, setActiveCat] = useState("all");
-  const [cartCount, setCartCount] = useState(0);
-
   const visibleCats = activeCat==="all" ? CATEGORIES : CATEGORIES.filter(c=>c.id===activeCat);
 
   const scrollToCat = (id) => {
@@ -462,7 +456,7 @@ function App(){
 
   return (
     <>
-      <Header cartCount={cartCount} onCart={()=>{}}/>
+      <Header/>
       <CatNav active={activeCat} setActive={scrollToCat}/>
       <Hero page={page}/>
       <WhyStrip/>
