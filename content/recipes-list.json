@@ -304,17 +304,24 @@
     "slug": "no-bake-energy-balls",
     "title": "No-Bake Energy Balls",
     "cat": "snacks",
-    "tags": "Healthy · No Sugar · No Cook",
+    "tags": [
+      "Healthy · No Sugar · No Cook"
+    ],
     "time": "10 min",
     "stars": 4.9,
     "reviews": 603,
     "kind": "peach",
     "status": "live",
-    "heroImage": "",
+    "heroImage": "/Website/No Bake Energy Ball_Myumminess.png",
     "blurb": "30 minutes of effort on Sunday gives you snacks for the whole week. High in fibre, naturally sweet, no refined sugar.",
     "servings": "12 balls",
     "difficulty": "Easy",
-    "nutrition": {},
+    "nutrition": {
+      "calories": "",
+      "protein": "",
+      "carbs": "",
+      "fat": ""
+    },
     "benefits": [
       "Dates provide natural sweetness without blood sugar spikes",
       "Oats and seeds give slow-release energy",
