@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<script>(function(){var t=localStorage.getItem("myumminess-theme")||(window.matchMedia("(prefers-color-scheme:dark)").matches?"dark":"light");document.documentElement.setAttribute("data-theme",t);})();</script>
+<link rel="icon" type="image/svg+xml" href="/assets/favicon.svg">
+<link rel="apple-touch-icon" href="/assets/favicon.svg">
+<meta name="viewport" content="width=1440">
+<title>Page Not Found — Myumminess</title>
+<meta name="robots" content="noindex, follow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1A1A1A;--muted:#7A7A7A;--line:#E6E4DE;
+    --paper:#FFFFFF;--surface:#FAF8F4;--surface-2:#F3EFE7;
+    --matcha:#6DBE7B;--matcha-deep:#4E9A5E;
+    --peach:#FF9B7A;--peach-deep:#E87A56;
+    --accent:var(--matcha);--accent-deep:var(--matcha-deep);
+    --serif:'Playfair Display',Georgia,serif;
+    --sans:'Inter','Helvetica Neue',Arial,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;min-width:1440px}
+  a{color:inherit;text-decoration:none}
+  button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit;padding:0}
+  ::selection{background:var(--accent);color:#fff}
+
+  /* ── Nav ── */
+  .site-header{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.88);backdrop-filter:saturate(1.1) blur(10px);border-bottom:1px solid var(--line)}
+  .wrap{max-width:1280px;margin:0 auto;padding:0 32px}
+  .nav{display:grid;grid-template-columns:auto 1fr auto;align-items:center;height:72px}
+  .logo{display:flex;flex-direction:column;gap:2px;text-decoration:none;color:var(--ink)}
+  .logo .wordmark{font-family:var(--mono);font-size:13px;letter-spacing:.22em;text-transform:uppercase;font-weight:500}
+  .logo .tagline{font-family:var(--mono);font-size:8px;letter-spacing:.28em;text-transform:uppercase;color:var(--muted);display:flex;gap:8px}
+  .logo .tagline span:nth-child(3){color:var(--peach-deep)}
+  .nav-links{display:flex;gap:28px;justify-self:start;margin-left:48px}
+  .nav-links a{font-size:13px;letter-spacing:.12em;text-transform:uppercase;font-weight:500;color:var(--ink);position:relative;padding:6px 0}
+  .nav-links a .u{position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--ink);transform:scaleX(0);transform-origin:left;transition:transform .3s ease}
+  .nav-links a:hover .u{transform:scaleX(1)}
+  .nav-right{display:flex;align-items:center;gap:14px}
+  .icon-btn{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;background:transparent;border:0;cursor:pointer;color:var(--ink);transition:background .15s ease}
+  .icon-btn:hover{background:var(--surface-2)}
+
+  /* ── 404 Stage ── */
+  .stage{min-height:calc(100vh - 72px - 140px);display:flex;align-items:center;justify-content:center;padding:80px 32px;position:relative;overflow:hidden}
+  .stage::before{content:"";position:absolute;inset:0;background:radial-gradient(700px 500px at 70% 40%,rgba(109,190,123,.07),transparent 70%),radial-gradient(500px 400px at 20% 70%,rgba(255,155,122,.06),transparent 70%);pointer-events:none}
+  .stage-inner{max-width:640px;text-align:center;position:relative;z-index:1}
+
+  /* Bowl illustration */
+  .bowl-wrap{margin:0 auto 40px;width:120px;height:120px;position:relative}
+  .bowl-wrap svg{width:100%;height:100%}
+
+  /* Eyebrow */
+  .eyebrow{font-family:var(--mono);font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);display:inline-flex;align-items:center;gap:8px;margin-bottom:20px}
+  .eyebrow .dot{width:5px;height:5px;border-radius:999px;background:var(--peach)}
+
+  /* Big 404 */
+  .code{font-family:var(--serif);font-size:140px;font-weight:700;line-height:1;letter-spacing:-.04em;margin:0 0 8px;color:var(--ink)}
+  .code em{font-style:italic;color:var(--matcha)}
+
+  /* Joke */
+  .joke{font-family:var(--serif);font-size:24px;font-weight:400;line-height:1.35;letter-spacing:-.01em;margin:0 0 10px;color:var(--ink)}
+  .punchline{font-size:15px;color:var(--muted);margin:0 0 48px;line-height:1.6;max-width:400px;margin-left:auto;margin-right:auto;margin-bottom:48px}
+
+  /* CTAs */
+  .ctas{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+  .btn{display:inline-flex;align-items:center;gap:8px;height:46px;padding:0 22px;border-radius:12px;font-size:13.5px;font-weight:500;letter-spacing:.01em;transition:all .2s ease;cursor:pointer;border:0;font-family:var(--sans)}
+  .btn-primary{background:var(--accent);color:#fff;box-shadow:0 8px 20px -12px rgba(78,154,94,.55)}
+  .btn-primary:hover{background:var(--accent-deep);transform:translateY(-1px)}
+  .btn-ghost{background:transparent;color:var(--ink);border:1px solid var(--ink)}
+  .btn-ghost:hover{background:var(--ink);color:#fff}
+
+  /* Suggestion strip */
+  .suggest{margin-top:72px;padding-top:48px;border-top:1px solid var(--line)}
+  .suggest-label{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-bottom:20px}
+  .suggest-links{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+  .suggest-link{border:1px solid var(--line);border-radius:999px;padding:8px 16px;font-size:13px;color:var(--ink);transition:all .2s ease;background:var(--surface)}
+  .suggest-link:hover{border-color:var(--accent);color:var(--accent)}
+
+  /* ── Footer ── */
+  footer{background:var(--surface);color:var(--ink);padding:40px 0 24px;border-top:1px solid var(--line)}
+  .foot-inner{display:flex;align-items:center;justify-content:space-between}
+  .foot-brand{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+  .foot-links{display:flex;gap:24px}
+  .foot-links a{font-size:12.5px;color:var(--muted);transition:color .15s ease}
+  .foot-links a:hover{color:var(--ink)}
+  .foot-copy{font-family:var(--mono);font-size:11px;color:var(--muted)}
+
+  /* ── Dark mode ── */
+  [data-theme="dark"]{
+    --ink:#EDEAE4;--muted:#8A8680;--line:#2C2C2A;
+    --paper:#141412;--surface:#1C1C1A;--surface-2:#252522;--input:#252522;
+  }
+  [data-theme="dark"] .site-header{background:rgba(20,20,18,.94)}
+  [data-theme="dark"] footer{background:var(--surface)}
+  [data-theme="dark"] .suggest-link{background:var(--surface-2)}
+  [data-theme="dark"] .btn-ghost{border-color:var(--line);color:var(--ink)}
+  [data-theme="dark"] .btn-ghost:hover{background:var(--surface-2)}
+  [data-theme="dark"] .icon-btn:hover{background:var(--surface-2)}
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap nav">
+    <a href="/" class="logo">
+      <div class="wordmark">Myumminess</div>
+      <div class="tagline"><span>Cook</span><span>Eat</span><span>Love</span><span>Care</span></div>
+    </a>
+    <nav class="nav-links">
+      <a href="/"><span class="u"></span>Home</a>
+      <a href="/Recipes.html"><span class="u"></span>Recipes</a>
+      <a href="/Blog.html"><span class="u"></span>Blog</a>
+      <a href="/Shop.html"><span class="u"></span>Shop</a>
+      <a href="/About%20Me.html"><span class="u"></span>About</a>
+      <a href="/Contact.html"><span class="u"></span>Work with me</a>
+      <a href="/Follow%20Me.html"><span class="u"></span>Follow</a>
+    </nav>
+    <div class="nav-right">
+      <a href="/Search.html" class="icon-btn" aria-label="Search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      </a>
+      <a href="https://www.instagram.com/myumminess" target="_blank" rel="noopener" class="icon-btn" aria-label="Instagram">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".5" fill="currentColor"/></svg>
+      </a>
+      <a href="https://www.tiktok.com/@myumminess" target="_blank" rel="noopener" class="icon-btn" aria-label="TikTok">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.75a4.85 4.85 0 01-1.01-.06z"/></svg>
+      </a>
+      <button class="icon-btn" id="theme-btn"
+        onclick="(function(b){var n=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',n);localStorage.setItem('myumminess-theme',n);b.innerHTML=n==='dark'?'<svg width=16 height=16 viewBox=&quot;0 0 24 24&quot; fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round><circle cx=12 cy=12 r=5/><path d=&quot;M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42&quot;/></svg>':'<svg width=16 height=16 viewBox=&quot;0 0 24 24&quot; fill=none stroke=currentColor stroke-width=1.8 stroke-linecap=round stroke-linejoin=round><path d=&quot;M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z&quot;/></svg>';})(this)"
+        aria-label="Toggle dark mode" style="font-size:16px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="stage">
+  <div class="stage-inner">
+
+    <!-- Sad bowl illustration -->
+    <div class="bowl-wrap">
+      <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Bowl shadow -->
+        <ellipse cx="60" cy="105" rx="38" ry="6" fill="var(--line)" opacity=".6"/>
+        <!-- Bowl body -->
+        <path d="M20 55 Q20 92 60 92 Q100 92 100 55 Z" fill="var(--surface-2)" stroke="var(--line)" stroke-width="2"/>
+        <!-- Bowl rim -->
+        <ellipse cx="60" cy="55" rx="40" ry="10" fill="var(--surface)" stroke="var(--line)" stroke-width="2"/>
+        <!-- Empty inside hint -->
+        <ellipse cx="60" cy="55" rx="32" ry="7" fill="var(--paper)" opacity=".6"/>
+        <!-- Sad face -->
+        <circle cx="52" cy="58" r="2" fill="var(--muted)"/>
+        <circle cx="68" cy="58" r="2" fill="var(--muted)"/>
+        <path d="M51 66 Q60 62 69 66" stroke="var(--muted)" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <!-- Steam lines (drooping, not happy) -->
+        <path d="M50 44 Q47 38 50 32" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" fill="none" opacity=".5"/>
+        <path d="M60 40 Q57 34 60 28" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" fill="none" opacity=".5"/>
+        <path d="M70 44 Q67 38 70 32" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round" fill="none" opacity=".5"/>
+      </svg>
+    </div>
+
+    <div class="eyebrow"><span class="dot"></span> Error 404</div>
+
+    <h1 class="code">4<em>0</em>4</h1>
+
+    <p class="joke">This page went on a juice cleanse<br>and never came back.</p>
+    <p class="punchline">We looked everywhere — the fridge, the pantry, even the meal prep containers from last Sunday. Nothing. It's gone.</p>
+
+    <div class="ctas">
+      <a href="/" class="btn btn-primary">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12L12 3l9 9"/><path d="M9 21V12h6v9"/></svg>
+        Back to home
+      </a>
+      <a href="/Recipes.html" class="btn btn-ghost">Browse recipes →</a>
+    </div>
+
+    <div class="suggest">
+      <div class="suggest-label">Or try one of these</div>
+      <div class="suggest-links">
+        <a href="/Recipes.html" class="suggest-link">All Recipes</a>
+        <a href="/Shop.html" class="suggest-link">Shop My Essentials</a>
+        <a href="/Blog.html" class="suggest-link">Blog</a>
+        <a href="/About%20Me.html" class="suggest-link">About Me</a>
+        <a href="/Booking.html" class="suggest-link">Book a Session</a>
+        <a href="/Contact.html" class="suggest-link">Work With Me</a>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  <div class="wrap foot-inner">
+    <div class="foot-brand">© 2025 Myumminess</div>
+    <div class="foot-links">
+      <a href="/">Home</a>
+      <a href="/Recipes.html">Recipes</a>
+      <a href="/Contact.html">Contact</a>
+      <a href="/Sitemap.html">Sitemap</a>
+    </div>
+    <div class="foot-copy">Made with matcha &amp; love.</div>
+  </div>
+</footer>
+
+<script>
+  // Sync toggle icon on load
+  (function(){
+    var btn = document.getElementById('theme-btn');
+    if(!btn) return;
+    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    if(dark) btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>';
+  })();
+</script>
+
+</body>
+</html>
