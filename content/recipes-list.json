@@ -377,17 +377,24 @@
     "slug": "gut-health-smoothie-bowl",
     "title": "Gut Health Smoothie Bowl",
     "cat": "gut",
-    "tags": "Probiotic · Gut Health · Breakfast",
+    "tags": [
+      "Probiotic · Gut Health · Breakfast"
+    ],
     "time": "12 min",
     "stars": 4.8,
     "reviews": 347,
     "kind": "",
     "status": "live",
-    "heroImage": "",
+    "heroImage": "/Website/Gut_Health_Myumminess.png",
     "blurb": "My most-requested recipe after the green smoothie. The thick consistency comes from the ratio — less liquid, more frozen fruit.",
     "servings": "1",
     "difficulty": "Easy",
-    "nutrition": {},
+    "nutrition": {
+      "calories": "",
+      "protein": "",
+      "carbs": "",
+      "fat": ""
+    },
     "benefits": [
       "Live cultures from kefir or yoghurt support gut microbiome",
       "Prebiotic fibre from banana and oats feeds good bacteria",
