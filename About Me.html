@@ -283,8 +283,11 @@
   .sn-inner a{font-family:var(--mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);padding:13px 20px;border-bottom:2px solid transparent;white-space:nowrap;transition:color .2s ease,border-color .2s ease;flex-shrink:0;display:inline-flex;align-items:center}
   .sn-inner a:hover{color:var(--ink)}
   .sn-inner a.sn-on{color:var(--ink);border-bottom-color:var(--accent)}
-  .sn-book{margin-left:auto !important;color:var(--accent-deep) !important;font-weight:500;gap:6px}
-  .sn-book:hover{color:var(--matcha-deep) !important}
+  .sn-book{margin-left:auto !important;border-bottom:0 !important;padding:0 20px !important;flex-shrink:0}
+  .sn-book .sn-pill{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#fff;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;font-weight:500;padding:8px 16px;border-radius:999px;white-space:nowrap;transition:background .2s ease,transform .2s ease;box-shadow:0 2px 12px -4px rgba(78,154,94,.45)}
+  .sn-book:hover .sn-pill{background:var(--accent-deep);transform:translateY(-1px)}
+  .sn-book .sn-pill .dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.7);flex-shrink:0}
+  [data-theme="dark"] .sn-book .sn-pill{box-shadow:0 2px 12px -4px rgba(109,190,123,.3)}
 
   /* ── Dark mode ── */
   [data-theme="dark"]{
@@ -403,7 +406,9 @@ function SectionNav(){
         {SNAV.map(s=>(
           <a key={s.id} href={"#"+s.id} className={active===s.id?"sn-on":""} onClick={e=>scroll(s.id,e)}>{s.label}</a>
         ))}
-        <a href="Booking.html" className="sn-book">Book a Session →</a>
+        <a href="Booking.html" className="sn-book">
+          <span className="sn-pill"><span className="dot"/>Book a 1:1 Health Coaching Session</span>
+        </a>
       </div>
     </nav>
   );
