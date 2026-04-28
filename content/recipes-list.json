@@ -450,17 +450,24 @@
     "slug": "lemon-baked-salmon",
     "title": "Lemon Baked Salmon",
     "cat": "weight",
-    "tags": "High Protein · Omega-3 · Easy",
+    "tags": [
+      "High Protein · Omega-3 · Easy"
+    ],
     "time": "18 min",
     "stars": 4.8,
     "reviews": 276,
     "kind": "peach",
     "status": "live",
-    "heroImage": "",
+    "heroImage": "/Website/Zesty Salmon_Baked.png",
     "blurb": "The recipe I send to anyone who says they don't know how to cook fish. 4 ingredients, one pan, done in under 20 minutes.",
     "servings": "1",
     "difficulty": "Easy",
-    "nutrition": {},
+    "nutrition": {
+      "calories": "",
+      "protein": "",
+      "carbs": "",
+      "fat": ""
+    },
     "benefits": [
       "Rich in omega-3 fatty acids for anti-inflammatory support",
       "High-quality protein — around 35g per portion",
@@ -504,6 +511,9 @@
       },
       {
         "text": "Rest for 2 minutes before serving. Finish with fresh dill if using."
+      },
+      {
+        "text": "Cook until the salmon flakes easily with a fork — opaque inside, not translucent."
       }
     ]
   },
