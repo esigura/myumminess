@@ -61,17 +61,17 @@
   },
   {
     "id": 5,
-    "title": "My Morning Routine",
+    "title": "Món lạ easy hôm nay có món sốt chấm từ Trung Đông tên là Muhamara, ăn là ghiền đó tại ngon dữ lắm. Trét lên bánh mì ăn healthy đỡ khô khóc nè. Thử nghen!",
     "platform": "TikTok",
-    "postUrl": "https://www.tiktok.com/@myumminess",
-    "thumbnail": "",
+    "postUrl": "https://www.tiktok.com/@myumminess/video/7628972739067628821",
+    "thumbnail": "/Website/Muhammara_Myumminess.png",
     "duration": "1:30",
     "viewCount": "1.9M",
-    "description": "The simple habits I do every morning.",
-    "featuredHome": false,
-    "homeOrder": 0,
+    "description": "#myumminess #myngonlanh #love #chi3chu3 #healthyeating",
+    "featuredHome": true,
+    "homeOrder": 4,
     "featuredFollow": true,
-    "followOrder": 5,
+    "followOrder": 4,
     "published": true
   }
 ]
