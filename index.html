@@ -221,7 +221,7 @@
   .link-more{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;border-bottom:1px solid var(--ink);padding-bottom:2px}
   .link-more:hover{color:var(--accent-deep);border-color:var(--accent-deep)}
 
-  .reels{display:grid;grid-template-columns:repeat(5, 1fr);gap:18px}
+  .reels{display:grid;grid-template-columns:repeat(4, 1fr);gap:18px}
   .reel{position:relative;aspect-ratio:9/14;border-radius:18px;overflow:hidden;cursor:pointer;transform:translateZ(0);transition:transform .3s ease;box-shadow:0 10px 30px -18px rgba(26,26,26,.25)}
   .reel:hover{transform:translateY(-4px)}
   .reel .body{position:absolute;inset:0}
@@ -485,13 +485,29 @@ const Icon = ({name, size=18, stroke=1.6, fill="none"}) => {
 };
 
 /* ---------------- Data ---------------- */
-const reels = [
-  { title:"5-min Green Smoothie", views:"1.2M views", plat:"TikTok", dur:"0:45", kind:"matcha" },
-  { title:"What I Eat in a Day", views:"690K views", plat:"Reel", dur:"1:12", kind:"peach" },
-  { title:"High-Protein Meal Prep", views:"1.5M views", plat:"TikTok", dur:"0:58", kind:"dark" },
-  { title:"3-Ingredient Snack Idea", views:"670K views", plat:"Reel", dur:"0:32", kind:"" },
-  { title:"My Morning Routine", views:"1.9M views", plat:"TikTok", dur:"1:30", kind:"matcha" },
+const REELS_FALLBACK = [
+  { title:"5-min Green Smoothie", viewCount:"1.2M", platform:"TikTok", duration:"0:45", _kind:"matcha" },
+  { title:"What I Eat in a Day",  viewCount:"890K",  platform:"Facebook", duration:"1:12", _kind:"peach" },
+  { title:"High-Protein Meal Prep",viewCount:"1.5M", platform:"TikTok", duration:"0:58", _kind:"dark" },
+  { title:"3-Ingredient Snack Idea",viewCount:"670K",platform:"Instagram",duration:"0:32",_kind:"" },
 ];
+function useReels(featured, orderKey, limit){
+  const [posts, setPosts] = useState([]);
+  useEffect(()=>{
+    fetch('/content/reels.json')
+      .then(r=>r.ok?r.json():null)
+      .then(d=>{
+        if(!Array.isArray(d)) return;
+        const items = d
+          .filter(p=>p.published&&p[featured])
+          .sort((a,b)=>(a[orderKey]||99)-(b[orderKey]||99))
+          .slice(0,limit);
+        if(items.length) setPosts(items);
+      })
+      .catch(()=>{});
+  },[]);
+  return posts;
+}
 
 const recipes = [
   { title:"Green Protein Smoothie", tags:"Quick · Healthy · Filling", time:"5 min", stars:"★ 4.9 · 231", cat:"Drinks", kind:"matcha" },
@@ -702,8 +718,11 @@ function Chips({allRecipes}){
   );
 }
 
-/* ---------------- Reels (TikTok/IG) ---------------- */
+/* ---------------- Reels (TikTok/Facebook) ---------------- */
+const PLAT_KIND = {TikTok:"dark", Facebook:"matcha", Instagram:"peach"};
 function Reels(){
+  const cms = useReels("featuredHome","homeOrder",4);
+  const items = cms.length ? cms : REELS_FALLBACK;
   return (
     <section className="section" style={{paddingBottom:0}}>
       <div className="wrap">
@@ -718,21 +737,29 @@ function Reels(){
           </div>
         </div>
         <div className="reels">
-          {reels.map((r,i) => (
-            <div className="reel" key={i}>
-              <div className={"ph body " + (r.kind || "")}>
-                <div className="ph-center">[ reel · {r.title} ]</div>
-              </div>
-              <div className="grad"/>
-              <span className="plat">{r.plat}</span>
-              <span className="dur">{r.dur}</span>
-              <div className="play"><Icon name="play" size={18}/></div>
-              <div className="meta">
-                <div className="t">{r.title}</div>
-                <div className="v">{r.views}</div>
-              </div>
-            </div>
-          ))}
+          {items.map((r,i)=>{
+            const kind = r._kind ?? (PLAT_KIND[r.platform]||"");
+            const href = r.postUrl||"#";
+            const plat = r.platform||r.plat||"";
+            const dur  = r.duration||r.dur||"";
+            const views= r.viewCount||r.views||"";
+            return (
+              <a className="reel" key={r.id||i} href={href} target={href==="#"?"_self":"_blank"} rel="noopener" style={{textDecoration:"none"}}>
+                {r.thumbnail
+                  ? <img className="body" src={r.thumbnail} alt={r.title} style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+                  : <div className={"ph body "+kind}><div className="ph-center">[ {plat} · {r.title} ]</div></div>
+                }
+                <div className="grad"/>
+                {plat && <span className="plat">{plat}</span>}
+                {dur  && <span className="dur">{dur}</span>}
+                <div className="play"><Icon name="play" size={18}/></div>
+                <div className="meta">
+                  <div className="t">{r.title}</div>
+                  {views && <div className="v">{views} views</div>}
+                </div>
+              </a>
+            );
+          })}
         </div>
       </div>
     </section>

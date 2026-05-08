@@ -1336,55 +1336,151 @@ function ProductEditor({product, back, toast, onSave, onDelete}){
 }
 
 /* ============ Reels ============ */
-function ReelsView({data, toast, ghItems, onSave, onDelete}){
-  const [adding, setAdding] = useState(false);
-  const [newReel, setNewReel] = useState({title:'',platform:'TikTok',embedUrl:'',views:'',likes:''});
-  const items = (ghItems && ghItems.length > 0) ? ghItems : data.reels;
-  const saveReel = async () => {
-    if (!newReel.title || !newReel.embedUrl) { toast('Title and URL are required'); return; }
-    const slug = newReel.title.toLowerCase().replace(/[^a-z0-9]+/g,'-');
-    const itemRef = { _path: 'content/reels/' + slug + '.json', _name: slug + '.json' };
-    if (onSave) { await onSave(itemRef, {...newReel, status:'live'}); setAdding(false); setNewReel({title:'',platform:'TikTok',embedUrl:'',views:'',likes:''}); }
+function ReelsView({data, toast, ghReelsList, setGhReelsList}){
+  const [editing, setEditing] = useState(null);
+  const items = (ghReelsList && ghReelsList.items.length > 0) ? ghReelsList.items : data.reels;
+
+  const saveReelsList = async (newItems) => {
+    toast('Saving to GitHub…');
+    try {
+      const result = await ghWrite('content/reels.json', newItems, ghReelsList.sha, 'Update social posts via CMS');
+      setGhReelsList({sha: result.content.sha, items: newItems});
+      toast('Saved ✓ — deploying now');
+    } catch(e) { toast('Save failed: ' + e.message); }
   };
+
+  const handleSave = async (reel, newData) => {
+    const isNew = reel._listIdx === undefined;
+    let newItems;
+    if (isNew) {
+      const nextId = items.length > 0 ? Math.max(...items.map(r=>r.id||0)) + 1 : 1;
+      newItems = [...items, {...newData, id: nextId}];
+    } else {
+      newItems = items.map((r,i) => i === reel._listIdx ? {...r, ...newData} : r);
+    }
+    await saveReelsList(newItems);
+    if (isNew) setEditing(null);
+  };
+
+  const handleDelete = async (reel) => {
+    if (reel._listIdx === undefined) return;
+    const newItems = items.filter((_,i) => i !== reel._listIdx);
+    await saveReelsList(newItems);
+    setEditing(null);
+  };
+
+  if (editing != null) return <ReelEditor reel={editing} back={()=>setEditing(null)} toast={toast} onSave={handleSave} onDelete={handleDelete}/>;
+
   return (
     <>
       <div className="ph-head">
-        <div><div className="ek">Reels · {items.length}{ghItems && ghItems.length > 0 ? ' · from GitHub' : ' · preview data'}</div><h1>Reels &amp; videos</h1><p>Embed TikTok and Facebook posts. Used on the Follow Me page and homepage strip.</p></div>
+        <div><div className="ek">Social Posts · {items.length}{ghReelsList && ghReelsList.items.length > 0 ? ' · from GitHub' : ' · preview data'}</div><h1>Reels &amp; Social Posts</h1><p>Paste any TikTok, Instagram, or Facebook post URL. Control which posts appear on the homepage (4 slots) and Follow page (5 slots).</p></div>
         <div className="actions">
-          <button className="btn btn-accent" onClick={()=>setAdding(true)}><Icon name="plus" size={14}/> Embed URL</button>
+          <button className="btn btn-accent" onClick={()=>setEditing({title:'',platform:'TikTok',postUrl:'',thumbnail:'',duration:'',viewCount:'',description:'',featuredHome:false,homeOrder:0,featuredFollow:false,followOrder:0,published:true})}><Icon name="plus" size={14}/> Add Post</button>
         </div>
       </div>
-      {adding && (
-        <div className="card" style={{marginBottom:16}}>
-          <div className="card-head"><h3>Add new reel</h3><button className="btn btn-ghost btn-sm" onClick={()=>setAdding(false)}>Cancel</button></div>
-          <div className="field-grid">
-            <div className="fld"><label>Platform</label><select value={newReel.platform} onChange={e=>setNewReel({...newReel,platform:e.target.value})}><option>TikTok</option><option>Facebook</option><option>Instagram</option><option>YouTube</option></select></div>
-            <div className="fld"><label>Title</label><input value={newReel.title} onChange={e=>setNewReel({...newReel,title:e.target.value})}/></div>
-            <div className="fld full"><label>Embed / video URL</label><input value={newReel.embedUrl} onChange={e=>setNewReel({...newReel,embedUrl:e.target.value})} placeholder="https://www.tiktok.com/@myumminess/video/..."/></div>
-          </div>
-          <button className="btn btn-accent btn-sm" onClick={saveReel}><Icon name="save" size={12}/> Save reel</button>
-        </div>
+      {items.length === 0 && (
+        <div style={{padding:'48px 0',textAlign:'center',color:'var(--muted)',fontSize:14}}>No posts yet. Add your first TikTok, Instagram, or Facebook post above.</div>
       )}
       <div className="grid-3">
-        {items.map((r,i) => (
-          <div key={r._path||r.id||i} className="card" style={{padding:0,overflow:"hidden"}}>
-            <div className={"ph " + (i%2?"matcha":"peach")} style={{aspectRatio:"9/14",borderRadius:0}}>
-              <span className="lbl">{r.platform||r.plat} · {r.title}</span>
-            </div>
-            <div style={{padding:14}}>
-              <div style={{display:"flex",alignItems:"center",gap:8}}>
-                <span className="chip" style={{background:(r.platform||r.plat)==="TikTok"?"#1A1A1A":(r.platform||r.plat)==="Facebook"?"#1877F2":"#E1306C",color:"#fff"}}>{r.platform||r.plat}</span>
-                <span style={{marginLeft:"auto",fontSize:11.5,color:"var(--muted)",fontFamily:"var(--mono)"}}>{r.updated||''}</span>
+        {items.map((r,i) => {
+          const plat = r.platform||r.plat||'TikTok';
+          const platColor = plat==='TikTok'?'#1A1A1A':plat==='Facebook'?'#1877F2':'#E1306C';
+          const platKind  = plat==='TikTok'?'dark':plat==='Facebook'?'matcha':'peach';
+          return (
+            <div key={r.id||i} className="card" style={{padding:0,overflow:"hidden"}}>
+              <div className={"ph "+platKind} style={{aspectRatio:"9/14",borderRadius:0,position:"relative"}}>
+                {r.thumbnail && <img src={r.thumbnail} alt={r.title} style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover"}}/>}
+                <span style={{position:"absolute",top:10,left:10,background:"rgba(0,0,0,.6)",color:"#fff",fontFamily:"var(--mono)",fontSize:9,letterSpacing:".18em",textTransform:"uppercase",padding:"4px 8px",borderRadius:999,backdropFilter:"blur(6px)"}}>{plat}</span>
+                {r.duration && <span style={{position:"absolute",bottom:10,right:10,background:"rgba(0,0,0,.6)",color:"#fff",fontFamily:"var(--mono)",fontSize:9,padding:"3px 7px",borderRadius:999}}>{r.duration}</span>}
               </div>
-              <div style={{fontWeight:500,marginTop:8,fontSize:14}}>{r.title}</div>
-              <div style={{fontFamily:"var(--mono)",fontSize:11,color:"var(--muted)",marginTop:4}}>{r.views||'—'} views · {r.likes||'—'} likes</div>
-              <div style={{display:"flex",gap:6,marginTop:12}}>
-                {r.embedUrl && <a href={r.embedUrl} target="_blank" className="btn btn-ghost btn-sm"><Icon name="external" size={12}/></a>}
-                {r._path && onDelete && <button className="btn btn-danger btn-sm" style={{marginLeft:'auto'}} onClick={()=>window.confirm('Delete?') && onDelete(r)}><Icon name="trash" size={12}/></button>}
+              <div style={{padding:14}}>
+                <div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:8}}>
+                  <span className="chip" style={{background:platColor,color:"#fff",border:"none",fontSize:10,padding:"3px 8px"}}>{plat}</span>
+                  {r.featuredHome && <span className="chip" style={{background:"var(--accent)",color:"#fff",border:"none",fontSize:10,padding:"3px 8px"}}>Home</span>}
+                  {r.featuredFollow && <span className="chip" style={{background:"#6b7280",color:"#fff",border:"none",fontSize:10,padding:"3px 8px"}}>Follow</span>}
+                  {r.published===false && <span className="chip" style={{background:"var(--muted)",color:"#fff",border:"none",fontSize:10,padding:"3px 8px"}}>Draft</span>}
+                </div>
+                <div style={{fontWeight:500,fontSize:14,marginBottom:4,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{r.title||<span style={{color:"var(--muted)"}}>No title</span>}</div>
+                <div style={{fontFamily:"var(--mono)",fontSize:11,color:"var(--muted)"}}>{r.viewCount||r.views||'—'} views{r.duration?' · '+r.duration:''}</div>
+                <div style={{display:"flex",gap:6,marginTop:12}}>
+                  <button className="btn btn-ghost btn-sm" onClick={()=>setEditing({...r,_listIdx:i})}>Edit</button>
+                  {(r.postUrl||r.embedUrl) && <a href={r.postUrl||r.embedUrl} target="_blank" rel="noopener" className="btn btn-ghost btn-sm"><Icon name="external" size={12}/></a>}
+                </div>
               </div>
             </div>
+          );
+        })}
+      </div>
+    </>
+  );
+}
+
+function ReelEditor({reel, back, toast, onSave, onDelete}){
+  const isNew = reel._listIdx === undefined;
+  const [form, setForm] = useState({
+    title:         reel.title||'',
+    platform:      reel.platform||reel.plat||'TikTok',
+    postUrl:       reel.postUrl||reel.embedUrl||'',
+    thumbnail:     reel.thumbnail||'',
+    duration:      reel.duration||'',
+    viewCount:     reel.viewCount||reel.views||'',
+    description:   reel.description||'',
+    featuredHome:  !!reel.featuredHome,
+    homeOrder:     reel.homeOrder||0,
+    featuredFollow:!!reel.featuredFollow,
+    followOrder:   reel.followOrder||0,
+    published:     reel.published!==false,
+  });
+  const set = (k,v) => setForm(f=>({...f,[k]:v}));
+  return (
+    <>
+      <div className="ph-head">
+        <div>
+          <button className="btn btn-ghost btn-sm" onClick={back} style={{marginBottom:12}}>← Back to posts</button>
+          <h1>{isNew ? 'Add Post' : 'Edit Post'}</h1>
+          <p>Paste the post URL from TikTok, Instagram, or Facebook. Thumbnail is optional — a placeholder is shown if left blank.</p>
+        </div>
+        <div className="actions">
+          {!isNew && <button className="btn btn-danger btn-sm" onClick={()=>window.confirm('Delete this post?')&&onDelete(reel)}>Delete</button>}
+          <button className="btn btn-accent" onClick={()=>onSave(reel,form)}>Save Post</button>
+        </div>
+      </div>
+      <div className="card">
+        <div className="field-grid">
+          <div className="fld"><label>Platform</label><select value={form.platform} onChange={e=>set('platform',e.target.value)}><option>TikTok</option><option>Instagram</option><option>Facebook</option></select></div>
+          <div className="fld"><label>Title</label><input value={form.title} onChange={e=>set('title',e.target.value)} placeholder="5-min Green Smoothie"/></div>
+          <div className="fld full"><label>Post URL</label><input type="url" value={form.postUrl} onChange={e=>set('postUrl',e.target.value)} placeholder="https://www.tiktok.com/@myumminess/video/..."/></div>
+          <div className="fld full"><label>Thumbnail URL <span style={{color:"var(--muted)",fontWeight:400,fontSize:11}}>(optional)</span></label><input type="url" value={form.thumbnail} onChange={e=>set('thumbnail',e.target.value)} placeholder="https://...image.jpg"/></div>
+          <div className="fld"><label>Duration</label><input value={form.duration} onChange={e=>set('duration',e.target.value)} placeholder="1:30"/></div>
+          <div className="fld"><label>View Count</label><input value={form.viewCount} onChange={e=>set('viewCount',e.target.value)} placeholder="1.2M"/></div>
+          <div className="fld full"><label>Caption / Description <span style={{color:"var(--muted)",fontWeight:400,fontSize:11}}>(optional)</span></label><textarea value={form.description} onChange={e=>set('description',e.target.value)} rows={2} placeholder="A short caption shown on the Follow page…" style={{width:"100%",fontFamily:"inherit",fontSize:13,padding:"8px 10px",border:"1px solid var(--line)",borderRadius:8,resize:"vertical",outline:"none",color:"var(--ink)",background:"var(--input)"}}/></div>
+        </div>
+        <div style={{marginTop:20,display:"grid",gridTemplateColumns:"1fr 1fr",gap:16}}>
+          <div className="card" style={{background:"var(--surface)",margin:0}}>
+            <div style={{fontFamily:"var(--mono)",fontSize:10,letterSpacing:".18em",textTransform:"uppercase",color:"var(--muted)",marginBottom:12}}>Homepage (4 slots)</div>
+            <label style={{display:"flex",alignItems:"center",gap:10,cursor:"pointer",marginBottom:12}}>
+              <input type="checkbox" checked={form.featuredHome} onChange={e=>set('featuredHome',e.target.checked)} style={{accentColor:"var(--accent)",width:15,height:15}}/>
+              <span style={{fontSize:13}}>Feature on homepage</span>
+            </label>
+            <div className="fld"><label>Display order <span style={{color:"var(--muted)",fontWeight:400}}>(1 = first)</span></label><input type="number" value={form.homeOrder} onChange={e=>set('homeOrder',parseInt(e.target.value)||0)} min={0} max={99}/></div>
           </div>
-        ))}
+          <div className="card" style={{background:"var(--surface)",margin:0}}>
+            <div style={{fontFamily:"var(--mono)",fontSize:10,letterSpacing:".18em",textTransform:"uppercase",color:"var(--muted)",marginBottom:12}}>Follow Page (5 slots)</div>
+            <label style={{display:"flex",alignItems:"center",gap:10,cursor:"pointer",marginBottom:12}}>
+              <input type="checkbox" checked={form.featuredFollow} onChange={e=>set('featuredFollow',e.target.checked)} style={{accentColor:"var(--accent)",width:15,height:15}}/>
+              <span style={{fontSize:13}}>Feature on Follow page</span>
+            </label>
+            <div className="fld"><label>Display order <span style={{color:"var(--muted)",fontWeight:400}}>(1 = first)</span></label><input type="number" value={form.followOrder} onChange={e=>set('followOrder',parseInt(e.target.value)||0)} min={0} max={99}/></div>
+          </div>
+        </div>
+        <div style={{marginTop:16,paddingTop:16,borderTop:"1px solid var(--line)"}}>
+          <label style={{display:"flex",alignItems:"center",gap:10,cursor:"pointer"}}>
+            <input type="checkbox" checked={form.published} onChange={e=>set('published',e.target.checked)} style={{accentColor:"var(--accent)",width:15,height:15}}/>
+            <span style={{fontSize:13,fontWeight:500}}>Published</span>
+            <span style={{fontSize:12,color:"var(--muted)"}}>— unpublished posts are hidden from the site</span>
+          </label>
+        </div>
       </div>
     </>
   );
@@ -1787,7 +1883,7 @@ function App(){
   const [ghRecList, setGhRecList]  = useState({sha:undefined, items:[]});
   const [ghProds, setGhProds]     = useState([]);
   const [ghPosts, setGhPosts]     = useState([]);
-  const [ghReels, setGhReels]     = useState([]);
+  const [ghReels, setGhReels]     = useState({sha:undefined, items:[]});
   const [ghTestim, setGhTestim]   = useState([]);
   const [ghMedia, setGhMedia]     = useState([]);
   const [ghCommits, setGhCommits] = useState([]);
@@ -1804,7 +1900,7 @@ function App(){
         ghRead('content/recipes-list.json').catch(()=>null),
         loadCollectionFromGitHub('content/products'),
         loadCollectionFromGitHub('content/posts'),
-        loadCollectionFromGitHub('content/reels'),
+        ghRead('content/reels.json').catch(()=>null),
         loadCollectionFromGitHub('content/testimonials'),
         loadMediaFromGitHub('Website'),
         loadCommitsFromGitHub(12),
@@ -1812,7 +1908,7 @@ function App(){
       setGhPages(pages);
       setGhRecList(recListFile ? {sha:recListFile.sha, items:Array.isArray(recListFile.data)?recListFile.data:[]} : {sha:undefined,items:[]});
       setGhProds(prods); setGhPosts(posts);
-      setGhReels(reels); setGhTestim(testim); setGhMedia(media); setGhCommits(commits);
+      setGhReels(reels ? {sha:reels.sha, items:Array.isArray(reels.data)?reels.data:[]} : {sha:undefined,items:[]}); setGhTestim(testim); setGhMedia(media); setGhCommits(commits);
     } catch(e) { console.error('GitHub load error:', e); showToast('Could not load content from GitHub'); }
     // load GitHub user info
     try {
@@ -1860,7 +1956,6 @@ function App(){
       const saved = { ...newData, _sha: newSha, _path: item._path, _name: item._name };
       if      (item._path.startsWith('content/products'))     setGhProds(prev => isNew ? [...prev, saved] : prev.map(p => p._path===item._path ? saved : p));
       else if (item._path.startsWith('content/posts'))        setGhPosts(prev => isNew ? [...prev, saved] : prev.map(p => p._path===item._path ? saved : p));
-      else if (item._path.startsWith('content/reels'))        setGhReels(prev => isNew ? [...prev, saved] : prev.map(r => r._path===item._path ? saved : r));
       else if (item._path.startsWith('content/testimonials')) setGhTestim(prev => isNew ? [...prev, saved] : prev.map(t => t._path===item._path ? saved : t));
       showToast((isNew ? 'Created' : 'Saved') + ' ✓ — deploying now');
     } catch(e) { showToast('Save failed: ' + e.message); }
@@ -1873,7 +1968,6 @@ function App(){
       await ghDelete(item._path, item._sha, 'Delete ' + item._name + ' via CMS');
       if      (item._path.startsWith('content/products'))     setGhProds(prev => prev.filter(p => p._path!==item._path));
       else if (item._path.startsWith('content/posts'))        setGhPosts(prev => prev.filter(p => p._path!==item._path));
-      else if (item._path.startsWith('content/reels'))        setGhReels(prev => prev.filter(r => r._path!==item._path));
       else if (item._path.startsWith('content/testimonials')) setGhTestim(prev => prev.filter(t => t._path!==item._path));
       showToast('Deleted ✓');
     } catch(e) { showToast('Delete failed: ' + e.message); }
@@ -1886,7 +1980,7 @@ function App(){
 
   return (
     <div className="app">
-      <Sidebar route={route} setRoute={r=>{setRoute(r);setSub(null)}} onLogout={handleLogout} ghUser={ghUser} counts={{recipes:ghRecList.items.length,products:ghProds.length,posts:ghPosts.length,reels:ghReels.length,testimonials:ghTestim.length,media:ghMedia.length}}/>
+      <Sidebar route={route} setRoute={r=>{setRoute(r);setSub(null)}} onLogout={handleLogout} ghUser={ghUser} counts={{recipes:ghRecList.items.length,products:ghProds.length,posts:ghPosts.length,reels:ghReels.items.length,testimonials:ghTestim.length,media:ghMedia.length}}/>
       <div className="main">
         <Topbar crumb={crumb} loading={loading}/>
         <div className="pageview">
@@ -1896,7 +1990,7 @@ function App(){
           {route==="recipes"      && <RecipesView data={data} toast={showToast} ghRecList={ghRecList} setGhRecList={setGhRecList} ghCats={(ghPages.recipes&&ghPages.recipes.data&&ghPages.recipes.data.categories)||[]} ghMedia={ghMedia} setGhMedia={setGhMedia}/>}
           {route==="products"     && <ProductsView data={data} toast={showToast} ghItems={ghProds} onSave={saveEntry} onDelete={deleteEntry}/>}
           {route==="posts"        && <BlogView toast={showToast} ghItems={ghPosts} onSave={saveEntry} onDelete={deleteEntry}/>}
-          {route==="reels"        && <ReelsView data={data} toast={showToast} ghItems={ghReels} onSave={saveEntry} onDelete={deleteEntry}/>}
+          {route==="reels"        && <ReelsView data={data} toast={showToast} ghReelsList={ghReels} setGhReelsList={setGhReels}/>}
           {route==="testimonials" && <TestimonialsView data={data} toast={showToast} ghItems={ghTestim} onSave={saveEntry} onDelete={deleteEntry}/>}
           {route==="media"        && <MediaView ghMedia={ghMedia} setGhMedia={setGhMedia} toast={showToast}/>}
           {route==="settings"     && <SettingsView data={data} setData={setData} toast={showToast}/>}
