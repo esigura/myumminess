@@ -330,8 +330,20 @@ const CATEGORIES = [
   },
 ];
 
-const ALL_IDS = ["all","kitchen","supplements","snacks","daily"];
-const CAT_LABELS = {all:"All Essentials",kitchen:"Kitchen Tools",supplements:"Supplements",snacks:"Healthy Snacks",daily:"Daily Essentials"};
+function useShopData(){
+  const [products, setProducts] = useState(null);
+  const [categories, setCategories] = useState(null);
+  useEffect(()=>{
+    Promise.all([
+      fetch('/content/products-list.json').then(r=>r.ok?r.json():null).catch(()=>null),
+      fetch('/content/categories.json').then(r=>r.ok?r.json():null).catch(()=>null),
+    ]).then(([prods,cats])=>{
+      if(Array.isArray(prods)) setProducts(prods.filter(p=>p.status!=='draft'));
+      if(Array.isArray(cats)) setCategories(cats.filter(c=>c.visible!==false).sort((a,b)=>(a.order||99)-(b.order||99)));
+    });
+  },[]);
+  return {products, categories};
+}
 
 /* ─── Header ─── */
 
@@ -384,13 +396,13 @@ function Header(){
 }
 
 /* ─── Category nav ─── */
-function CatNav({active,setActive}){
+function CatNav({active,setActive,catIds,catLabels}){
   return (
     <nav className="cat-nav" aria-label="Product categories">
       <div className="cat-nav-inner">
-        {ALL_IDS.map(id=>(
+        {catIds.map(id=>(
           <button key={id} className={active===id?"on":""} onClick={()=>setActive(id)}>
-            {CAT_LABELS[id]}
+            {catLabels[id]||id}
           </button>
         ))}
       </div>
@@ -450,17 +462,21 @@ function Hero({page}){
 }
 
 /* ─── Product card ─── */
-function ProductCard({p, onSave, saved}){
+function ProductCard({p}){
+  const title = p.title || p.name;
+  const subtitle = p.subtitle || p.cat;
+  const description = p.description || p.note;
   return (
     <article className="pcard">
-      <div className={"ph img " + (p.kind||"")}>
-        <div className="ph-center">[ {p.name} ]</div>
+      <div className={"ph img " + (p.kind||"")} style={{position:"relative"}}>
+        {p.image && <img src={p.image} alt={title} style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover"}}/>}
+        <div className="ph-center">[ {title} ]</div>
         <div className={"badge " + (p.badgeColor||"")}>{p.badge}</div>
       </div>
       <div className="body">
-        <div className="cat">{p.cat}</div>
-        <h3 className="name">{p.name}</h3>
-        <p className="note">{p.note}</p>
+        <div className="cat">{subtitle}</div>
+        <h3 className="name">{title}</h3>
+        <p className="note">{description}</p>
       </div>
       <div className="foot">
         <span className="price">{p.price}</span>
@@ -469,7 +485,7 @@ function ProductCard({p, onSave, saved}){
           href={p.shopeeHref}
           target="_blank"
           rel="noopener noreferrer"
-          aria-label={"View " + p.name + " on Shopee"}
+          aria-label={"View " + title + " on Shopee"}
         >
           View on Shopee <Icon name="external" size={12}/>
         </a>
@@ -559,8 +575,18 @@ function Footer(){
 /* ─── App ─── */
 function App(){
   const page = usePage('/content/pages/shop.json', SHOP_DEFAULTS);
+  const {products:cmsProds, categories:cmsCats} = useShopData();
   const [activeCat, setActiveCat] = useState("all");
-  const visibleCats = activeCat==="all" ? CATEGORIES : CATEGORIES.filter(c=>c.id===activeCat);
+
+  const categories = cmsCats || CATEGORIES.map(c=>({id:c.id,title:c.title,description:c.desc}));
+  const catIds = ['all',...categories.map(c=>c.id)];
+  const catLabels = {all:'All Essentials',...Object.fromEntries(categories.map(c=>[c.id,c.title]))};
+  const visibleCats = activeCat==="all" ? categories : categories.filter(c=>c.id===activeCat);
+
+  const getCatProducts = (catId) => {
+    if(cmsProds) return cmsProds.filter(p=>p.category===catId).sort((a,b)=>(a.order||99)-(b.order||99));
+    return (CATEGORIES.find(c=>c.id===catId)?.products)||[];
+  };
 
   const scrollToCat = (id) => {
     setActiveCat(id);
@@ -572,7 +598,7 @@ function App(){
   return (
     <>
       <Header/>
-      <CatNav active={activeCat} setActive={scrollToCat}/>
+      <CatNav active={activeCat} setActive={scrollToCat} catIds={catIds} catLabels={catLabels}/>
       <Hero page={page}/>
       <WhyStrip/>
       <section className="products-section">
@@ -581,14 +607,14 @@ function App(){
             <div className="cat-block" key={cat.id} id={"cat-"+cat.id}>
               <div className="cat-block-head">
                 <div>
-                  <div className="eyebrow"><span className="dot"/>{cat.label}</div>
+                  <div className="eyebrow"><span className="dot"/>{cat.title}</div>
                   <h2>{cat.title.split(" ")[0]} <em>{cat.title.split(" ").slice(1).join(" ")}</em></h2>
-                  <p>{cat.desc}</p>
+                  <p>{cat.description}</p>
                 </div>
               </div>
               <div className="product-grid">
-                {cat.products.map((p,i)=>(
-                  <ProductCard key={i} p={p} onSave={()=>setCartCount(c=>c+1)} saved={false}/>
+                {getCatProducts(cat.id).map((p,i)=>(
+                  <ProductCard key={p.id||i} p={p}/>
                 ))}
               </div>
             </div>

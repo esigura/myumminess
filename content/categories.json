@@ -1,0 +1,6 @@
+[
+  {"id":"kitchen","title":"Kitchen Tools","description":"What's actually on my counter, every day.","image":"","order":1,"visible":true},
+  {"id":"supplements","title":"Supplements","description":"Three things I personally take — after checking with my nutritionist.","image":"","order":2,"visible":true},
+  {"id":"snacks","title":"Healthy Snacks","description":"Things I keep stocked so I don't reach for something I'll regret.","image":"","order":3,"visible":true},
+  {"id":"daily","title":"Daily Essentials","description":"The small things that make healthy living easier to maintain.","image":"","order":4,"visible":true}
+]

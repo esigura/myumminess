@@ -520,6 +520,7 @@ const NAV = [
   { group:"Content", items:[
     { id:"recipes", label:"Recipes", icon:"recipe" },
     { id:"products", label:"Shop products", icon:"shop" },
+    { id:"categories", label:"Shop categories", icon:"tag" },
     { id:"posts", label:"Blog posts", icon:"edit" },
     { id:"reels", label:"Reels & videos", icon:"reel" },
     { id:"testimonials", label:"Testimonials", icon:"quote" },
@@ -1225,109 +1226,382 @@ function RecipeEditor({recipe, back, toast, onSave, onDelete, ghMedia, setGhMedi
 }
 
 /* ============ Products ============ */
-function ProductsView({data, toast, ghItems, onSave, onDelete}){
+function ProductsView({data, toast, ghProdsList, setGhProdsList, ghShopCats, ghMedia, setGhMedia}){
   const [editing, setEditing] = useState(null);
-  const items = (ghItems && ghItems.length > 0) ? ghItems : data.products;
-  if (editing != null) return <ProductEditor product={editing} back={()=>setEditing(null)} toast={toast} onSave={onSave} onDelete={onDelete}/>;
+  const [statusF, setStatusF] = useState("all");
+  const [catF, setCatF]       = useState("all");
+  const [search, setSearch]   = useState("");
+
+  const items = (ghProdsList && ghProdsList.items.length > 0) ? ghProdsList.items : data.products;
+
+  const saveProdsList = async (newItems) => {
+    toast('Saving to GitHub…');
+    try {
+      const result = await ghWrite('content/products-list.json', newItems, ghProdsList.sha, 'Update products list via CMS');
+      setGhProdsList({sha: result.content.sha, items: newItems});
+      toast('Saved ✓ — deploying now');
+    } catch(e) { toast('Save failed: ' + e.message); }
+  };
+
+  const handleSave = async (product, newData) => {
+    const isNew = product._listIdx === undefined;
+    let newItems;
+    if (isNew) {
+      const nextId = items.length > 0 ? Math.max(...items.map(p=>p.id||0)) + 1 : 1;
+      newItems = [...items, {...newData, id: nextId}];
+    } else {
+      newItems = items.map((p,i) => i === product._listIdx ? {...p, ...newData} : p);
+    }
+    await saveProdsList(newItems);
+    if (isNew) setEditing(null);
+  };
+
+  const handleDelete = async (product) => {
+    if (product._listIdx === undefined) return;
+    if (!window.confirm('Delete "' + (product.title||'this product') + '"?')) return;
+    const newItems = items.filter((_,i) => i !== product._listIdx);
+    await saveProdsList(newItems);
+    setEditing(null);
+  };
+
+  if (editing != null) return <ProductEditor product={editing} back={()=>setEditing(null)} toast={toast} onSave={handleSave} onDelete={handleDelete} ghShopCats={ghShopCats} ghMedia={ghMedia} setGhMedia={setGhMedia}/>;
+
+  const catItems = ghShopCats && ghShopCats.items.length > 0 ? ghShopCats.items : [];
+  const catLabel = (id) => { const c = catItems.find(x=>x.id===id); return c ? c.title : id; };
+
+  const filtered = items.filter(p => {
+    if (statusF !== "all" && p.status !== statusF) return false;
+    if (catF !== "all" && p.category !== catF) return false;
+    if (search && !(p.title||'').toLowerCase().includes(search.toLowerCase())) return false;
+    return true;
+  });
+
+  const blankProduct = {title:'',subtitle:'',description:'',image:'',tags:[],category:catItems[0]?.id||'kitchen',shopeeHref:'',price:'',badge:'',badgeColor:'',kind:'',featured:false,featuredHome:false,homeSection:'',homeOrder:0,order:items.length+1,status:'live'};
 
   return (
     <>
       <div className="ph-head">
-        <div><div className="ek">Shop · {items.length} products{ghItems && ghItems.length > 0 ? ' · from GitHub' : ' · preview data'}</div><h1>Shop products</h1><p>Affiliate products displayed across recipes, shop page, and homepage strip.</p></div>
+        <div><div className="ek">Shop · {items.length} products{ghProdsList && ghProdsList.items.length > 0 ? ' · from GitHub' : ' · preview data'}</div><h1>Shop products</h1><p>Affiliate products on the Shop page and homepage sections. Changes deploy immediately.</p></div>
         <div className="actions">
-          <button className="btn btn-accent" onClick={()=>setEditing({title:'',slug:'',category:'Kitchen',price:'',affiliateUrl:'',description:'',status:'draft'})}><Icon name="plus" size={14}/> New product</button>
+          <button className="btn btn-accent" onClick={()=>setEditing(blankProduct)}><Icon name="plus" size={14}/> New product</button>
         </div>
       </div>
       <div className="fbar">
-        <div className="search"><Icon name="search" size={14}/><input placeholder="Search products…"/></div>
-        <div className="seg"><button className="on">All</button><button>Live</button><button>Draft</button><button>Out of stock</button></div>
-        <div className="right"><select style={{background:"#fff",border:"1px solid var(--line)",borderRadius:10,height:38,padding:"0 12px",fontSize:13}}><option>All categories</option><option>Kitchen</option><option>Pantry</option><option>Supplement</option></select></div>
+        <div className="search"><Icon name="search" size={14}/><input placeholder="Search products…" value={search} onChange={e=>setSearch(e.target.value)}/></div>
+        <div className="seg">
+          {[["all","All"],["live","Live"],["draft","Draft"]].map(([k,l])=>(
+            <button key={k} className={statusF===k?"on":""} onClick={()=>setStatusF(k)}>{l}</button>
+          ))}
+        </div>
+        <div className="right">
+          <select value={catF} onChange={e=>setCatF(e.target.value)} style={{background:"#fff",border:"1px solid var(--line)",borderRadius:10,height:38,padding:"0 12px",fontSize:13}}>
+            <option value="all">All categories</option>
+            {catItems.map(c=><option key={c.id} value={c.id}>{c.title}</option>)}
+          </select>
+        </div>
       </div>
       <table className="tbl">
-        <thead><tr><th style={{width:"34%"}}>Product</th><th>Category</th><th>Price</th><th>Stock / inventory</th><th>Sales · 30d</th><th>Updated</th><th>Status</th><th></th></tr></thead>
+        <thead><tr><th style={{width:"34%"}}>Product</th><th>Category</th><th>Price</th><th>Badge</th><th>Featured</th><th>Order</th><th>Status</th><th></th></tr></thead>
         <tbody>
-          {items.map((p,i) => (
-            <tr key={p._path || p.id || i}>
-              <td><div className="row-thumb"><div className="ph"/><div><div className="title">{p.title}</div><div className="sub">{p._name ? p._name.replace('.json','') : 'prod_' + String(p.id||0).padStart(4,"0")}</div></div></div></td>
-              <td><span className="chip" style={{background:"var(--surface-2)",color:"#6b6658"}}>{p.cat || p.category || '—'}</span></td>
-              <td className="num">{p.price || '—'}</td>
-              <td>{p.stockWarn ? <span className="chip low">{p.stock}</span> : <span style={{color:"var(--muted)",fontSize:12.5}}>{p.stock || '—'}</span>}</td>
-              <td className="num">{p.sales || '—'}</td>
-              <td className="num">{p.updated || '—'}</td>
-              <td><span className={"chip " + (p.status||'draft')}>{p.status==="live"?"Live":"Draft"}</span></td>
-              <td className="act"><button className="icon-btn" onClick={e=>{e.stopPropagation();setEditing(p)}}><Icon name="edit" size={14}/></button></td>
-            </tr>
-          ))}
+          {filtered.map((p,i) => {
+            const idx = items.indexOf(p);
+            return (
+              <tr key={p.id||i} onClick={()=>setEditing({...p, _listIdx:idx})} style={{cursor:"pointer"}}>
+                <td><div className="row-thumb">
+                  {p.image ? <img src={p.image} style={{width:44,height:44,borderRadius:8,objectFit:"cover",flexShrink:0}}/> : <div className={"ph "+(p.kind||"")} style={{width:44,height:44,borderRadius:8,flexShrink:0}}><span className="lbl">{p.category}</span></div>}
+                  <div><div className="title">{p.title}</div><div className="sub">{p.subtitle||'—'}</div></div>
+                </div></td>
+                <td><span className="chip" style={{background:"var(--surface-2)",color:"#6b6658"}}>{catLabel(p.category)||p.category||'—'}</span></td>
+                <td className="num">{p.price||'—'}</td>
+                <td>{p.badge ? <span className="chip" style={{background:"var(--ink)",color:"#fff",fontSize:10}}>{p.badge}</span> : <span style={{color:"var(--muted)"}}>—</span>}</td>
+                <td className="num">{p.featuredHome ? <span className="chip live">Home</span> : <span style={{color:"var(--muted)"}}>—</span>}</td>
+                <td className="num">{p.order||'—'}</td>
+                <td><span className={"chip "+(p.status||'draft')}>{p.status==="live"?"Live":"Draft"}</span></td>
+                <td className="act"><button className="icon-btn" onClick={e=>{e.stopPropagation();setEditing({...p,_listIdx:idx});}}><Icon name="edit" size={14}/></button></td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
     </>
   );
 }
 
-function ProductEditor({product, back, toast, onSave, onDelete}){
+function ProductEditor({product, back, toast, onSave, onDelete, ghShopCats, ghMedia, setGhMedia}){
+  const isNew = product._listIdx === undefined;
+  const catItems = ghShopCats && ghShopCats.items.length > 0 ? ghShopCats.items : [{id:'kitchen',title:'Kitchen Tools'},{id:'supplements',title:'Supplements'},{id:'snacks',title:'Healthy Snacks'},{id:'daily',title:'Daily Essentials'}];
   const [local, setLocal] = useState({
-    title: product.title || '',
-    slug: product.slug || (product.title||'').toLowerCase().replace(/[^a-z0-9]+/g,'-'),
-    category: product.category || product.cat || 'Kitchen',
-    price: product.price || '',
-    affiliateUrl: product.affiliateUrl || product.url || '',
-    description: product.description || product.blurb || '',
-    commission: product.commission || '',
-    status: product.status || 'draft',
+    title:       product.title       || '',
+    subtitle:    product.subtitle    || '',
+    description: product.description || '',
+    category:    product.category    || catItems[0]?.id || 'kitchen',
+    shopeeHref:  product.shopeeHref  || '',
+    price:       product.price       || '',
+    badge:       product.badge       || '',
+    badgeColor:  product.badgeColor  || '',
+    kind:        product.kind        || '',
+    featured:    !!product.featured,
+    featuredHome:!!product.featuredHome,
+    homeSection: product.homeSection || '',
+    homeOrder:   product.homeOrder   || 0,
+    order:       product.order       || 1,
+    status:      product.status      || 'live',
   });
+  const [image, setImage]   = useState(product.image || '');
+  const [tags, setTags]     = useState(Array.isArray(product.tags) ? product.tags.join(', ') : (product.tags||''));
+  const [newTag, setNewTag] = useState('');
+  const set = (k,v) => setLocal(f=>({...f,[k]:v}));
+
   const save = async () => {
     if (!local.title) { toast('Title is required'); return; }
-    const slug = local.slug || local.title.toLowerCase().replace(/[^a-z0-9]+/g,'-');
-    const itemRef = product._path ? product : { _path: 'content/products/' + slug + '.json', _name: slug + '.json' };
-    const fullData = { title: local.title, slug, category: local.category, price: local.price, affiliateUrl: local.affiliateUrl, description: local.description, commission: local.commission, status: local.status };
-    if (onSave) { await onSave(itemRef, fullData); if (!product._path) back(); }
-    else { toast('Product saved'); }
+    const tagArr = tags.split(',').map(t=>t.trim()).filter(Boolean);
+    const fullData = { ...local, image, tags: tagArr };
+    if (onSave) { await onSave(product, fullData); if (isNew) back(); }
   };
-  const handleDelete = async () => {
-    if (!product._path || !window.confirm('Delete "' + (local.title||'this product') + '"?')) return;
-    if (onDelete) { await onDelete(product); back(); }
+
+  const addTag = () => {
+    const t = newTag.trim();
+    if (!t) return;
+    const cur = tags ? tags.split(',').map(x=>x.trim()).filter(Boolean) : [];
+    if (!cur.includes(t)) setTags([...cur,t].join(', '));
+    setNewTag('');
   };
+  const removeTag = (t) => setTags(tags.split(',').map(x=>x.trim()).filter(x=>x&&x!==t).join(', '));
+  const tagArr = tags ? tags.split(',').map(t=>t.trim()).filter(Boolean) : [];
+
   return (
     <>
       <div className="ph-head">
         <div>
-          <div className="ek" style={{display:"flex",gap:8,alignItems:"center"}}><button onClick={back} className="btn btn-ghost btn-sm" style={{height:22,padding:"0 8px",fontSize:11}}><Icon name="chevR" size={10}/> Products</button> {product._path ? 'Edit product' : 'New product'}</div>
+          <div className="ek" style={{display:"flex",gap:8,alignItems:"center"}}>
+            <button onClick={back} className="btn btn-ghost btn-sm" style={{height:22,padding:"0 8px",fontSize:11}}><Icon name="chevR" size={10}/> Products</button>
+            {isNew ? 'New product' : 'Edit product'}
+          </div>
           <h1>{local.title || 'Untitled product'}</h1>
         </div>
         <div className="actions">
-          {product._path && <button className="btn btn-danger" onClick={handleDelete}><Icon name="trash" size={14}/> Delete</button>}
-          <button className="btn btn-accent" onClick={save}><Icon name="save" size={14}/> {product._path ? 'Save' : 'Create product'}</button>
+          {!isNew && <button className="btn btn-danger" onClick={()=>onDelete(product)}><Icon name="trash" size={14}/> Delete</button>}
+          <button className="btn btn-accent" onClick={save}><Icon name="save" size={14}/> {isNew ? 'Create product' : 'Save changes'}</button>
         </div>
       </div>
+
       <div className="editor">
         <div>
           <div className="card">
             <div className="card-head"><h3>Product details</h3></div>
             <div className="field-grid">
-              <div className="fld full"><label>Title</label><input value={local.title} onChange={e=>setLocal({...local,title:e.target.value,slug:e.target.value.toLowerCase().replace(/[^a-z0-9]+/g,'-')})}/></div>
-              <div className="fld full"><label>Slug</label><input value={local.slug} onChange={e=>setLocal({...local,slug:e.target.value})}/><span className="hint">/shop/{local.slug}</span></div>
-              <div className="fld full"><label>Description</label><textarea value={local.description} onChange={e=>setLocal({...local,description:e.target.value})}/></div>
+              <div className="fld full"><label>Title</label><input value={local.title} onChange={e=>set('title',e.target.value)}/></div>
+              <div className="fld full"><label>Subtitle <span style={{fontWeight:400,color:"var(--muted)"}}>— category label shown on card (e.g. "Kitchen Tool")</span></label><input value={local.subtitle} onChange={e=>set('subtitle',e.target.value)} placeholder="e.g. Pantry, Supplements, Kitchenware…"/></div>
+              <div className="fld full"><label>Description</label><textarea value={local.description} onChange={e=>set('description',e.target.value)} style={{minHeight:80}}/></div>
               <div className="fld"><label>Category</label>
-                <select value={local.category} onChange={e=>setLocal({...local,category:e.target.value})}>
-                  <option>Kitchen</option><option>Pantry</option><option>Supplement</option><option>Tools</option><option>Books</option>
+                <select value={local.category} onChange={e=>set('category',e.target.value)}>
+                  {catItems.map(c=><option key={c.id} value={c.id}>{c.title}</option>)}
                 </select>
               </div>
-              <div className="fld"><label>Price (display)</label><input value={local.price} onChange={e=>setLocal({...local,price:e.target.value})} placeholder="$34"/></div>
-              <div className="fld"><label>Commission %</label><input value={local.commission} onChange={e=>setLocal({...local,commission:e.target.value})} placeholder="4.0%"/></div>
-              <div className="fld full"><label>Affiliate URL</label><input value={local.affiliateUrl} onChange={e=>setLocal({...local,affiliateUrl:e.target.value})} placeholder="https://amzn.to/..."/></div>
+              <div className="fld"><label>Price (display)</label><input value={local.price} onChange={e=>set('price',e.target.value)} placeholder="$34 or See Shopee"/></div>
+              <div className="fld full"><label>Shopee Link</label><input type="url" value={local.shopeeHref} onChange={e=>set('shopeeHref',e.target.value)} placeholder="https://s.shopee.vn/…"/></div>
+            </div>
+          </div>
+
+          <div className="card">
+            <div className="card-head"><h3>Badge &amp; style</h3></div>
+            <div className="field-grid">
+              <div className="fld"><label>Badge text</label><input value={local.badge} onChange={e=>set('badge',e.target.value)} placeholder="MY DAILY"/></div>
+              <div className="fld"><label>Badge colour</label>
+                <select value={local.badgeColor} onChange={e=>set('badgeColor',e.target.value)}>
+                  <option value="">Default (ink)</option><option value="matcha">Matcha</option><option value="peach">Peach</option>
+                </select>
+              </div>
+              <div className="fld"><label>Card kind <span style={{fontWeight:400,color:"var(--muted)"}}>— placeholder bg</span></label>
+                <select value={local.kind} onChange={e=>set('kind',e.target.value)}>
+                  <option value="">Default</option><option value="matcha">Matcha</option><option value="peach">Peach</option><option value="dark">Dark</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div className="card">
+            <div className="card-head"><h3>Homepage feature</h3><span className="hint">Products with a homeSection appear in grouped strips on the homepage</span></div>
+            <label style={{display:"flex",alignItems:"center",gap:10,cursor:"pointer",marginBottom:14}}>
+              <input type="checkbox" checked={local.featuredHome} onChange={e=>set('featuredHome',e.target.checked)} style={{accentColor:"var(--accent)",width:15,height:15}}/>
+              <span style={{fontSize:13}}>Feature on homepage</span>
+            </label>
+            {local.featuredHome && (
+              <div className="field-grid">
+                <div className="fld full"><label>Section label <span style={{fontWeight:400,color:"var(--muted)"}}>— e.g. "Most Used Daily"</span></label><input value={local.homeSection} onChange={e=>set('homeSection',e.target.value)} placeholder="Most Used Daily"/></div>
+                <div className="fld"><label>Order in section</label><input type="number" value={local.homeOrder} onChange={e=>set('homeOrder',parseInt(e.target.value)||0)} min={1} max={99}/></div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div>
+          <div className="card">
+            <div className="card-head"><h3>Status &amp; order</h3></div>
+            <div className="fld">
+              <select value={local.status} onChange={e=>set('status',e.target.value)}>
+                <option value="live">Published · Live</option>
+                <option value="draft">Draft</option>
+              </select>
+            </div>
+            <div className="fld"><label>Display order in category</label><input type="number" value={local.order} onChange={e=>set('order',parseInt(e.target.value)||1)} min={1}/></div>
+            <label style={{display:"flex",alignItems:"center",gap:10,cursor:"pointer",marginTop:8}}>
+              <input type="checkbox" checked={local.featured} onChange={e=>set('featured',e.target.checked)} style={{accentColor:"var(--accent)",width:15,height:15}}/>
+              <span style={{fontSize:13}}>Mark as featured (badge highlight)</span>
+            </label>
+          </div>
+
+          <div className="card">
+            <div className="card-head"><h3>Product image</h3></div>
+            <ImagePicker value={image} onChange={setImage} ghMedia={ghMedia} setGhMedia={setGhMedia} toast={toast}/>
+          </div>
+
+          <div className="card">
+            <div className="card-head"><h3>Tags</h3></div>
+            <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:10}}>
+              {tagArr.map(t => (
+                <span key={t} style={{background:"var(--surface-2)",padding:"5px 10px",borderRadius:999,fontSize:12,display:"inline-flex",alignItems:"center",gap:6}}>
+                  <Icon name="tag" size={10} stroke={2}/> {t}
+                  <button onClick={()=>removeTag(t)} style={{background:"none",border:0,cursor:"pointer",color:"var(--muted)",fontSize:14,lineHeight:1,padding:0}}>×</button>
+                </span>
+              ))}
+            </div>
+            <div style={{display:"flex",gap:6}}>
+              <input value={newTag} onChange={e=>setNewTag(e.target.value)} onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault();addTag();}}} placeholder="Add tag…" style={{flex:1,background:"var(--input)",border:"1px solid transparent",borderRadius:8,padding:"8px 10px",fontSize:13,outline:0}}/>
+              <button className="btn btn-ghost btn-sm" onClick={addTag}><Icon name="plus" size={12}/> Add</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+/* ============ Shop Categories ============ */
+function CategoriesView({ghShopCats, setGhShopCats, toast, ghMedia, setGhMedia}){
+  const [editing, setEditing] = useState(null);
+  const items = ghShopCats && ghShopCats.items.length > 0 ? ghShopCats.items : [];
+
+  const saveCatsList = async (newItems) => {
+    toast('Saving to GitHub…');
+    try {
+      const result = await ghWrite('content/categories.json', newItems, ghShopCats.sha, 'Update shop categories via CMS');
+      setGhShopCats({sha: result.content.sha, items: newItems});
+      toast('Saved ✓ — deploying now');
+    } catch(e) { toast('Save failed: ' + e.message); }
+  };
+
+  const handleSave = async (cat, newData) => {
+    const isNew = cat._listIdx === undefined;
+    let newItems;
+    if (isNew) {
+      newItems = [...items, newData];
+    } else {
+      newItems = items.map((c,i) => i === cat._listIdx ? {...c, ...newData} : c);
+    }
+    await saveCatsList(newItems);
+    if (isNew) setEditing(null);
+  };
+
+  const handleDelete = async (cat) => {
+    if (cat._listIdx === undefined) return;
+    if (!window.confirm('Delete "' + (cat.title||'this category') + '"? Products in this category will still exist.')) return;
+    const newItems = items.filter((_,i) => i !== cat._listIdx);
+    await saveCatsList(newItems);
+    setEditing(null);
+  };
+
+  if (editing != null) return <CategoryEditor cat={editing} back={()=>setEditing(null)} toast={toast} onSave={handleSave} onDelete={handleDelete} ghMedia={ghMedia} setGhMedia={setGhMedia}/>;
+
+  return (
+    <>
+      <div className="ph-head">
+        <div><div className="ek">Shop categories · {items.length}{ghShopCats && ghShopCats.items.length > 0 ? ' · from GitHub' : ''}</div><h1>Shop categories</h1><p>Categories group products on the Shop page and power the category nav. Order controls the tab sequence.</p></div>
+        <div className="actions">
+          <button className="btn btn-accent" onClick={()=>setEditing({id:'',title:'',description:'',image:'',order:items.length+1,visible:true})}><Icon name="plus" size={14}/> New category</button>
+        </div>
+      </div>
+      {items.length === 0 && <div style={{padding:'48px 0',textAlign:'center',color:'var(--muted)',fontSize:14}}>No categories loaded yet. Sign in with GitHub or add your first category above.</div>}
+      <table className="tbl">
+        <thead><tr><th style={{width:"40%"}}>Category</th><th>ID</th><th>Order</th><th>Visible</th><th></th></tr></thead>
+        <tbody>
+          {[...items].sort((a,b)=>(a.order||99)-(b.order||99)).map((c,i) => {
+            const idx = items.indexOf(c);
+            return (
+              <tr key={c.id||i} onClick={()=>setEditing({...c,_listIdx:idx})} style={{cursor:"pointer"}}>
+                <td><div className="row-thumb">
+                  {c.image ? <img src={c.image} style={{width:44,height:44,borderRadius:8,objectFit:"cover",flexShrink:0}}/> : <div className="ph matcha" style={{width:44,height:44,borderRadius:8,flexShrink:0}}/>}
+                  <div><div className="title">{c.title}</div><div className="sub">{c.description||'—'}</div></div>
+                </div></td>
+                <td><span style={{fontFamily:"var(--mono)",fontSize:11.5,color:"var(--muted)"}}>{c.id}</span></td>
+                <td className="num">{c.order||'—'}</td>
+                <td>{c.visible !== false ? <span className="chip live">Visible</span> : <span className="chip draft">Hidden</span>}</td>
+                <td className="act"><button className="icon-btn" onClick={e=>{e.stopPropagation();setEditing({...c,_listIdx:idx});}}><Icon name="edit" size={14}/></button></td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </>
+  );
+}
+
+function CategoryEditor({cat, back, toast, onSave, onDelete, ghMedia, setGhMedia}){
+  const isNew = cat._listIdx === undefined;
+  const [local, setLocal] = useState({
+    id:          cat.id          || '',
+    title:       cat.title       || '',
+    description: cat.description || '',
+    order:       cat.order       || 1,
+    visible:     cat.visible !== false,
+  });
+  const [image, setImage] = useState(cat.image || '');
+  const set = (k,v) => setLocal(f=>({...f,[k]:v}));
+
+  const save = async () => {
+    if (!local.id || !local.title) { toast('ID and title are required'); return; }
+    const fullData = { ...local, image };
+    if (onSave) { await onSave(cat, fullData); if (isNew) back(); }
+  };
+
+  return (
+    <>
+      <div className="ph-head">
+        <div>
+          <div className="ek" style={{display:"flex",gap:8,alignItems:"center"}}>
+            <button onClick={back} className="btn btn-ghost btn-sm" style={{height:22,padding:"0 8px",fontSize:11}}><Icon name="chevR" size={10}/> Categories</button>
+            {isNew ? 'New category' : 'Edit category'}
+          </div>
+          <h1>{local.title || 'Untitled category'}</h1>
+        </div>
+        <div className="actions">
+          {!isNew && <button className="btn btn-danger" onClick={()=>onDelete(cat)}><Icon name="trash" size={14}/> Delete</button>}
+          <button className="btn btn-accent" onClick={save}><Icon name="save" size={14}/> {isNew ? 'Create category' : 'Save changes'}</button>
+        </div>
+      </div>
+      <div className="editor">
+        <div>
+          <div className="card">
+            <div className="card-head"><h3>Category details</h3></div>
+            <div className="field-grid">
+              <div className="fld full"><label>Title</label><input value={local.title} onChange={e=>set('title',e.target.value)} placeholder="Kitchen Tools"/></div>
+              <div className="fld full"><label>ID <span style={{fontWeight:400,color:"var(--muted)"}}>— short key used in product files, no spaces</span></label><input value={local.id} onChange={e=>set('id',e.target.value.toLowerCase().replace(/[^a-z0-9-]/g,''))} placeholder="kitchen" style={{fontFamily:"var(--mono)"}}/></div>
+              <div className="fld full"><label>Description</label><textarea value={local.description} onChange={e=>set('description',e.target.value)} placeholder="What's actually on my counter, every day." style={{minHeight:60}}/></div>
             </div>
           </div>
         </div>
         <div>
           <div className="card">
-            <div className="card-head"><h3>Status</h3></div>
-            <div className="fld">
-              <select value={local.status} onChange={e=>setLocal({...local,status:e.target.value})}>
-                <option value="live">Published · Live</option>
-                <option value="draft">Draft</option>
-              </select>
-            </div>
-            {product._path && <div className="kv"><div className="k">File</div><div style={{fontFamily:"var(--mono)",fontSize:11}}>{product._name}</div></div>}
+            <div className="card-head"><h3>Display</h3></div>
+            <div className="fld"><label>Display order</label><input type="number" value={local.order} onChange={e=>set('order',parseInt(e.target.value)||1)} min={1}/></div>
+            <label style={{display:"flex",alignItems:"center",gap:10,cursor:"pointer",marginTop:10}}>
+              <input type="checkbox" checked={local.visible} onChange={e=>set('visible',e.target.checked)} style={{accentColor:"var(--accent)",width:15,height:15}}/>
+              <span style={{fontSize:13}}>Visible on site</span>
+            </label>
+          </div>
+          <div className="card">
+            <div className="card-head"><h3>Cover image</h3></div>
+            <ImagePicker value={image} onChange={setImage} ghMedia={ghMedia} setGhMedia={setGhMedia} toast={toast}/>
           </div>
         </div>
       </div>
@@ -1881,7 +2155,8 @@ function App(){
   const [data, setData]           = useState(SEED);
   const [ghPages, setGhPages]     = useState({});
   const [ghRecList, setGhRecList]  = useState({sha:undefined, items:[]});
-  const [ghProds, setGhProds]     = useState([]);
+  const [ghProds, setGhProds]     = useState({sha:undefined, items:[]});
+  const [ghShopCats, setGhShopCats] = useState({sha:undefined, items:[]});
   const [ghPosts, setGhPosts]     = useState([]);
   const [ghReels, setGhReels]     = useState({sha:undefined, items:[]});
   const [ghTestim, setGhTestim]   = useState([]);
@@ -1895,19 +2170,22 @@ function App(){
   const doLoadGitHub = async () => {
     setLoading(true);
     try {
-      const [pages, recListFile, prods, posts, reels, testim, media, commits] = await Promise.all([
+      const [pages, recListFile, prodsFile, posts, reels, testim, media, commits, catsFile] = await Promise.all([
         loadPagesFromGitHub(),
         ghRead('content/recipes-list.json').catch(()=>null),
-        loadCollectionFromGitHub('content/products'),
+        ghRead('content/products-list.json').catch(()=>null),
         loadCollectionFromGitHub('content/posts'),
         ghRead('content/reels.json').catch(()=>null),
         loadCollectionFromGitHub('content/testimonials'),
         loadMediaFromGitHub('Website'),
         loadCommitsFromGitHub(12),
+        ghRead('content/categories.json').catch(()=>null),
       ]);
       setGhPages(pages);
       setGhRecList(recListFile ? {sha:recListFile.sha, items:Array.isArray(recListFile.data)?recListFile.data:[]} : {sha:undefined,items:[]});
-      setGhProds(prods); setGhPosts(posts);
+      setGhProds(prodsFile ? {sha:prodsFile.sha, items:Array.isArray(prodsFile.data)?prodsFile.data:[]} : {sha:undefined,items:[]});
+      setGhShopCats(catsFile ? {sha:catsFile.sha, items:Array.isArray(catsFile.data)?catsFile.data:[]} : {sha:undefined,items:[]});
+      setGhPosts(posts);
       setGhReels(reels ? {sha:reels.sha, items:Array.isArray(reels.data)?reels.data:[]} : {sha:undefined,items:[]}); setGhTestim(testim); setGhMedia(media); setGhCommits(commits);
     } catch(e) { console.error('GitHub load error:', e); showToast('Could not load content from GitHub'); }
     // load GitHub user info
@@ -1954,8 +2232,7 @@ function App(){
       const result = await ghWrite(item._path, newData, item._sha, (isNew ? 'Create ' : 'Update ') + item._name + ' via CMS');
       const newSha = result.content.sha;
       const saved = { ...newData, _sha: newSha, _path: item._path, _name: item._name };
-      if      (item._path.startsWith('content/products'))     setGhProds(prev => isNew ? [...prev, saved] : prev.map(p => p._path===item._path ? saved : p));
-      else if (item._path.startsWith('content/posts'))        setGhPosts(prev => isNew ? [...prev, saved] : prev.map(p => p._path===item._path ? saved : p));
+      if      (item._path.startsWith('content/posts'))        setGhPosts(prev => isNew ? [...prev, saved] : prev.map(p => p._path===item._path ? saved : p));
       else if (item._path.startsWith('content/testimonials')) setGhTestim(prev => isNew ? [...prev, saved] : prev.map(t => t._path===item._path ? saved : t));
       showToast((isNew ? 'Created' : 'Saved') + ' ✓ — deploying now');
     } catch(e) { showToast('Save failed: ' + e.message); }
@@ -1966,8 +2243,7 @@ function App(){
     showToast('Deleting…');
     try {
       await ghDelete(item._path, item._sha, 'Delete ' + item._name + ' via CMS');
-      if      (item._path.startsWith('content/products'))     setGhProds(prev => prev.filter(p => p._path!==item._path));
-      else if (item._path.startsWith('content/posts'))        setGhPosts(prev => prev.filter(p => p._path!==item._path));
+      if      (item._path.startsWith('content/posts'))        setGhPosts(prev => prev.filter(p => p._path!==item._path));
       else if (item._path.startsWith('content/testimonials')) setGhTestim(prev => prev.filter(t => t._path!==item._path));
       showToast('Deleted ✓');
     } catch(e) { showToast('Delete failed: ' + e.message); }
@@ -1975,20 +2251,21 @@ function App(){
 
   if (!authed) return <Login />;
 
-  const crumbs = {dashboard:'Dashboard',pages:'Pages',recipes:'Recipes',products:'Products',posts:'Blog posts',reels:'Reels',testimonials:'Testimonials',media:'Media library',settings:'Settings'};
+  const crumbs = {dashboard:'Dashboard',pages:'Pages',recipes:'Recipes',products:'Shop products',categories:'Shop categories',posts:'Blog posts',reels:'Reels',testimonials:'Testimonials',media:'Media library',settings:'Settings'};
   const crumb = sub ? (crumbs[route] + ' / ' + (sub==='home'?'Home':sub)) : crumbs[route];
 
   return (
     <div className="app">
-      <Sidebar route={route} setRoute={r=>{setRoute(r);setSub(null)}} onLogout={handleLogout} ghUser={ghUser} counts={{recipes:ghRecList.items.length,products:ghProds.length,posts:ghPosts.length,reels:ghReels.items.length,testimonials:ghTestim.length,media:ghMedia.length}}/>
+      <Sidebar route={route} setRoute={r=>{setRoute(r);setSub(null)}} onLogout={handleLogout} ghUser={ghUser} counts={{recipes:ghRecList.items.length,products:ghProds.items.length,categories:ghShopCats.items.length,posts:ghPosts.length,reels:ghReels.items.length,testimonials:ghTestim.length,media:ghMedia.length}}/>
       <div className="main">
         <Topbar crumb={crumb} loading={loading}/>
         <div className="pageview">
-          {route==="dashboard"    && <Dashboard setRoute={setRoute} data={data} ghRec={ghRecList.items} ghProds={ghProds} ghPosts={ghPosts} ghCommits={ghCommits} toast={showToast}/>}
+          {route==="dashboard"    && <Dashboard setRoute={setRoute} data={data} ghRec={ghRecList.items} ghProds={ghProds.items} ghPosts={ghPosts} ghCommits={ghCommits} toast={showToast}/>}
           {route==="pages"  && !sub  && <PagesList data={data} setData={setData} openPage={id=>setSub(id)} toast={showToast}/>}
           {route==="pages"  && sub && (()=>{ const fk={'recipes-index':'recipes','shop-index':'shop','blog-index':'blog'}[sub]||sub; return <PageFieldEditor pageId={sub} data={data} back={()=>setSub(null)} toast={showToast} ghPage={ghPages[fk]} onSave={local=>savePage(fk,fk,local)} ghMedia={ghMedia} setGhMedia={setGhMedia} ghRecList={ghRecList}/>; })()}
           {route==="recipes"      && <RecipesView data={data} toast={showToast} ghRecList={ghRecList} setGhRecList={setGhRecList} ghCats={(ghPages.recipes&&ghPages.recipes.data&&ghPages.recipes.data.categories)||[]} ghMedia={ghMedia} setGhMedia={setGhMedia}/>}
-          {route==="products"     && <ProductsView data={data} toast={showToast} ghItems={ghProds} onSave={saveEntry} onDelete={deleteEntry}/>}
+          {route==="products"     && <ProductsView data={data} toast={showToast} ghProdsList={ghProds} setGhProdsList={setGhProds} ghShopCats={ghShopCats} ghMedia={ghMedia} setGhMedia={setGhMedia}/>}
+          {route==="categories"   && <CategoriesView ghShopCats={ghShopCats} setGhShopCats={setGhShopCats} toast={showToast} ghMedia={ghMedia} setGhMedia={setGhMedia}/>}
           {route==="posts"        && <BlogView toast={showToast} ghItems={ghPosts} onSave={saveEntry} onDelete={deleteEntry}/>}
           {route==="reels"        && <ReelsView data={data} toast={showToast} ghReelsList={ghReels} setGhReelsList={setGhReels} ghMedia={ghMedia} setGhMedia={setGhMedia}/>}
           {route==="testimonials" && <TestimonialsView data={data} toast={showToast} ghItems={ghTestim} onSave={saveEntry} onDelete={deleteEntry}/>}
