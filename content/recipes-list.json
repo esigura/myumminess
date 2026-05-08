@@ -522,17 +522,24 @@
     "slug": "high-protein-chia-pudding",
     "title": "High-Protein Chia Pudding",
     "cat": "snacks",
-    "tags": "No Cook · High Protein · Gut Health",
+    "tags": [
+      "No Cook · High Protein · Gut Health"
+    ],
     "time": "5 min",
     "stars": 4.7,
     "reviews": 198,
     "kind": "matcha",
     "status": "live",
-    "heroImage": "",
+    "heroImage": "/Website/HPCP_Myumminess.png",
     "blurb": "Make it in a jar on Sunday night. It's dessert that works as breakfast. The protein version uses Greek yoghurt instead of just milk.",
     "servings": "1",
     "difficulty": "Easy",
-    "nutrition": {},
+    "nutrition": {
+      "calories": "",
+      "protein": "",
+      "carbs": "",
+      "fat": ""
+    },
     "benefits": [
       "Chia seeds expand to create a gel that keeps you full",
       "Greek yoghurt adds 15g protein per serving",
