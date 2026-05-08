@@ -162,7 +162,7 @@
     "reviews": 518,
     "kind": "",
     "status": "live",
-    "heroImage": "/Website/EnjoyingBreakfastsetupIV.png",
+    "heroImage": "/Website/BerryOats_Myumminess.png",
     "blurb": "Sunday night, 8 minutes. Monday morning, breakfast is done. This is one of the highest-traffic recipes on my TikTok for good reason.",
     "servings": "1",
     "difficulty": "Easy",
@@ -377,17 +377,24 @@
     "slug": "gut-health-smoothie-bowl",
     "title": "Gut Health Smoothie Bowl",
     "cat": "gut",
-    "tags": "Probiotic · Gut Health · Breakfast",
+    "tags": [
+      "Probiotic · Gut Health · Breakfast"
+    ],
     "time": "12 min",
     "stars": 4.8,
     "reviews": 347,
     "kind": "",
     "status": "live",
-    "heroImage": "",
+    "heroImage": "/Website/Gut_Health_Myumminess.png",
     "blurb": "My most-requested recipe after the green smoothie. The thick consistency comes from the ratio — less liquid, more frozen fruit.",
     "servings": "1",
     "difficulty": "Easy",
-    "nutrition": {},
+    "nutrition": {
+      "calories": "",
+      "protein": "",
+      "carbs": "",
+      "fat": ""
+    },
     "benefits": [
       "Live cultures from kefir or yoghurt support gut microbiome",
       "Prebiotic fibre from banana and oats feeds good bacteria",
@@ -443,17 +450,24 @@
     "slug": "lemon-baked-salmon",
     "title": "Lemon Baked Salmon",
     "cat": "weight",
-    "tags": "High Protein · Omega-3 · Easy",
+    "tags": [
+      "High Protein · Omega-3 · Easy"
+    ],
     "time": "18 min",
     "stars": 4.8,
     "reviews": 276,
     "kind": "peach",
     "status": "live",
-    "heroImage": "",
+    "heroImage": "/Website/Zesty Salmon_Baked.png",
     "blurb": "The recipe I send to anyone who says they don't know how to cook fish. 4 ingredients, one pan, done in under 20 minutes.",
     "servings": "1",
     "difficulty": "Easy",
-    "nutrition": {},
+    "nutrition": {
+      "calories": "",
+      "protein": "",
+      "carbs": "",
+      "fat": ""
+    },
     "benefits": [
       "Rich in omega-3 fatty acids for anti-inflammatory support",
       "High-quality protein — around 35g per portion",
@@ -497,6 +511,9 @@
       },
       {
         "text": "Rest for 2 minutes before serving. Finish with fresh dill if using."
+      },
+      {
+        "text": "Cook until the salmon flakes easily with a fork — opaque inside, not translucent."
       }
     ]
   },
@@ -505,17 +522,24 @@
     "slug": "high-protein-chia-pudding",
     "title": "High-Protein Chia Pudding",
     "cat": "snacks",
-    "tags": "No Cook · High Protein · Gut Health",
+    "tags": [
+      "No Cook · High Protein · Gut Health"
+    ],
     "time": "5 min",
     "stars": 4.7,
     "reviews": 198,
     "kind": "matcha",
     "status": "live",
-    "heroImage": "",
+    "heroImage": "/Website/HPCP_Myumminess.png",
     "blurb": "Make it in a jar on Sunday night. It's dessert that works as breakfast. The protein version uses Greek yoghurt instead of just milk.",
     "servings": "1",
     "difficulty": "Easy",
-    "nutrition": {},
+    "nutrition": {
+      "calories": "",
+      "protein": "",
+      "carbs": "",
+      "fat": ""
+    },
     "benefits": [
       "Chia seeds expand to create a gel that keeps you full",
       "Greek yoghurt adds 15g protein per serving",
