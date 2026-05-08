@@ -1336,7 +1336,7 @@ function ProductEditor({product, back, toast, onSave, onDelete}){
 }
 
 /* ============ Reels ============ */
-function ReelsView({data, toast, ghReelsList, setGhReelsList}){
+function ReelsView({data, toast, ghReelsList, setGhReelsList, ghMedia, setGhMedia}){
   const [editing, setEditing] = useState(null);
   const items = (ghReelsList && ghReelsList.items.length > 0) ? ghReelsList.items : data.reels;
 
@@ -1369,7 +1369,7 @@ function ReelsView({data, toast, ghReelsList, setGhReelsList}){
     setEditing(null);
   };
 
-  if (editing != null) return <ReelEditor reel={editing} back={()=>setEditing(null)} toast={toast} onSave={handleSave} onDelete={handleDelete}/>;
+  if (editing != null) return <ReelEditor reel={editing} back={()=>setEditing(null)} toast={toast} onSave={handleSave} onDelete={handleDelete} ghMedia={ghMedia} setGhMedia={setGhMedia}/>;
 
   return (
     <>
@@ -1416,7 +1416,7 @@ function ReelsView({data, toast, ghReelsList, setGhReelsList}){
   );
 }
 
-function ReelEditor({reel, back, toast, onSave, onDelete}){
+function ReelEditor({reel, back, toast, onSave, onDelete, ghMedia, setGhMedia}){
   const isNew = reel._listIdx === undefined;
   const [form, setForm] = useState({
     title:         reel.title||'',
@@ -1451,7 +1451,7 @@ function ReelEditor({reel, back, toast, onSave, onDelete}){
           <div className="fld"><label>Platform</label><select value={form.platform} onChange={e=>set('platform',e.target.value)}><option>TikTok</option><option>Instagram</option><option>Facebook</option></select></div>
           <div className="fld"><label>Title</label><input value={form.title} onChange={e=>set('title',e.target.value)} placeholder="5-min Green Smoothie"/></div>
           <div className="fld full"><label>Post URL</label><input type="url" value={form.postUrl} onChange={e=>set('postUrl',e.target.value)} placeholder="https://www.tiktok.com/@myumminess/video/..."/></div>
-          <div className="fld full"><label>Thumbnail URL <span style={{color:"var(--muted)",fontWeight:400,fontSize:11}}>(optional)</span></label><input type="url" value={form.thumbnail} onChange={e=>set('thumbnail',e.target.value)} placeholder="https://...image.jpg"/></div>
+          <div className="fld full"><label>Thumbnail Image <span style={{color:"var(--muted)",fontWeight:400,fontSize:11}}>(1 image per post — optional, placeholder shown if empty)</span></label><ImagePicker value={form.thumbnail} onChange={v=>set('thumbnail',v)} ghMedia={ghMedia} setGhMedia={setGhMedia} toast={toast}/></div>
           <div className="fld"><label>Duration</label><input value={form.duration} onChange={e=>set('duration',e.target.value)} placeholder="1:30"/></div>
           <div className="fld"><label>View Count</label><input value={form.viewCount} onChange={e=>set('viewCount',e.target.value)} placeholder="1.2M"/></div>
           <div className="fld full"><label>Caption / Description <span style={{color:"var(--muted)",fontWeight:400,fontSize:11}}>(optional)</span></label><textarea value={form.description} onChange={e=>set('description',e.target.value)} rows={2} placeholder="A short caption shown on the Follow page…" style={{width:"100%",fontFamily:"inherit",fontSize:13,padding:"8px 10px",border:"1px solid var(--line)",borderRadius:8,resize:"vertical",outline:"none",color:"var(--ink)",background:"var(--input)"}}/></div>
@@ -1990,7 +1990,7 @@ function App(){
           {route==="recipes"      && <RecipesView data={data} toast={showToast} ghRecList={ghRecList} setGhRecList={setGhRecList} ghCats={(ghPages.recipes&&ghPages.recipes.data&&ghPages.recipes.data.categories)||[]} ghMedia={ghMedia} setGhMedia={setGhMedia}/>}
           {route==="products"     && <ProductsView data={data} toast={showToast} ghItems={ghProds} onSave={saveEntry} onDelete={deleteEntry}/>}
           {route==="posts"        && <BlogView toast={showToast} ghItems={ghPosts} onSave={saveEntry} onDelete={deleteEntry}/>}
-          {route==="reels"        && <ReelsView data={data} toast={showToast} ghReelsList={ghReels} setGhReelsList={setGhReels}/>}
+          {route==="reels"        && <ReelsView data={data} toast={showToast} ghReelsList={ghReels} setGhReelsList={setGhReels} ghMedia={ghMedia} setGhMedia={setGhMedia}/>}
           {route==="testimonials" && <TestimonialsView data={data} toast={showToast} ghItems={ghTestim} onSave={saveEntry} onDelete={deleteEntry}/>}
           {route==="media"        && <MediaView ghMedia={ghMedia} setGhMedia={setGhMedia} toast={showToast}/>}
           {route==="settings"     && <SettingsView data={data} setData={setData} toast={showToast}/>}
