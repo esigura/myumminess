@@ -343,6 +343,11 @@ const BOOKING_DEFAULTS = {
   headlineEm:"Let's talk.",
   subtitle:"A 45-minute conversation about your habits, goals, and challenges — and a realistic, personalised plan to move forward. No scripts. Just real guidance.",
   avatarImage:"",
+  cardTitle:"1:1 Coaching with Myumminess",
+  cardSubtitle:"Google Meet · Live · Personalised",
+  metaDuration:"45 min",
+  metaFormat:"Google Meet",
+  metaInvestment:"$120",
   chip1:"45 min · Google Meet",
   chip2:"$120 per session",
   chip3:"INN Certified Coach",
@@ -379,7 +384,7 @@ function Hero({page}){
 }
 
 /* ── Booking card ── */
-function BookingCard({avatarImage}){
+function BookingCard({avatarImage, cardTitle, cardSubtitle, metaDuration, metaFormat, metaInvestment}){
   const dates = useMemo(()=>{
     const arr=[], start=new Date(2026,3,22); let i=0;
     while(arr.length<10){ const d=new Date(start); d.setDate(start.getDate()+i); if(d.getDay()!==0&&d.getDay()!==6) arr.push(d); i++; }
@@ -411,14 +416,14 @@ function BookingCard({avatarImage}){
           {avatarImage && <img src={avatarImage} alt="Coach" style={{width:"100%",height:"100%",objectFit:"cover",display:"block",borderRadius:"inherit",position:"absolute",inset:0}}/>}
         </div>
         <div className="t">
-          <b>1:1 Coaching with Myumminess</b>
-          <span>Google Meet · Live · Personalised</span>
+          <b>{cardTitle}</b>
+          <span>{cardSubtitle}</span>
         </div>
       </div>
       <div className="b-meta">
-        <div className="cell"><div className="m">Duration</div><div className="v">45 min</div></div>
-        <div className="cell"><div className="m">Format</div><div className="v">Google Meet</div></div>
-        <div className="cell"><div className="m">Investment</div><div className="v">$120</div></div>
+        <div className="cell"><div className="m">Duration</div><div className="v">{metaDuration}</div></div>
+        <div className="cell"><div className="m">Format</div><div className="v">{metaFormat}</div></div>
+        <div className="cell"><div className="m">Investment</div><div className="v">{metaInvestment}</div></div>
       </div>
 
       {step==="calendar" && (
@@ -665,7 +670,14 @@ function App(){
         <div className="wrap">
           <div className="main-inner">
             <InfoPanels/>
-            <BookingCard avatarImage={page.avatarImage}/>
+            <BookingCard
+              avatarImage={page.avatarImage}
+              cardTitle={page.cardTitle}
+              cardSubtitle={page.cardSubtitle}
+              metaDuration={page.metaDuration}
+              metaFormat={page.metaFormat}
+              metaInvestment={page.metaInvestment}
+            />
           </div>
         </div>
       </section>
