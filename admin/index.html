@@ -809,6 +809,12 @@ function PageFieldEditor({pageId, data, back, toast, ghPage, onSave, ghMedia, se
   const [local, setLocal] = useState(initial);
   const [saving, setSaving] = useState(false);
 
+  // Sync whenever GitHub data loads or changes (handles cases where data
+  // arrives after the component mounts, or new fields are added to the JSON)
+  useEffect(()=>{
+    if(ghPage&&ghPage.data) setLocal(ghPage.data);
+  },[ghPage]);
+
   const set = (key,val) => setLocal(prev=>({...prev,[key]:val}));
 
   const save = async () => {
