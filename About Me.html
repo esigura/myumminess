@@ -284,10 +284,11 @@
   .sn-inner a:hover{color:var(--ink)}
   .sn-inner a.sn-on{color:var(--ink);border-bottom-color:var(--accent)}
   .sn-book{margin-left:auto !important;border-bottom:0 !important;padding:0 20px !important;flex-shrink:0}
-  .sn-book .sn-pill{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#fff;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;font-weight:500;padding:8px 16px;border-radius:999px;white-space:nowrap;transition:background .2s ease,transform .2s ease;box-shadow:0 2px 12px -4px rgba(78,154,94,.45)}
-  .sn-book:hover .sn-pill{background:var(--accent-deep);transform:translateY(-1px)}
+  .sn-book .sn-pill{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#fff;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;font-weight:500;padding:8px 16px;border-radius:999px;white-space:nowrap;transition:background .2s ease,transform .2s ease,box-shadow .2s ease;box-shadow:0 2px 12px -4px rgba(78,154,94,.45)}
+  .sn-book:hover .sn-pill{background:var(--accent-deep);transform:translateY(-1px);box-shadow:0 2px 12px -4px rgba(78,154,94,.45),0 0 0 2px #fff,0 0 0 4px var(--accent-deep)}
   .sn-book .sn-pill .dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.7);flex-shrink:0}
   [data-theme="dark"] .sn-book .sn-pill{box-shadow:0 2px 12px -4px rgba(109,190,123,.3)}
+  [data-theme="dark"] .sn-book:hover .sn-pill{box-shadow:0 2px 12px -4px rgba(109,190,123,.3),0 0 0 2px var(--surface),0 0 0 4px var(--accent)}
 
   /* ── Dark mode ── */
   [data-theme="dark"]{
@@ -541,7 +542,7 @@ function Hero({page}){
                 : <><div className="ph-center">[ editorial portrait · kitchen window light · 960×1280 ]</div><div className="ph-label">about-hero.jpg</div></>
               }
             </div>
-            <div className="hero-stamp">INN Certified · 2021</div>
+            <div className="hero-stamp">INN Certified · 2025</div>
             <div className="hero-sig">
               <div className="c"><Icon name="sparkle" size={20}/></div>
               <div className="t">
@@ -720,7 +721,7 @@ function WhatIDo(){
               <p>{it.d}</p>
               <div className="foot">
                 <span className="tag">{it.tag}</span>
-                <a href="#book" className="link-more" style={{fontSize:12.5,fontWeight:500,letterSpacing:".06em",textTransform:"uppercase",display:"inline-flex",gap:8,alignItems:"center",color:it.feature?"var(--matcha)":"var(--ink)"}}>
+                <a href={it.feature ? "Booking.html" : "#"} className="link-more" style={{fontSize:12.5,fontWeight:500,letterSpacing:".06em",textTransform:"uppercase",display:"inline-flex",gap:8,alignItems:"center",color:it.feature?"var(--matcha)":"var(--ink)"}}>
                   {it.feature ? "Book now" : "Explore"} <Icon name="arrow" size={13}/>
                 </a>
               </div>
@@ -734,10 +735,10 @@ function WhatIDo(){
 
 function Proof(){
   const cells = [
-    {n:"1M+", l:"Community", s:"Followers across TikTok, Instagram, and YouTube."},
-    {n:"5M+", l:"Monthly Views", s:"People reached every month through short-form content."},
-    {n:"128", l:"Published Recipes", s:"Tested, refined, and cooked in my own kitchen."},
-    {n:"INN", l:"Certified Coach", s:"Institute for Integrative Nutrition, Class of 2021."},
+    {n:"~2M+",  l:"Community",       s:"Followers across TikTok, Instagram, and YouTube."},
+    {n:"2.1M+", l:"Monthly Views",   s:"People reached every month through short-form content."},
+    {n:"18",    l:"Published Recipes",s:"Tested, refined, and cooked in my own kitchen."},
+    {n:"INN",   l:"Certified Coach", s:"Institute for Integrative Nutrition, Class of 2025."},
   ];
   return (
     <section className="proof">
