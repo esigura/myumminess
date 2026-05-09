@@ -501,7 +501,7 @@ const ABOUT_DEFAULTS = {
   headline2:"feeling good",
   headline3:"shouldn't be so complicated.",
   subtitle:"I believe healthy living should be something you genuinely look forward to — not dread. Simple meals, honest habits, and real guidance from someone who's been through it too.",
-  heroImage:"", story1Image:"", story2Image:"", story3Image:"",
+  heroImage:"", story1Image:"", story2Image:"", story3Image:"", noteImage:"",
   chip1:"Certified Health Coach · INN",
   chip2:"Based in Ho Chi Minh City",
   chip3:"Since 2018",
@@ -647,7 +647,7 @@ function Philosophy(){
   );
 }
 
-function WhoIHelp(){
+function WhoIHelp({page}){
   const items = [
     "You want to eat healthier, but every how-to video overwhelms you.",
     "You've tried different approaches — and nothing has quite stuck.",
@@ -684,7 +684,10 @@ function WhoIHelp(){
                 "Most of my clients start messy. Unsure. A little defeated. That's honestly the best starting line. You don't need the perfect fridge or the perfect mindset — you just need to be a little curious and a little patient."
               </p>
               <div style={{display:"flex",gap:10,alignItems:"center",paddingTop:12,borderTop:"1px solid var(--line)"}}>
-                <div className="ph matcha" style={{width:36,height:36,borderRadius:999}}/>
+                {page.noteImage
+                  ? <img src={page.noteImage} alt="Myumminess" style={{width:36,height:36,borderRadius:"50%",objectFit:"cover",display:"block",flexShrink:0}}/>
+                  : <div className="ph matcha" style={{width:36,height:36,borderRadius:999,flexShrink:0}}/>
+                }
                 <div>
                   <div style={{fontFamily:"var(--serif)",fontWeight:500,fontSize:14}}>Myumminess</div>
                   <div style={{fontSize:11.5,color:"var(--muted)"}}>Certified Health Coach, INN</div>
@@ -933,7 +936,7 @@ function App(){
       <Story page={page}/>
       <Identity/>
       <Philosophy/>
-      <WhoIHelp/>
+      <WhoIHelp page={page}/>
       <WhatIDo/>
       <Proof/>
       <Transition/>
