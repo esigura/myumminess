@@ -386,7 +386,7 @@ function Hero({page}){
 /* ── Booking card ── */
 function BookingCard({avatarImage, cardTitle, cardSubtitle, metaDuration, metaFormat, metaInvestment}){
   const dates = useMemo(()=>{
-    const arr=[], start=new Date(2026,3,22); let i=0;
+    const arr=[], start=new Date(2026,4,10); let i=0;
     while(arr.length<10){ const d=new Date(start); d.setDate(start.getDate()+i); if(d.getDay()!==0&&d.getDay()!==6) arr.push(d); i++; }
     return arr;
   },[]);
