@@ -496,10 +496,10 @@ function Header(){
 
 const ABOUT_DEFAULTS = {
   eyebrow:"About Me · Myumminess",
-  headline1:"I didn't start this to become a",
-  headline2:'"health coach."',
-  headline3:"I started because I was tired.",
-  subtitle:"Tired of being confused about what \"healthy\" even meant. Tired of doing everything \"right\" and still feeling off. So I stopped chasing perfection — and started focusing on something simpler.",
+  headline1:"I started this because",
+  headline2:"feeling good",
+  headline3:"shouldn't be so complicated.",
+  subtitle:"I believe healthy living should be something you genuinely look forward to — not dread. Simple meals, honest habits, and real guidance from someone who's been through it too.",
   heroImage:"", story1Image:"", story2Image:"", story3Image:"",
   chip1:"Certified Health Coach · INN",
   chip2:"Based in Ho Chi Minh City",
@@ -524,9 +524,8 @@ function Hero({page}){
             <div className="kicker"><span className="line"/>{page.eyebrow}</div>
             <h1>
               {page.headline1}<br/>
-              to become a <span className="underline"><em>{page.headline2}</em></span><br/>
-              {page.headline3.split(' I ').map((s,i,a)=><React.Fragment key={i}>{i>0?' I ':''}{s}</React.Fragment>)}<br/>
-              I was <em>tired.</em>
+              <span className="underline"><em>{page.headline2}</em></span><br/>
+              {page.headline3}
             </h1>
             <p className="lede">{page.subtitle}</p>
             <div className="meta-chips">
